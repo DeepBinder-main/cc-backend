@@ -9,11 +9,11 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/ClusterCockpit/cc-backend/internal/auth"
 	"github.com/ClusterCockpit/cc-backend/internal/config"
+	"github.com/ClusterCockpit/cc-backend/internal/util"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/pkg/schema"
 )
@@ -47,8 +47,16 @@ func init() {
 			return nil
 		}
 
+		if path == "templates/login.tmpl" {
+			if util.CheckFileExists("./var/login.tmpl") {
+				log.Info("overwrite login.tmpl with local file")
+				templates[strings.TrimPrefix(path, "templates/")] =
+					template.Must(template.Must(base.Clone()).ParseFiles("./var/login.tmpl"))
+				return nil
+			}
+		}
 		if path == "templates/imprint.tmpl" {
-			if _, err := os.Stat("./var/imprint.tmpl"); err == nil {
+			if util.CheckFileExists("./var/imprint.tmpl") {
 				log.Info("overwrite imprint.tmpl with local file")
 				templates[strings.TrimPrefix(path, "templates/")] =
 					template.Must(template.Must(base.Clone()).ParseFiles("./var/imprint.tmpl"))
@@ -56,7 +64,7 @@ func init() {
 			}
 		}
 		if path == "templates/privacy.tmpl" {
-			if _, err := os.Stat("./var/privacy.tmpl"); err == nil {
+			if util.CheckFileExists("./var/privacy.tmpl") {
 				log.Info("overwrite privacy.tmpl with local file")
 				templates[strings.TrimPrefix(path, "templates/")] =
 					template.Must(template.Must(base.Clone()).ParseFiles("./var/privacy.tmpl"))
@@ -82,8 +90,8 @@ type Build struct {
 
 type Page struct {
 	Title         string                 // Page title
-	Error         string                 // For generic use (e.g. the exact error message on /login)
-	Info          string                 // For generic use (e.g. "Logout successfull" on /login)
+	MsgType       string                 // For generic use in message boxes
+	Message       string                 // For generic use in message boxes
 	User          auth.User              // Information about the currently logged in user (Full User Info)
 	Roles         map[string]auth.Role   // Available roles for frontend render checks
 	Build         Build                  // Latest information about the application
@@ -96,8 +104,7 @@ type Page struct {
 func RenderTemplate(rw http.ResponseWriter, r *http.Request, file string, page *Page) {
 	t, ok := templates[file]
 	if !ok {
-		log.Fatalf("WEB/WEB > template '%s' not found", file)
-		panic("template not found")
+		log.Errorf("WEB/WEB > template '%s' not found", file)
 	}
 
 	if page.Clusters == nil {
@@ -106,7 +113,7 @@ func RenderTemplate(rw http.ResponseWriter, r *http.Request, file string, page *
 		}
 	}
 
-	log.Infof("Page config : %v\n", page.Config)
+	log.Debugf("Page config : %v\n", page.Config)
 	if err := t.Execute(rw, page); err != nil {
 		log.Errorf("Template error: %s", err.Error())
 	}

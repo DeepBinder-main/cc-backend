@@ -2,7 +2,7 @@ TARGET = ./cc-backend
 VAR = ./var
 CFG = config.json .env
 FRONTEND = ./web/frontend
-VERSION = 1.0.0
+VERSION = 1.1.0
 GIT_HASH := $(shell git rev-parse --short HEAD || echo 'development')
 CURRENT_TIME = $(shell date +"%Y-%m-%d:T%H:%M:%S")
 LD_FLAGS = '-s -X main.date=${CURRENT_TIME} -X main.version=${VERSION} -X main.commit=${GIT_HASH}'
@@ -28,7 +28,7 @@ SVELTE_SRC = $(wildcard $(FRONTEND)/src/*.svelte)         \
 			 $(wildcard $(FRONTEND)/src/plots/*.svelte)   \
 			 $(wildcard $(FRONTEND)/src/joblist/*.svelte)
 
-.PHONY: clean test tags frontend $(TARGET)
+.PHONY: clean distclean test tags frontend $(TARGET)
 
 .NOTPARALLEL:
 

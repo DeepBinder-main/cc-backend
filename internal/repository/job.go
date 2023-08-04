@@ -55,7 +55,6 @@ func GetJobRepository() *JobRepository {
 		// start archiving worker
 		go jobRepoInstance.archivingWorker()
 	})
-
 	return jobRepoInstance
 }
 
@@ -178,7 +177,7 @@ func (r *JobRepository) FetchMetadata(job *schema.Job) (map[string]string, error
 	}
 
 	r.cache.Put(cachekey, job.MetaData, len(job.RawMetaData), 24*time.Hour)
-	log.Infof("Timer FetchMetadata %s", time.Since(start))
+	log.Debugf("Timer FetchMetadata %s", time.Since(start))
 	return job.MetaData, nil
 }
 
@@ -238,7 +237,7 @@ func (r *JobRepository) Find(
 		q = q.Where("job.start_time = ?", *startTime)
 	}
 
-	log.Infof("Timer Find %s", time.Since(start))
+	log.Debugf("Timer Find %s", time.Since(start))
 	return scanJob(q.RunWith(r.stmtCache).QueryRow())
 }
 
@@ -278,7 +277,7 @@ func (r *JobRepository) FindAll(
 		}
 		jobs = append(jobs, job)
 	}
-	log.Infof("Timer FindAll %s", time.Since(start))
+	log.Debugf("Timer FindAll %s", time.Since(start))
 	return jobs, nil
 }
 
@@ -290,6 +289,104 @@ func (r *JobRepository) FindById(jobId int64) (*schema.Job, error) {
 	q := sq.Select(jobColumns...).
 		From("job").Where("job.id = ?", jobId)
 	return scanJob(q.RunWith(r.stmtCache).QueryRow())
+}
+
+func (r *JobRepository) FindConcurrentJobs(
+	ctx context.Context,
+	job *schema.Job) (*model.JobLinkResultList, error) {
+	if job == nil {
+		return nil, nil
+	}
+
+	query, qerr := SecurityCheck(ctx, sq.Select("job.id", "job.job_id", "job.start_time").From("job"))
+	if qerr != nil {
+		return nil, qerr
+	}
+
+	query = query.Where("cluster = ?", job.Cluster)
+	var startTime int64
+	var stopTime int64
+
+	startTime = job.StartTimeUnix
+	hostname := job.Resources[0].Hostname
+
+	if job.State == schema.JobStateRunning {
+		stopTime = time.Now().Unix()
+	} else {
+		stopTime = startTime + int64(job.Duration)
+	}
+
+	// Add 200s overlap for jobs start time at the end
+	startTimeTail := startTime + 10
+	stopTimeTail := stopTime - 200
+	startTimeFront := startTime + 200
+
+	queryRunning := query.Where("job.job_state = ?").Where("(job.start_time BETWEEN ? AND ? OR job.start_time < ?)",
+		"running", startTimeTail, stopTimeTail, startTime)
+	queryRunning = queryRunning.Where("job.resources LIKE ?", fmt.Sprint("%", hostname, "%"))
+
+	query = query.Where("job.job_state != ?").Where("((job.start_time BETWEEN ? AND ?) OR (job.start_time + job.duration) BETWEEN ? AND ? OR (job.start_time < ?) AND (job.start_time + job.duration) > ?)",
+		"running", startTimeTail, stopTimeTail, startTimeFront, stopTimeTail, startTime, stopTime)
+	query = query.Where("job.resources LIKE ?", fmt.Sprint("%", hostname, "%"))
+
+	rows, err := query.RunWith(r.stmtCache).Query()
+	if err != nil {
+		log.Errorf("Error while running query: %v", err)
+		return nil, err
+	}
+
+	items := make([]*model.JobLink, 0, 10)
+	queryString := fmt.Sprintf("cluster=%s", job.Cluster)
+
+	for rows.Next() {
+		var id, jobId, startTime sql.NullInt64
+
+		if err = rows.Scan(&id, &jobId, &startTime); err != nil {
+			log.Warn("Error while scanning rows")
+			return nil, err
+		}
+
+		if id.Valid {
+			queryString += fmt.Sprintf("&jobId=%d", int(jobId.Int64))
+			items = append(items,
+				&model.JobLink{
+					ID:    fmt.Sprint(id.Int64),
+					JobID: int(jobId.Int64),
+				})
+		}
+	}
+
+	rows, err = queryRunning.RunWith(r.stmtCache).Query()
+	if err != nil {
+		log.Errorf("Error while running query: %v", err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		var id, jobId, startTime sql.NullInt64
+
+		if err := rows.Scan(&id, &jobId, &startTime); err != nil {
+			log.Warn("Error while scanning rows")
+			return nil, err
+		}
+
+		if id.Valid {
+			queryString += fmt.Sprintf("&jobId=%d", int(jobId.Int64))
+			items = append(items,
+				&model.JobLink{
+					ID:    fmt.Sprint(id.Int64),
+					JobID: int(jobId.Int64),
+				})
+		}
+	}
+
+	cnt := len(items)
+
+	return &model.JobLinkResultList{
+		ListQuery: &queryString,
+		Items:     items,
+		Count:     &cnt,
+	}, nil
 }
 
 // Start inserts a new job in the table, returning the unique job ID.
@@ -344,7 +441,7 @@ func (r *JobRepository) DeleteJobsBefore(startTime int64) (int, error) {
 	if err != nil {
 		log.Errorf(" DeleteJobsBefore(%d): error %#v", startTime, err)
 	} else {
-		log.Infof("DeleteJobsBefore(%d): Deleted %d jobs", startTime, cnt)
+		log.Debugf("DeleteJobsBefore(%d): Deleted %d jobs", startTime, cnt)
 	}
 	return cnt, err
 }
@@ -354,7 +451,7 @@ func (r *JobRepository) DeleteJobById(id int64) error {
 	if err != nil {
 		log.Errorf("DeleteJobById(%d): error %#v", id, err)
 	} else {
-		log.Infof("DeleteJobById(%d): Success", id)
+		log.Debugf("DeleteJobById(%d): Success", id)
 	}
 	return err
 }
@@ -383,7 +480,7 @@ func (r *JobRepository) CountGroupedJobs(
 			count = fmt.Sprintf(`sum(job.num_nodes * (CASE WHEN job.job_state = "running" THEN %d - job.start_time ELSE job.duration END)) as count`, now)
 			runner = r.DB
 		default:
-			log.Infof("CountGroupedJobs() Weight %v unknown.", *weight)
+			log.Debugf("CountGroupedJobs() Weight %v unknown.", *weight)
 		}
 	}
 
@@ -418,7 +515,7 @@ func (r *JobRepository) CountGroupedJobs(
 		counts[group] = count
 	}
 
-	log.Infof("Timer CountGroupedJobs %s", time.Since(start))
+	log.Debugf("Timer CountGroupedJobs %s", time.Since(start))
 	return counts, nil
 }
 
@@ -457,7 +554,7 @@ func (r *JobRepository) MarkArchived(
 		case "file_bw":
 			stmt = stmt.Set("file_bw_avg", stats.Avg)
 		default:
-			log.Infof("MarkArchived() Metric '%v' unknown", metric)
+			log.Debugf("MarkArchived() Metric '%v' unknown", metric)
 		}
 	}
 
@@ -476,6 +573,7 @@ func (r *JobRepository) archivingWorker() {
 			if !ok {
 				break
 			}
+			start := time.Now()
 			// not using meta data, called to load JobMeta into Cache?
 			// will fail if job meta not in repository
 			if _, err := r.FetchMetadata(job); err != nil {
@@ -498,7 +596,7 @@ func (r *JobRepository) archivingWorker() {
 				log.Errorf("archiving job (dbid: %d) failed: %s", job.ID, err.Error())
 				continue
 			}
-
+			log.Debugf("archiving job %d took %s", job.JobID, time.Since(start))
 			log.Printf("archiving job (dbid: %d) successful", job.ID)
 			r.archivePending.Done()
 		}
@@ -517,48 +615,34 @@ func (r *JobRepository) WaitForArchiving() {
 	r.archivePending.Wait()
 }
 
-var ErrNotFound = errors.New("no such jobname, project or user")
-var ErrForbidden = errors.New("not authorized")
-
-// FindJobnameOrUserOrProject returns a jobName or a username or a projectId if a jobName or user or project matches the search term.
-// If query is found to be an integer (= conversion to INT datatype succeeds), skip back to parent call
-// If nothing matches the search, `ErrNotFound` is returned.
-
-func (r *JobRepository) FindUserOrProjectOrJobname(ctx context.Context, searchterm string) (username string, project string, metasnip string, err error) {
+func (r *JobRepository) FindUserOrProjectOrJobname(user *auth.User, searchterm string) (jobid string, username string, project string, jobname string) {
 	if _, err := strconv.Atoi(searchterm); err == nil { // Return empty on successful conversion: parent method will redirect for integer jobId
-		return "", "", "", nil
+		return searchterm, "", "", ""
 	} else { // Has to have letters and logged-in user for other guesses
-		user := auth.GetUser(ctx)
 		if user != nil {
 			// Find username in jobs (match)
 			uresult, _ := r.FindColumnValue(user, searchterm, "job", "user", "user", false)
 			if uresult != "" {
-				return uresult, "", "", nil
+				return "", uresult, "", ""
 			}
 			// Find username by name (like)
 			nresult, _ := r.FindColumnValue(user, searchterm, "user", "username", "name", true)
 			if nresult != "" {
-				return nresult, "", "", nil
+				return "", nresult, "", ""
 			}
 			// Find projectId in jobs (match)
 			presult, _ := r.FindColumnValue(user, searchterm, "job", "project", "project", false)
 			if presult != "" {
-				return "", presult, "", nil
-			}
-			// Still no return (or not authorized for above): Try JobName
-			// Match Metadata, on hit, parent method redirects to jobName GQL query
-			err := sq.Select("job.cluster").Distinct().From("job").
-				Where("job.meta_data LIKE ?", "%"+searchterm+"%").
-				RunWith(r.stmtCache).QueryRow().Scan(&metasnip)
-			if err != nil && err != sql.ErrNoRows {
-				return "", "", "", err
-			} else if err == nil {
-				return "", "", metasnip[0:1], nil
+				return "", "", presult, ""
 			}
 		}
-		return "", "", "", ErrNotFound
+		// Return searchterm if no match before: Forward as jobname query to GQL in handleSearchbar function
+		return "", "", "", searchterm
 	}
 }
+
+var ErrNotFound = errors.New("no such jobname, project or user")
+var ErrForbidden = errors.New("not authorized")
 
 func (r *JobRepository) FindColumnValue(user *auth.User, searchterm string, table string, selectColumn string, whereColumn string, isLike bool) (result string, err error) {
 	compareStr := " = ?"
@@ -635,7 +719,7 @@ func (r *JobRepository) Partitions(cluster string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("Timer Partitions %s", time.Since(start))
+	log.Debugf("Timer Partitions %s", time.Since(start))
 	return partitions.([]string), nil
 }
 
@@ -680,7 +764,7 @@ func (r *JobRepository) AllocatedNodes(cluster string) (map[string]map[string]in
 		}
 	}
 
-	log.Infof("Timer AllocatedNodes %s", time.Since(start))
+	log.Debugf("Timer AllocatedNodes %s", time.Since(start))
 	return subclusters, nil
 }
 
@@ -709,7 +793,7 @@ func (r *JobRepository) StopJobsExceedingWalltimeBy(seconds int) error {
 	if rowsAffected > 0 {
 		log.Infof("%d jobs have been marked as failed due to running too long", rowsAffected)
 	}
-	log.Infof("Timer StopJobsExceedingWalltimeBy %s", time.Since(start))
+	log.Debugf("Timer StopJobsExceedingWalltimeBy %s", time.Since(start))
 	return nil
 }
 
@@ -722,9 +806,11 @@ func (r *JobRepository) FindJobsBetween(startTimeBegin int64, startTimeEnd int64
 	}
 
 	if startTimeBegin == 0 {
+		log.Infof("Find jobs before %d", startTimeEnd)
 		query = sq.Select(jobColumns...).From("job").Where(fmt.Sprintf(
 			"job.start_time < %d", startTimeEnd))
 	} else {
+		log.Infof("Find jobs between %d and %d", startTimeBegin, startTimeEnd)
 		query = sq.Select(jobColumns...).From("job").Where(fmt.Sprintf(
 			"job.start_time BETWEEN %d AND %d", startTimeBegin, startTimeEnd))
 	}
@@ -746,6 +832,7 @@ func (r *JobRepository) FindJobsBetween(startTimeBegin int64, startTimeEnd int64
 		jobs = append(jobs, job)
 	}
 
+	log.Infof("Return job count %d", len(jobs))
 	return jobs, nil
 }
 

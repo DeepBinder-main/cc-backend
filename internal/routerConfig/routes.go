@@ -8,14 +8,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/api"
 	"github.com/ClusterCockpit/cc-backend/internal/auth"
 	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
 	"github.com/ClusterCockpit/cc-backend/internal/repository"
+	"github.com/ClusterCockpit/cc-backend/internal/util"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/web"
 	"github.com/gorilla/mux"
@@ -61,6 +62,16 @@ func setupHomeRoute(i InfoType, r *http.Request) InfoType {
 	}
 
 	i["clusters"] = stats
+
+	if util.CheckFileExists("./var/notice.txt") {
+		msg, err := os.ReadFile("./var/notice.txt")
+		if err != nil {
+			log.Warnf("failed to read notice.txt file: %s", err.Error())
+		} else {
+			i["message"] = string(msg)
+		}
+	}
+
 	return i
 }
 
@@ -185,6 +196,9 @@ func buildFilterPresets(query url.Values) map[string]interface{} {
 			}
 		}
 	}
+	if query.Get("node") != "" {
+		filterPresets["node"] = query.Get("node")
+	}
 	if query.Get("numNodes") != "" {
 		parts := strings.Split(query.Get("numNodes"), "-")
 		if len(parts) == 2 {
@@ -206,7 +220,13 @@ func buildFilterPresets(query url.Values) map[string]interface{} {
 		}
 	}
 	if query.Get("jobId") != "" {
-		filterPresets["jobId"] = query.Get("jobId")
+		if len(query["jobId"]) == 1 {
+			filterPresets["jobId"] = query.Get("jobId")
+			filterPresets["jobIdMatch"] = "eq"
+		} else {
+			filterPresets["jobId"] = query["jobId"]
+			filterPresets["jobIdMatch"] = "in"
+		}
 	}
 	if query.Get("arrayJobId") != "" {
 		if num, err := strconv.Atoi(query.Get("arrayJobId")); err == nil {
@@ -230,7 +250,7 @@ func buildFilterPresets(query url.Values) map[string]interface{} {
 	return filterPresets
 }
 
-func SetupRoutes(router *mux.Router, version string, hash string, buildTime string) {
+func SetupRoutes(router *mux.Router, buildInfo web.Build) {
 	userCfgRepo := repository.GetUserCfgRepo()
 	for _, route := range routes {
 		route := route
@@ -256,7 +276,7 @@ func SetupRoutes(router *mux.Router, version string, hash string, buildTime stri
 				Title:  title,
 				User:   *user,
 				Roles:  availableRoles,
-				Build:  web.Build{Version: version, Hash: hash, Buildtime: buildTime},
+				Build:  buildInfo,
 				Config: conf,
 				Infos:  infos,
 			}
@@ -270,66 +290,65 @@ func SetupRoutes(router *mux.Router, version string, hash string, buildTime stri
 	}
 }
 
-func HandleSearchBar(rw http.ResponseWriter, r *http.Request, api *api.RestApi) {
+func HandleSearchBar(rw http.ResponseWriter, r *http.Request, buildInfo web.Build) {
+	user := auth.GetUser(r.Context())
+	availableRoles, _ := auth.GetValidRolesMap(user)
+
 	if search := r.URL.Query().Get("searchId"); search != "" {
-		user := auth.GetUser(r.Context())
+		repo := repository.GetJobRepository()
 		splitSearch := strings.Split(search, ":")
 
 		if len(splitSearch) == 2 {
 			switch strings.Trim(splitSearch[0], " ") {
 			case "jobId":
-				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusTemporaryRedirect) // All Users: Redirect to Tablequery
+				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
 			case "jobName":
-				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusTemporaryRedirect) // All Users: Redirect to Tablequery
+				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
 			case "projectId":
-				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusTemporaryRedirect) // All Users: Redirect to Tablequery
+				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
+			case "arrayJobId":
+				http.Redirect(rw, r, "/monitoring/jobs/?arrayJobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
 			case "username":
 				if user.HasAnyRole([]auth.Role{auth.RoleAdmin, auth.RoleSupport, auth.RoleManager}) {
-					http.Redirect(rw, r, "/monitoring/users/?user="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusTemporaryRedirect)
+					http.Redirect(rw, r, "/monitoring/users/?user="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound)
 				} else {
-					http.Redirect(rw, r, "/monitoring/jobs/?", http.StatusTemporaryRedirect) // Users: Redirect to Tablequery
+					web.RenderTemplate(rw, r, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Missing Access Rights", User: *user, Roles: availableRoles, Build: buildInfo})
 				}
 			case "name":
-				usernames, _ := api.JobRepository.FindColumnValues(user, strings.Trim(splitSearch[1], " "), "user", "username", "name")
+				usernames, _ := repo.FindColumnValues(user, strings.Trim(splitSearch[1], " "), "user", "username", "name")
 				if len(usernames) != 0 {
 					joinedNames := strings.Join(usernames, "&user=")
-					http.Redirect(rw, r, "/monitoring/users/?user="+joinedNames, http.StatusTemporaryRedirect)
+					http.Redirect(rw, r, "/monitoring/users/?user="+joinedNames, http.StatusFound)
 				} else {
 					if user.HasAnyRole([]auth.Role{auth.RoleAdmin, auth.RoleSupport, auth.RoleManager}) {
-						http.Redirect(rw, r, "/monitoring/users/?user=NoUserNameFound", http.StatusTemporaryRedirect)
+						http.Redirect(rw, r, "/monitoring/users/?user=NoUserNameFound", http.StatusPermanentRedirect)
 					} else {
-						http.Redirect(rw, r, "/monitoring/jobs/?", http.StatusTemporaryRedirect) // Users: Redirect to Tablequery
+						web.RenderTemplate(rw, r, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Missing Access Rights", User: *user, Roles: availableRoles, Build: buildInfo})
 					}
 				}
 			default:
-				log.Warnf("Searchbar type parameter '%s' unknown", strings.Trim(splitSearch[0], " "))
-				http.Redirect(rw, r, "/monitoring/jobs/?", http.StatusTemporaryRedirect) // Unknown: Redirect to Tablequery
+				web.RenderTemplate(rw, r, "message.tmpl", &web.Page{Title: "Warning", MsgType: "alert-warning", Message: fmt.Sprintf("Unknown search type: %s", strings.Trim(splitSearch[0], " ")), User: *user, Roles: availableRoles, Build: buildInfo})
 			}
-
 		} else if len(splitSearch) == 1 {
-			username, project, jobname, err := api.JobRepository.FindUserOrProjectOrJobname(r.Context(), strings.Trim(search, " "))
 
-			if err != nil {
-				log.Errorf("Error while searchbar best guess: %v", err.Error())
-				http.Redirect(rw, r, "/monitoring/jobs/?", http.StatusTemporaryRedirect) // Unknown: Redirect to Tablequery
-			}
+			jobid, username, project, jobname := repo.FindUserOrProjectOrJobname(user, strings.Trim(search, " "))
 
-			if username != "" {
-				http.Redirect(rw, r, "/monitoring/user/"+username, http.StatusTemporaryRedirect) // User: Redirect to user page
+			if jobid != "" {
+				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(jobid), http.StatusFound) // JobId (Match)
+			} else if username != "" {
+				http.Redirect(rw, r, "/monitoring/user/"+username, http.StatusFound) // User: Redirect to user page of first match
 			} else if project != "" {
-				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(strings.Trim(search, " ")), http.StatusTemporaryRedirect) // projectId (equal)
+				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(project), http.StatusFound) // projectId (equal)
 			} else if jobname != "" {
-				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(strings.Trim(search, " ")), http.StatusTemporaryRedirect) // JobName (contains)
+				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(jobname), http.StatusFound) // JobName (contains)
 			} else {
-				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(strings.Trim(search, " ")), http.StatusTemporaryRedirect) // No Result: Probably jobId
+				web.RenderTemplate(rw, r, "message.tmpl", &web.Page{Title: "Info", MsgType: "alert-info", Message: "Search without result", User: *user, Roles: availableRoles, Build: buildInfo})
 			}
 
 		} else {
-			log.Warnf("Searchbar query parameters malformed: %v", search)
-			http.Redirect(rw, r, "/monitoring/jobs/?", http.StatusTemporaryRedirect) // Unknown: Redirect to Tablequery
+			web.RenderTemplate(rw, r, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Searchbar query parameters malformed", User: *user, Roles: availableRoles, Build: buildInfo})
 		}
-
 	} else {
-		http.Redirect(rw, r, "/monitoring/jobs/?", http.StatusTemporaryRedirect)
+		web.RenderTemplate(rw, r, "message.tmpl", &web.Page{Title: "Warning", MsgType: "alert-warning", Message: "Empty search", User: *user, Roles: availableRoles, Build: buildInfo})
 	}
 }

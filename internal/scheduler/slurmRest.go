@@ -15,10 +15,25 @@ type SlurmRestScheduler struct {
 }
 
 func (sd *SlurmRestScheduler) Init(rawConfig json.RawMessage) error {
+	// cfg := slurmrest.NewConfiguration()
+	// cfg.HTTPClient = &http.Client{Timeout: time.Second * 3600}
+	// cfg.Scheme = "http"
+	// cfg.Host = "localhost"
 
+	// client := slurmrest.NewAPIClient(cfg)
 	return nil
 }
 
 func (sd *SlurmRestScheduler) Sync() {
+	// jreq := client.SlurmApi.SlurmctldGetJobs(context.Background())
+	// jobs, resp, err := client.SlurmApi.SlurmctldGetJobsExecute(jreq)
+	// if err != nil {
+	// 	log.Fatalf("FAIL: %s", err)
+	// } else if resp.StatusCode != 200 {
+	// 	log.Fatalf("Invalid status code: %d\n", resp.StatusCode)
+	// }
 
+	// for _, job := range jobs.GetJobs() {
+	//     fmt.Printf("Job %s - %s\n", job.GetJobId(), job.GetJobState())
+	// }
 }

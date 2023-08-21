@@ -7,6 +7,7 @@ package scheduler
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -38,17 +39,16 @@ type StopJobRequest struct {
 }
 
 func (sd *SlurmNatsScheduler) startJob(req *schema.JobMeta) {
-	// dump job meta
-	// this is not working
-	// req := schema.JobMeta{BaseJob: schema.JobDefaults}
+	fmt.Printf("DEBUG: %+v\n", *req)
 
-	log.Printf("Server Name: %s - BaseJob ID: %v", req.BaseJob.Cluster, req.ID)
+	log.Printf("Server Name: %s - Job ID: %v", req.BaseJob.Cluster, req.BaseJob.JobID)
 	log.Printf("User: %s - Project: %s", req.BaseJob.User, req.BaseJob.Project)
 
 	if req.State == "" {
 		req.State = schema.JobStateRunning
 	}
 	if err := importer.SanityChecks(&req.BaseJob); err != nil {
+		log.Errorf("Sanity checks failed: %s", err.Error())
 		return
 	}
 

@@ -22,8 +22,8 @@ type FloatRange struct {
 }
 
 type Footprints struct {
-	Nodehours []schema.Float      `json:"nodehours"`
-	Metrics   []*MetricFootprints `json:"metrics"`
+	TimeWeights *TimeWeights        `json:"timeWeights"`
+	Metrics     []*MetricFootprints `json:"metrics"`
 }
 
 type HistoPoint struct {
@@ -37,27 +37,27 @@ type IntRangeOutput struct {
 }
 
 type JobFilter struct {
-	Tags            []string          `json:"tags"`
-	JobID           *StringInput      `json:"jobId"`
-	ArrayJobID      *int              `json:"arrayJobId"`
-	User            *StringInput      `json:"user"`
-	Project         *StringInput      `json:"project"`
-	JobName         *StringInput      `json:"jobName"`
-	Cluster         *StringInput      `json:"cluster"`
-	Partition       *StringInput      `json:"partition"`
-	Duration        *schema.IntRange  `json:"duration"`
-	MinRunningFor   *int              `json:"minRunningFor"`
-	NumNodes        *schema.IntRange  `json:"numNodes"`
-	NumAccelerators *schema.IntRange  `json:"numAccelerators"`
-	NumHWThreads    *schema.IntRange  `json:"numHWThreads"`
-	StartTime       *schema.TimeRange `json:"startTime"`
-	State           []schema.JobState `json:"state"`
-	FlopsAnyAvg     *FloatRange       `json:"flopsAnyAvg"`
-	MemBwAvg        *FloatRange       `json:"memBwAvg"`
-	LoadAvg         *FloatRange       `json:"loadAvg"`
-	MemUsedMax      *FloatRange       `json:"memUsedMax"`
-	Exclusive       *int              `json:"exclusive"`
-	Node            *StringInput      `json:"node"`
+	Tags            []string          `json:"tags,omitempty"`
+	JobID           *StringInput      `json:"jobId,omitempty"`
+	ArrayJobID      *int              `json:"arrayJobId,omitempty"`
+	User            *StringInput      `json:"user,omitempty"`
+	Project         *StringInput      `json:"project,omitempty"`
+	JobName         *StringInput      `json:"jobName,omitempty"`
+	Cluster         *StringInput      `json:"cluster,omitempty"`
+	Partition       *StringInput      `json:"partition,omitempty"`
+	Duration        *schema.IntRange  `json:"duration,omitempty"`
+	MinRunningFor   *int              `json:"minRunningFor,omitempty"`
+	NumNodes        *schema.IntRange  `json:"numNodes,omitempty"`
+	NumAccelerators *schema.IntRange  `json:"numAccelerators,omitempty"`
+	NumHWThreads    *schema.IntRange  `json:"numHWThreads,omitempty"`
+	StartTime       *schema.TimeRange `json:"startTime,omitempty"`
+	State           []schema.JobState `json:"state,omitempty"`
+	FlopsAnyAvg     *FloatRange       `json:"flopsAnyAvg,omitempty"`
+	MemBwAvg        *FloatRange       `json:"memBwAvg,omitempty"`
+	LoadAvg         *FloatRange       `json:"loadAvg,omitempty"`
+	MemUsedMax      *FloatRange       `json:"memUsedMax,omitempty"`
+	Exclusive       *int              `json:"exclusive,omitempty"`
+	Node            *StringInput      `json:"node,omitempty"`
 }
 
 type JobLink struct {
@@ -66,9 +66,9 @@ type JobLink struct {
 }
 
 type JobLinkResultList struct {
-	ListQuery *string    `json:"listQuery"`
+	ListQuery *string    `json:"listQuery,omitempty"`
 	Items     []*JobLink `json:"items"`
-	Count     *int       `json:"count"`
+	Count     *int       `json:"count,omitempty"`
 }
 
 type JobMetricWithName struct {
@@ -79,9 +79,9 @@ type JobMetricWithName struct {
 
 type JobResultList struct {
 	Items  []*schema.Job `json:"items"`
-	Offset *int          `json:"offset"`
-	Limit  *int          `json:"limit"`
-	Count  *int          `json:"count"`
+	Offset *int          `json:"offset,omitempty"`
+	Limit  *int          `json:"limit,omitempty"`
+	Count  *int          `json:"count,omitempty"`
 }
 
 type JobsStatistics struct {
@@ -91,11 +91,16 @@ type JobsStatistics struct {
 	RunningJobs    int           `json:"runningJobs"`
 	ShortJobs      int           `json:"shortJobs"`
 	TotalWalltime  int           `json:"totalWalltime"`
+	TotalNodes     int           `json:"totalNodes"`
 	TotalNodeHours int           `json:"totalNodeHours"`
+	TotalCores     int           `json:"totalCores"`
 	TotalCoreHours int           `json:"totalCoreHours"`
+	TotalAccs      int           `json:"totalAccs"`
 	TotalAccHours  int           `json:"totalAccHours"`
 	HistDuration   []*HistoPoint `json:"histDuration"`
 	HistNumNodes   []*HistoPoint `json:"histNumNodes"`
+	HistNumCores   []*HistoPoint `json:"histNumCores"`
+	HistNumAccs    []*HistoPoint `json:"histNumAccs"`
 }
 
 type MetricFootprints struct {
@@ -120,17 +125,23 @@ type PageRequest struct {
 }
 
 type StringInput struct {
-	Eq         *string  `json:"eq"`
-	Neq        *string  `json:"neq"`
-	Contains   *string  `json:"contains"`
-	StartsWith *string  `json:"startsWith"`
-	EndsWith   *string  `json:"endsWith"`
-	In         []string `json:"in"`
+	Eq         *string  `json:"eq,omitempty"`
+	Neq        *string  `json:"neq,omitempty"`
+	Contains   *string  `json:"contains,omitempty"`
+	StartsWith *string  `json:"startsWith,omitempty"`
+	EndsWith   *string  `json:"endsWith,omitempty"`
+	In         []string `json:"in,omitempty"`
 }
 
 type TimeRangeOutput struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
+}
+
+type TimeWeights struct {
+	NodeHours []schema.Float `json:"nodeHours"`
+	AccHours  []schema.Float `json:"accHours"`
+	CoreHours []schema.Float `json:"coreHours"`
 }
 
 type User struct {
@@ -182,6 +193,59 @@ func (e Aggregate) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type SortByAggregate string
+
+const (
+	SortByAggregateTotalwalltime  SortByAggregate = "TOTALWALLTIME"
+	SortByAggregateTotaljobs      SortByAggregate = "TOTALJOBS"
+	SortByAggregateTotalnodes     SortByAggregate = "TOTALNODES"
+	SortByAggregateTotalnodehours SortByAggregate = "TOTALNODEHOURS"
+	SortByAggregateTotalcores     SortByAggregate = "TOTALCORES"
+	SortByAggregateTotalcorehours SortByAggregate = "TOTALCOREHOURS"
+	SortByAggregateTotalaccs      SortByAggregate = "TOTALACCS"
+	SortByAggregateTotalacchours  SortByAggregate = "TOTALACCHOURS"
+)
+
+var AllSortByAggregate = []SortByAggregate{
+	SortByAggregateTotalwalltime,
+	SortByAggregateTotaljobs,
+	SortByAggregateTotalnodes,
+	SortByAggregateTotalnodehours,
+	SortByAggregateTotalcores,
+	SortByAggregateTotalcorehours,
+	SortByAggregateTotalaccs,
+	SortByAggregateTotalacchours,
+}
+
+func (e SortByAggregate) IsValid() bool {
+	switch e {
+	case SortByAggregateTotalwalltime, SortByAggregateTotaljobs, SortByAggregateTotalnodes, SortByAggregateTotalnodehours, SortByAggregateTotalcores, SortByAggregateTotalcorehours, SortByAggregateTotalaccs, SortByAggregateTotalacchours:
+		return true
+	}
+	return false
+}
+
+func (e SortByAggregate) String() string {
+	return string(e)
+}
+
+func (e *SortByAggregate) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SortByAggregate(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SortByAggregate", str)
+	}
+	return nil
+}
+
+func (e SortByAggregate) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type SortDirectionEnum string
 
 const (
@@ -220,46 +284,5 @@ func (e *SortDirectionEnum) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SortDirectionEnum) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type Weights string
-
-const (
-	WeightsNodeCount Weights = "NODE_COUNT"
-	WeightsNodeHours Weights = "NODE_HOURS"
-)
-
-var AllWeights = []Weights{
-	WeightsNodeCount,
-	WeightsNodeHours,
-}
-
-func (e Weights) IsValid() bool {
-	switch e {
-	case WeightsNodeCount, WeightsNodeHours:
-		return true
-	}
-	return false
-}
-
-func (e Weights) String() string {
-	return string(e)
-}
-
-func (e *Weights) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Weights(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Weights", str)
-	}
-	return nil
-}
-
-func (e Weights) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

@@ -6,6 +6,7 @@ import {
 } from "@urql/svelte";
 import { setContext, getContext, hasContext, onDestroy, tick } from "svelte";
 import { readable } from "svelte/store";
+import { formatNumber } from './units.js'
 
 /*
  * Call this function only at component initialization time!
@@ -312,4 +313,53 @@ export function checkMetricDisabled(m, c, s) { //[m]etric, [c]luster, [s]ubclust
         }
     }
     return false;
+}
+
+export function convert2uplot(canvasData) {
+    // initial use: Canvas Histogram Data to Uplot
+    let uplotData = [[],[]] // [X, Y1, Y2, ...]
+    canvasData.forEach( pair => {
+        uplotData[0].push(pair.value)
+        uplotData[1].push(pair.count)
+    })
+    return uplotData
+}
+
+export function binsFromFootprint(weights, scope, values, numBins) {
+    let min = 0, max = 0
+    if (values.length != 0) {
+        for (let x of values) {
+            min = Math.min(min, x)
+            max = Math.max(max, x)
+        }
+        max += 1 // So that we have an exclusive range.
+    }
+
+    if (numBins == null || numBins < 3)
+        numBins = 3
+
+    let scopeWeights
+    switch (scope) {
+        case 'core':
+            scopeWeights = weights.coreHours
+            break
+        case 'accelerator':
+            scopeWeights = weights.accHours
+            break
+        default: // every other scope: use 'node'
+            scopeWeights = weights.nodeHours
+    }
+
+    const rawBins = new Array(numBins).fill(0)
+    for (let i = 0; i < values.length; i++)
+        rawBins[Math.floor(((values[i] - min) / (max - min)) * numBins)] += scopeWeights ? scopeWeights[i] : 1
+
+    const bins = rawBins.map((count, idx) => ({ 
+        value: Math.floor(min + ((idx + 1) / numBins) * (max - min)),
+        count: count 
+    }))
+
+    return {
+        bins: bins
+    }
 }

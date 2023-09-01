@@ -20,18 +20,20 @@
     } from "sveltestrap";
     import PlotTable from "./PlotTable.svelte";
     import Metric from "./Metric.svelte";
-    import PolarPlot from "./plots/Polar.svelte";
+    import Polar from "./plots/Polar.svelte";
     import Roofline from "./plots/Roofline.svelte";
     import JobInfo from "./joblist/JobInfo.svelte";
     import TagManagement from "./TagManagement.svelte";
     import MetricSelection from "./MetricSelection.svelte";
-    import Zoom from "./Zoom.svelte";
     import StatsTable from "./StatsTable.svelte";
     import { getContext } from "svelte";
 
     export let dbid;
     export let authlevel;
     export let roles;
+
+    const accMetrics = ['acc_utilization', 'acc_mem_used', 'acc_power', 'nv_mem_util', 'nv_sm_clock', 'nv_temp'];
+    let accNodeOnly
 
     const { query: initq } = init(`
         job(id: "${dbid}") {
@@ -76,8 +78,7 @@
         ]);
 
         // Select default Scopes to load: Check before if accelerator metrics are not on accelerator scope by default
-        const accMetrics = ['acc_utilization', 'acc_mem_used', 'acc_power', 'nv_mem_util', 'nv_sm_clock', 'nv_temp'] 
-        const accNodeOnly = [...toFetch].some(function(m) {
+        accNodeOnly = [...toFetch].some(function(m) {
             if (accMetrics.includes(m)) {
                 const mc = metrics(job.cluster, m)
                 return mc.scope !== 'accelerator'
@@ -132,7 +133,6 @@
         jobTags,
         fullWidth,
         statsTable;
-    $: polarPlotSize = Math.min(fullWidth / 3 - 10, 300);
     $: document.title = $initq.fetching
         ? "Loading..."
         : $initq.error
@@ -244,9 +244,8 @@
             {/if}
         {/if}
         <Col>
-            <PolarPlot
-                width={polarPlotSize}
-                height={polarPlotSize}
+            <Polar
+                size={fullWidth / 4.1}
                 metrics={ccconfig[
                     `job_view_polarPlotMetrics:${$initq.data.job.cluster}`
                 ] || ccconfig[`job_view_polarPlotMetrics`]}
@@ -257,7 +256,7 @@
         <Col>
             <Roofline
                 width={fullWidth / 3 - 10}
-                height={polarPlotSize}
+                height={fullWidth / 5}
                 cluster={clusters
                     .find((c) => c.name == $initq.data.job.cluster)
                     .subClusters.find(
@@ -290,9 +289,9 @@
             </Button>
         {/if}
     </Col>
-    <Col xs="auto">
+<!--     <Col xs="auto">
         <Zoom timeseriesPlots={plots} />
-    </Col>
+    </Col> -->
 </Row>
 <br />
 <Row>
@@ -329,6 +328,7 @@
                         scopes={item.data.map((x) => x.scope)}
                         {width}
                         isShared={$initq.data.job.exclusive != 1}
+                        resources={$initq.data.job.resources}
                     />
                 {:else}
                     <Card body color="warning"
@@ -396,6 +396,8 @@
                                 bind:this={statsTable}
                                 job={$initq.data.job}
                                 jobMetrics={$jobMetrics.data.jobMetrics}
+                                accMetrics={accMetrics}
+                                accNodeOnly={accNodeOnly}
                             />
                         {/key}
                     {/if}

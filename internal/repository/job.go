@@ -14,7 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/auth"
 	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
 	"github.com/ClusterCockpit/cc-backend/internal/metricdata"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
@@ -456,69 +455,6 @@ func (r *JobRepository) DeleteJobById(id int64) error {
 	return err
 }
 
-// TODO: Use node hours instead: SELECT job.user, sum(job.num_nodes * (CASE WHEN job.job_state = "running" THEN CAST(strftime('%s', 'now') AS INTEGER) - job.start_time ELSE job.duration END)) as x FROM job GROUP BY user ORDER BY x DESC;
-func (r *JobRepository) CountGroupedJobs(
-	ctx context.Context,
-	aggreg model.Aggregate,
-	filters []*model.JobFilter,
-	weight *model.Weights,
-	limit *int) (map[string]int, error) {
-
-	start := time.Now()
-	if !aggreg.IsValid() {
-		return nil, errors.New("invalid aggregate")
-	}
-
-	runner := (sq.BaseRunner)(r.stmtCache)
-	count := "count(*) as count"
-	if weight != nil {
-		switch *weight {
-		case model.WeightsNodeCount:
-			count = "sum(job.num_nodes) as count"
-		case model.WeightsNodeHours:
-			now := time.Now().Unix()
-			count = fmt.Sprintf(`sum(job.num_nodes * (CASE WHEN job.job_state = "running" THEN %d - job.start_time ELSE job.duration END)) as count`, now)
-			runner = r.DB
-		default:
-			log.Debugf("CountGroupedJobs() Weight %v unknown.", *weight)
-		}
-	}
-
-	q, qerr := SecurityCheck(ctx, sq.Select("job."+string(aggreg), count).From("job").GroupBy("job."+string(aggreg)).OrderBy("count DESC"))
-
-	if qerr != nil {
-		return nil, qerr
-	}
-
-	for _, f := range filters {
-		q = BuildWhereClause(f, q)
-	}
-	if limit != nil {
-		q = q.Limit(uint64(*limit))
-	}
-
-	counts := map[string]int{}
-	rows, err := q.RunWith(runner).Query()
-	if err != nil {
-		log.Error("Error while running query")
-		return nil, err
-	}
-
-	for rows.Next() {
-		var group string
-		var count int
-		if err := rows.Scan(&group, &count); err != nil {
-			log.Warn("Error while scanning rows")
-			return nil, err
-		}
-
-		counts[group] = count
-	}
-
-	log.Debugf("Timer CountGroupedJobs %s", time.Since(start))
-	return counts, nil
-}
-
 func (r *JobRepository) UpdateMonitoringStatus(job int64, monitoringStatus int32) (err error) {
 	stmt := sq.Update("job").
 		Set("monitoring_status", monitoringStatus).
@@ -615,7 +551,7 @@ func (r *JobRepository) WaitForArchiving() {
 	r.archivePending.Wait()
 }
 
-func (r *JobRepository) FindUserOrProjectOrJobname(user *auth.User, searchterm string) (jobid string, username string, project string, jobname string) {
+func (r *JobRepository) FindUserOrProjectOrJobname(user *schema.User, searchterm string) (jobid string, username string, project string, jobname string) {
 	if _, err := strconv.Atoi(searchterm); err == nil { // Return empty on successful conversion: parent method will redirect for integer jobId
 		return searchterm, "", "", ""
 	} else { // Has to have letters and logged-in user for other guesses
@@ -644,14 +580,14 @@ func (r *JobRepository) FindUserOrProjectOrJobname(user *auth.User, searchterm s
 var ErrNotFound = errors.New("no such jobname, project or user")
 var ErrForbidden = errors.New("not authorized")
 
-func (r *JobRepository) FindColumnValue(user *auth.User, searchterm string, table string, selectColumn string, whereColumn string, isLike bool) (result string, err error) {
+func (r *JobRepository) FindColumnValue(user *schema.User, searchterm string, table string, selectColumn string, whereColumn string, isLike bool) (result string, err error) {
 	compareStr := " = ?"
 	query := searchterm
 	if isLike {
 		compareStr = " LIKE ?"
 		query = "%" + searchterm + "%"
 	}
-	if user.HasAnyRole([]auth.Role{auth.RoleAdmin, auth.RoleSupport, auth.RoleManager}) {
+	if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleManager}) {
 		theQuery := sq.Select(table+"."+selectColumn).Distinct().From(table).
 			Where(table+"."+whereColumn+compareStr, query)
 
@@ -676,9 +612,9 @@ func (r *JobRepository) FindColumnValue(user *auth.User, searchterm string, tabl
 	}
 }
 
-func (r *JobRepository) FindColumnValues(user *auth.User, query string, table string, selectColumn string, whereColumn string) (results []string, err error) {
+func (r *JobRepository) FindColumnValues(user *schema.User, query string, table string, selectColumn string, whereColumn string) (results []string, err error) {
 	emptyResult := make([]string, 0)
-	if user.HasAnyRole([]auth.Role{auth.RoleAdmin, auth.RoleSupport, auth.RoleManager}) {
+	if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleManager}) {
 		rows, err := sq.Select(table+"."+selectColumn).Distinct().From(table).
 			Where(table+"."+whereColumn+" LIKE ?", fmt.Sprint("%", query, "%")).
 			RunWith(r.stmtCache).Query()

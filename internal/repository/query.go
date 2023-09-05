@@ -12,19 +12,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/auth"
 	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/pkg/schema"
 	sq "github.com/Masterminds/squirrel"
 )
 
-// SecurityCheck-less, private: Returns a list of jobs matching the provided filters. page and order are optional-
-func (r *JobRepository) queryJobs(
-	query sq.SelectBuilder,
+func (r *JobRepository) QueryJobs(
+	ctx context.Context,
 	filters []*model.JobFilter,
 	page *model.PageRequest,
 	order *model.OrderByInput) ([]*schema.Job, error) {
+
+	query, qerr := SecurityCheck(ctx, sq.Select(jobColumns...).From("job"))
+	if qerr != nil {
+		return nil, qerr
+	}
 
 	if order != nil {
 		field := toSnakeCase(order.Field)
@@ -68,33 +71,14 @@ func (r *JobRepository) queryJobs(
 	return jobs, nil
 }
 
-// testFunction for queryJobs
-func (r *JobRepository) testQueryJobs(
-	filters []*model.JobFilter,
-	page *model.PageRequest,
-	order *model.OrderByInput) ([]*schema.Job, error) {
-
-	return r.queryJobs(sq.Select(jobColumns...).From("job"), filters, page, order)
-}
-
-// Public function with added securityCheck, calls private queryJobs function above
-func (r *JobRepository) QueryJobs(
+func (r *JobRepository) CountJobs(
 	ctx context.Context,
-	filters []*model.JobFilter,
-	page *model.PageRequest,
-	order *model.OrderByInput) ([]*schema.Job, error) {
-
-	query, qerr := SecurityCheck(ctx, sq.Select(jobColumns...).From("job"))
-	if qerr != nil {
-		return nil, qerr
-	}
-
-	return r.queryJobs(query, filters, page, order)
-}
-
-// SecurityCheck-less, private: Returns the number of jobs matching the filters
-func (r *JobRepository) countJobs(query sq.SelectBuilder,
 	filters []*model.JobFilter) (int, error) {
+
+	query, qerr := SecurityCheck(ctx, sq.Select("count(*)").From("job"))
+	if qerr != nil {
+		return 0, qerr
+	}
 
 	for _, f := range filters {
 		query = BuildWhereClause(f, query)
@@ -108,42 +92,21 @@ func (r *JobRepository) countJobs(query sq.SelectBuilder,
 	return count, nil
 }
 
-// testFunction for countJobs
-func (r *JobRepository) testCountJobs(
-	filters []*model.JobFilter) (int, error) {
-
-	return r.countJobs(sq.Select("count(*)").From("job"), filters)
-}
-
-// Public function with added securityCheck, calls private countJobs function above
-func (r *JobRepository) CountJobs(
-	ctx context.Context,
-	filters []*model.JobFilter) (int, error) {
-
-	query, qerr := SecurityCheck(ctx, sq.Select("count(*)").From("job"))
-
-	if qerr != nil {
-		return 0, qerr
-	}
-
-	return r.countJobs(query, filters)
-}
-
 func SecurityCheck(ctx context.Context, query sq.SelectBuilder) (sq.SelectBuilder, error) {
-	user := auth.GetUser(ctx)
+	user := GetUserFromContext(ctx)
 	if user == nil {
 		var qnil sq.SelectBuilder
 		return qnil, fmt.Errorf("user context is nil!")
-	} else if user.HasAnyRole([]auth.Role{auth.RoleAdmin, auth.RoleSupport, auth.RoleApi}) { // Admin & Co. : All jobs
+	} else if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleApi}) { // Admin & Co. : All jobs
 		return query, nil
-	} else if user.HasRole(auth.RoleManager) { // Manager : Add filter for managed projects' jobs only + personal jobs
+	} else if user.HasRole(schema.RoleManager) { // Manager : Add filter for managed projects' jobs only + personal jobs
 		if len(user.Projects) != 0 {
 			return query.Where(sq.Or{sq.Eq{"job.project": user.Projects}, sq.Eq{"job.user": user.Username}}), nil
 		} else {
 			log.Debugf("Manager-User '%s' has no defined projects to lookup! Query only personal jobs ...", user.Username)
 			return query.Where("job.user = ?", user.Username), nil
 		}
-	} else if user.HasRole(auth.RoleUser) { // User : Only personal jobs
+	} else if user.HasRole(schema.RoleUser) { // User : Only personal jobs
 		return query.Where("job.user = ?", user.Username), nil
 	} else {
 		// Shortterm compatibility: Return User-Query if no roles:

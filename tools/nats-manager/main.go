@@ -7,7 +7,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/ClusterCockpit/cc-backend/internal/scheduler"
@@ -72,11 +74,54 @@ func setupPublisher() {
 	os.Exit(0)
 }
 
+func injectPayload() {
+	// Read the JSON file
+	jobsData, err := ioutil.ReadFile("slurm_0038.json")
+	dbData, err := ioutil.ReadFile("slurmdb_0038-large.json")
+
+	if err != nil {
+		fmt.Println("Error reading JSON file:", err)
+		return
+	}
+
+	// Create an HTTP handler function
+	http.HandleFunc("/slurm/v0.0.38/jobs", func(w http.ResponseWriter, r *http.Request) {
+		// Set the response content type to JSON
+		w.Header().Set("Content-Type", "application/json")
+
+		// Write the raw JSON data to the response writer
+		_, err := w.Write(jobsData)
+		if err != nil {
+			http.Error(w, "Error writing jobsData payload", http.StatusInternalServerError)
+			return
+		}
+	})
+
+	http.HandleFunc("/slurmdb/v0.0.38/jobs", func(w http.ResponseWriter, r *http.Request) {
+		// Set the response content type to JSON
+		w.Header().Set("Content-Type", "application/json")
+
+		// Write the raw JSON data to the response writer
+		_, err := w.Write(dbData)
+		if err != nil {
+			http.Error(w, "Error writing dbData payload", http.StatusInternalServerError)
+			return
+		}
+	})
+
+	// Start the HTTP server on port 8080
+	fmt.Println("Listening on :8080...")
+	http.ListenAndServe(":8080", nil)
+}
+
 func main() {
 	cfgData := []byte(`{"target": "localhost"}`)
 
 	var sch scheduler.SlurmNatsScheduler
 	// sch.URL = "nats://127.0.0.1:1223"
 	sch.Init(cfgData)
+
+	// go injectPayload()
+
 	os.Exit(0)
 }

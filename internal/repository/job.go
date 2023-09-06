@@ -290,6 +290,30 @@ func (r *JobRepository) FindById(jobId int64) (*schema.Job, error) {
 	return scanJob(q.RunWith(r.stmtCache).QueryRow())
 }
 
+func (r *JobRepository) FindRunningJobs(cluster string) (map[int64]*schema.Job, error) {
+	jobs := map[int64]*schema.Job{}
+	q := sq.Select(jobColumns...).From("job").Where("job.cluster = ?", cluster)
+	q = q.Where("job.job_state = ?", "running")
+
+	rows, err := q.RunWith(r.stmtCache).Query()
+	if err != nil {
+		log.Errorf("Error while querying running jobs: %v", err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		job, err := scanJob(rows)
+		if err != nil {
+			rows.Close()
+			log.Warn("Error while scanning rows (Jobs)")
+			return nil, err
+		}
+		jobs[job.JobID] = job
+	}
+
+	return jobs, nil
+}
+
 func (r *JobRepository) FindConcurrentJobs(
 	ctx context.Context,
 	job *schema.Job) (*model.JobLinkResultList, error) {

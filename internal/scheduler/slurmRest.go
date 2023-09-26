@@ -14,11 +14,13 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"sync"
 	"time"
 
+	"github.com/ClusterCockpit/cc-backend/internal/repository"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+
+	openapi "github.com/ClusterCockpit/slurm-rest-client-0_0_38"
 )
 
 // A Response struct to map the Entire Response
@@ -33,6 +35,8 @@ type SlurmRestSchedulerConfig struct {
 
 type SlurmRestScheduler struct {
 	url string
+
+	JobRepository *repository.JobRepository
 }
 
 var client *http.Client
@@ -247,72 +251,85 @@ func (sd *SlurmRestScheduler) Init(rawConfig json.RawMessage) error {
 	return err
 }
 
-func (sd *SlurmRestScheduler) Sync() {
-	// for _, job := range jobs.GetJobs() {
-	//     fmt.Printf("Job %s - %s\n", job.GetJobId(), job.GetJobState())
-	// }
-
-	jobsResponse, err := queryAllJobs()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	// Fetch an example instance of V0037JobsResponse
-	// jobsResponse := V0037JobsResponse{}
+func (sd *SlurmRestScheduler) HandleJobsResponse(jobsResponse openapi.V0038JobsResponse) {
 
 	// Iterate over the Jobs slice
 	for _, job := range jobsResponse.Jobs {
 		// Process each job
-		fmt.Printf("Job ID: %s\n", job.JobID)
+		fmt.Printf("Job ID: %s\n", job.JobId)
 		fmt.Printf("Job Name: %s\n", *job.Name)
 		fmt.Printf("Job State: %s\n", *job.JobState)
 		fmt.Println("Job StartTime:", *job.StartTime)
 
-		// is aquire lock to avoid race condition between API calls needed?
-
 		// aquire lock to avoid race condition between API calls
-		var unlockOnce sync.Once
-		sd.RepositoryMutex.Lock()
-		defer unlockOnce.Do(sd.RepositoryMutex.Unlock)
+		// var unlockOnce sync.Once
+		// sd.RepositoryMutex.Lock()
+		// defer unlockOnce.Do(sd.RepositoryMutex.Unlock)
 
 		// is "running" one of JSON state?
 		if *job.JobState == "running" {
 
 			// Check if combination of (job_id, cluster_id, start_time) already exists:
-			jobs, err := sd.JobRepository.FindAll(job.JobID, &job.Cluster, job.StartTime)
+			// jobs, err := sd.JobRepository.FindRunningJobs(job.Cluster, job.StartTime)
+
+			jobs, err := sd.FindRunningJobs(job.Cluster)
+			if err != nil {
+				log.Fatalf("Failed to find running jobs: %v", err)
+			}
+
+			for id, job := range jobs {
+				fmt.Printf("Job ID: %d, Job: %+v\n", id, job)
+			}
 
 			if err != nil || err != sql.ErrNoRows {
 				log.Errorf("checking for duplicate failed: %s", err.Error())
 				return
 			} else if err == nil {
 				if len(jobs) == 0 {
+					var exclusive int32
+					if job.Shared == nil {
+						exclusive = 1
+					} else {
+						exclusive = 0
+					}
+
+					jobResourcesInBytes, err := json.Marshal(*job.JobResources)
+					if err != nil {
+						log.Fatalf("JSON marshaling failed: %s", err)
+					}
+
 					var defaultJob schema.BaseJob = schema.BaseJob{
-						JobID:            job.JobID,
-						User:             job.User,
-						Project:          job.Project,
-						Cluster:          job.Cluster,
-						SubCluster:       job.SubCluster,
-						Partition:        job.Partition,
-						ArrayJobId:       job.ArrayJobId,
-						NumNodes:         job.NumNodes,
-						NumHWThreads:     job.NumHWThreads,
-						NumAcc:           job.NumAcc,
-						Exclusive:        job.Exclusive,
-						MonitoringStatus: job.MonitoringStatus,
-						SMT:              job.SMT,
-						State:            job.State,
-						Duration:         job.Duration,
-						Walltime:         job.Walltime,
-						Tags:             job.Tags,
-						RawResources:     job.RawResources,
-						Resources:        job.Resources,
-						RawMetaData:      job.RawMetaData,
-						MetaData:         job.MetaData,
-						ConcurrentJobs:   job.ConcurrentJobs,
+						JobID:     int64(*job.JobId),
+						User:      *job.UserName,
+						Project:   *job.Account,
+						Cluster:   *job.Cluster,
+						Partition: *job.Partition,
+						// check nil
+						ArrayJobId:   int64(*job.ArrayJobId),
+						NumNodes:     *job.NodeCount,
+						NumHWThreads: *job.Cpus,
+						// NumAcc:       job.NumAcc,
+						Exclusive: exclusive,
+						// MonitoringStatus: job.MonitoringStatus,
+						// SMT:            *job.TasksPerCore,
+						State: schema.JobState(*job.JobState),
+						// ignore this for start job
+						// Duration:       int32(time.Now().Unix() - *job.StartTime), // or SubmitTime?
+						Walltime: time.Now().Unix(), // max duration requested by the job
+						// Tags:           job.Tags,
+						// ignore this!
+						RawResources: jobResourcesInBytes,
+						// "job_resources": "allocated_nodes" "sockets":
+						// very important; has to be right
+						Resources: job.JobResources,
+						// RawMetaData:    job.RawMetaData,
+						// optional metadata with'jobScript 'jobName': 'slurmInfo':
+						// MetaData:       job.MetaData,
+						// ConcurrentJobs: job.ConcurrentJobs,
 					}
 					req := &schema.JobMeta{
 						BaseJob:    defaultJob,
-						StartTime:  job.StartTime,
+						StartTime:  *job.StartTime,
 						Statistics: make(map[string]schema.JobStatistics),
 					}
 					// req := new(schema.JobMeta)
@@ -328,15 +345,17 @@ func (sd *SlurmRestScheduler) Sync() {
 			existingJob, err := sd.JobRepository.Find(job.JobID, &job.Cluster, job.StartTime)
 
 			if err == nil {
-				existingJob.BaseJob.Duration = job.EndTime - job.StartTime
-				existingJob.BaseJob.State = job.State
+				existingJob.BaseJob.Duration = *job.EndTime - *job.StartTime
+				existingJob.BaseJob.State = schema.JobState(*job.JobState)
 				existingJob.BaseJob.Walltime = job.StartTime
+				var jobID int64
+				jobID = int64(*job.JobId)
 				req := &StopJobRequest{
 					Cluster:   job.Cluster,
-					JobId:     job.JobId,
-					State:     job.State,
+					JobId:     &jobID,
+					State:     schema.JobState(*job.JobState),
 					StartTime: existingJob.StartTime,
-					StopTime:  job.StartTime,
+					StopTime:  *job.EndTime,
 				}
 				// req := new(schema.JobMeta)
 				id, err := sd.JobRepository.checkAndHandleStopJob(job, req)
@@ -344,5 +363,22 @@ func (sd *SlurmRestScheduler) Sync() {
 
 		}
 	}
+}
+
+func (sd *SlurmRestScheduler) Sync() {
+	// for _, job := range jobs.GetJobs() {
+	//     fmt.Printf("Job %s - %s\n", job.GetJobId(), job.GetJobState())
+	// }
+
+	response, err := queryAllJobs()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	// Fetch an example instance of V0037JobsResponse
+	// jobsResponse := openapi.V0038JobsResponse{}
+
+	var jobsResponse openapi.V0038JobsResponse
+	sd.HandleJobsResponse(jobsResponse)
 
 }

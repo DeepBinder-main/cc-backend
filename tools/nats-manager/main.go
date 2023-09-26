@@ -7,7 +7,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -76,8 +75,8 @@ func setupPublisher() {
 
 func injectPayload() {
 	// Read the JSON file
-	jobsData, err := ioutil.ReadFile("slurm_0038.json")
-	dbData, err := ioutil.ReadFile("slurmdb_0038-large.json")
+	jobsData, err := os.ReadFile("slurm_0038.json")
+	dbData, err := os.ReadFile("slurmdb_0038-large.json")
 
 	if err != nil {
 		fmt.Println("Error reading JSON file:", err)

@@ -33,7 +33,7 @@ require (
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/ClusterCockpit/slurm-rest-client-0_0_37 v0.0.0-20230901125459-dc653ac37420 // indirect
-	github.com/ClusterCockpit/slurm-rest-client-0_0_38 v0.0.0-20230906120742-0f15562ea666 // indirect
+	github.com/ClusterCockpit/slurm-rest-client-0_0_38 v0.0.0-20231010134848-707e8b20bde7 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect

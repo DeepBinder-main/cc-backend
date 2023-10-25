@@ -110,10 +110,10 @@ func injectPayload() {
 
 	// Start the HTTP server on port 8080
 	fmt.Println("Listening on :8080...")
-	http.ListenAndServe(":8080", nil)
+	go http.ListenAndServe(":8080", nil)
 }
 
-func main() {
+func loadSlurmNatsScheduler() {
 	cfgData := []byte(`{"target": "localhost"}`)
 
 	var sch scheduler.SlurmNatsScheduler
@@ -121,6 +121,17 @@ func main() {
 	sch.Init(cfgData)
 
 	// go injectPayload()
+
+}
+
+func main() {
+
+	var sch scheduler.SlurmRestSchedulerConfig
+	sch.Init()
+
+	// injectPayload()
+
+	sch.Sync()
 
 	os.Exit(0)
 }

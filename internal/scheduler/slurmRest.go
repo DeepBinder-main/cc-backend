@@ -13,18 +13,12 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-	"time"
-
-	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ClusterCockpit/cc-backend/internal/repository"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/pkg/schema"
-
-	openapi "github.com/ClusterCockpit/slurm-rest-client-0_0_38"
 )
 
 type SlurmRestSchedulerConfig struct {
@@ -94,7 +88,7 @@ func queryDB(qtime int64, clusterName string) ([]interface{}, error) {
 	return jobs, nil
 }
 
-func queryAllJobs() (openapi.V0038JobsResponse, error) {
+func queryAllJobs() (SlurmPayload, error) {
 	var ctlOutput []byte
 
 	apiEndpoint := "http://:8080/slurm/v0.0.38/jobs"
@@ -122,7 +116,7 @@ func queryAllJobs() (openapi.V0038JobsResponse, error) {
 		log.Errorf("Error reading response body: %v", err)
 	}
 
-	var jobsResponse openapi.V0038JobsResponse
+	var jobsResponse SlurmPayload
 	err = json.Unmarshal(ctlOutput, &jobsResponse)
 	if err != nil {
 		log.Errorf("Error parsing JSON response: %v", err)
@@ -132,7 +126,7 @@ func queryAllJobs() (openapi.V0038JobsResponse, error) {
 	return jobsResponse, nil
 }
 
-func queryAllJobsLocal() (openapi.V0038JobsResponse, error) {
+func queryAllJobsLocal() (SlurmPayload, error) {
 	// Read the JSON file
 	jobsData, err := os.ReadFile("slurm_0038.json")
 
@@ -140,7 +134,7 @@ func queryAllJobsLocal() (openapi.V0038JobsResponse, error) {
 		fmt.Println("Error reading JSON file:", err)
 	}
 
-	var jobsResponse openapi.V0038JobsResponse
+	var jobsResponse SlurmPayload
 	err = json.Unmarshal(jobsData, &jobsResponse)
 	if err != nil {
 		log.Errorf("Error parsing JSON response: %v", err)
@@ -150,7 +144,7 @@ func queryAllJobsLocal() (openapi.V0038JobsResponse, error) {
 	return jobsResponse, nil
 }
 
-func printSlurmInfo(job openapi.V0038JobResponseProperties) string {
+func printSlurmInfo(job Job) string {
 
 	text := fmt.Sprintf(`
 	    JobId=%v JobName=%v
@@ -169,14 +163,14 @@ func printSlurmInfo(job openapi.V0038JobResponseProperties) string {
 		WorkDir=%v
 		StdErr=%v
 		StdOut=%v`,
-		job.JobId, job.Name,
-		job.UserName, job.UserId, job.GroupId,
-		job.Account, job.Qos,
+		job.JobID, job.Name,
+		job.UserName, job.UserID, job.GroupID,
+		job.Account, job.QOS,
 		job.Requeue, job.RestartCnt, job.BatchFlag,
 		job.TimeLimit, job.SubmitTime,
 		job.Partition,
 		job.Nodes,
-		job.NodeCount, job.Cpus, job.Tasks, job.CpusPerTask,
+		job.NodeCount, job.CPUs, job.Tasks, job.CPUPerTask,
 		job.TasksPerBoard, job.TasksPerSocket, job.TasksPerCore,
 		job.TresAllocStr,
 		job.TresAllocStr,
@@ -206,19 +200,6 @@ func (cfg *SlurmRestSchedulerConfig) Init() error {
 	var err error
 
 	cfg.clusterConfig, err = DecodeClusterConfig("cluster-alex.json")
-
-	// for k, v := range cfg.clusterConfig {
-	// 	fmt.Printf("Entry %q with value %x loaded\n", k, v)
-	// 	// switch c := v.(type) {
-	// 	// case string:
-	// 	// 	fmt.Printf("Item %q is a string, containing %q\n", k, c)
-	// 	// case float64:
-	// 	// 	fmt.Printf("Looks like item %q is a number, specifically %f\n", k, c)
-	// 	// default:
-	// 	// 	fmt.Printf("Not sure what type item %q is, but I think it might be %T\n", k, c)
-	// 	// }
-	// }
-	// fmt.Printf("Cluster Name: %q\n", cfg.clusterConfig["name"])
 
 	// Create an HTTP client
 	client = &http.Client{}
@@ -293,26 +274,20 @@ func ConstructNodeAcceleratorMap(input string, accelerator string) map[string]st
 	return numberMap
 }
 
-func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V0038JobsResponse) {
+func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobs []Job) {
 
 	// Iterate over the Jobs slice
-	for _, job := range jobsResponse.Jobs {
+	for _, job := range jobs {
 		// Process each job
-		fmt.Printf("Job ID: %d\n", *job.JobId)
-		fmt.Printf("Job Name: %s\n", *job.Name)
-		fmt.Printf("Job State: %s\n", *job.JobState)
-		fmt.Println("Job StartTime:", *job.StartTime)
-		fmt.Println("Job Cluster:", *job.Cluster)
+		fmt.Printf("Job ID: %d\n", job.JobID)
+		fmt.Printf("Job Name: %s\n", job.Name)
+		fmt.Printf("Job State: %s\n", job.JobState)
+		fmt.Println("Job StartTime:", job.StartTime)
+		fmt.Println("Job Cluster:", job.Cluster)
 
-		// aquire lock to avoid race condition between API calls
-		// var unlockOnce sync.Once
-		// cfg.RepositoryMutex.Lock()
-		// defer unlockOnce.Do(cfg.RepositoryMutex.Unlock)
+		if job.JobState == "RUNNING" {
 
-		// is "running" one of JSON state?
-		if *job.JobState == "RUNNING" {
-
-			// jobs, err := cfg.JobRepository.FindRunningJobs(*job.Cluster)
+			// jobs, err := cfg.JobRepository.FindRunningJobs(job.Cluster)
 			// if err != nil {
 			// 	log.Fatalf("Failed to find running jobs: %v", err)
 			// }
@@ -333,18 +308,13 @@ func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V00
 				exclusive = 0
 			}
 
-			jobResourcesInBytes, err := json.Marshal(*job.JobResources)
-			if err != nil {
-				log.Fatalf("JobResources JSON marshaling failed: %s", err)
-			}
-
 			var resources []*schema.Resource
 
 			// Define a regular expression to match "gpu=x"
 			regex := regexp.MustCompile(`gpu=(\d+)`)
 
 			// Find all matches in the input string
-			matches := regex.FindAllStringSubmatch(*job.TresAllocStr, -1)
+			matches := regex.FindAllStringSubmatch(job.TresAllocStr, -1)
 
 			// Initialize a variable to store the total number of GPUs
 			var totalGPUs int32
@@ -357,15 +327,15 @@ func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V00
 
 			for _, node := range job.JobResources.AllocatedNodes {
 				var res schema.Resource
-				res.Hostname = *node.Nodename
+				res.Hostname = node.Nodename
 
-				log.Debugf("Node %s V0038NodeAllocationSockets.Cores map size: %d\n", *node.Nodename, len(node.Sockets.Cores))
+				log.Debugf("Node %s Cores map size: %d\n", node.Nodename, len(node.Sockets))
 
-				if node.Cpus == nil || node.Memory == nil {
+				if node.CPUsUsed == nil || node.MemoryAllocated == nil {
 					log.Fatalf("Either node.Cpus or node.Memory is nil\n")
 				}
 
-				for k, v := range node.Sockets.Cores {
+				for k, v := range node.Sockets {
 					fmt.Printf("core id[%s] value[%s]\n", k, v)
 					threadID, _ := strconv.Atoi(k)
 					res.HWThreads = append(res.HWThreads, threadID)
@@ -373,12 +343,12 @@ func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V00
 
 				// cpu=512,mem=1875G,node=4,billing=512,gres\/gpu=32,gres\/gpu:a40=32
 				// For core/GPU id mapping, need to query from cluster config file
-				res.Accelerators = append(res.Accelerators, *job.Comment)
+				res.Accelerators = append(res.Accelerators, job.Comment)
 				resources = append(resources, &res)
 			}
 
 			metaData := make(map[string]string)
-			metaData["jobName"] = *job.Name
+			metaData["jobName"] = job.Name
 			metaData["slurmInfo"] = printSlurmInfo(job)
 
 			// switch slurmPath := cfg.clusterConfig["slurm_path"].(type) {
@@ -397,26 +367,26 @@ func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V00
 			}
 
 			var defaultJob schema.BaseJob = schema.BaseJob{
-				JobID:     int64(*job.JobId),
-				User:      *job.UserName,
-				Project:   *job.Account,
-				Cluster:   *job.Cluster,
-				Partition: *job.Partition,
+				JobID:     job.JobID,
+				User:      job.UserName,
+				Project:   job.Account,
+				Cluster:   job.Cluster,
+				Partition: job.Partition,
 				// check nil
-				ArrayJobId:   int64(*job.ArrayJobId),
-				NumNodes:     *job.NodeCount,
-				NumHWThreads: *job.Cpus,
+				ArrayJobId:   job.ArrayJobID,
+				NumNodes:     job.NodeCount,
+				NumHWThreads: job.CPUs,
 				NumAcc:       totalGPUs,
 				Exclusive:    exclusive,
 				// MonitoringStatus: job.MonitoringStatus,
-				// SMT:            *job.TasksPerCore,
-				State: schema.JobState(*job.JobState),
+				// SMT:            job.TasksPerCore,
+				State: schema.JobState(job.JobState),
 				// ignore this for start job
-				// Duration:       int32(time.Now().Unix() - *job.StartTime), // or SubmitTime?
+				// Duration:       int32(time.Now().Unix() - job.StartTime), // or SubmitTime?
 				Walltime: time.Now().Unix(), // max duration requested by the job
 				// Tags:           job.Tags,
 				// ignore this!
-				RawResources: jobResourcesInBytes,
+				// RawResources: jobResourcesInBytes,
 				// "job_resources": "allocated_nodes" "sockets":
 				// very important; has to be right
 				Resources:   resources,
@@ -429,7 +399,7 @@ func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V00
 
 			req := &schema.JobMeta{
 				BaseJob:    defaultJob,
-				StartTime:  *job.StartTime,
+				StartTime:  job.StartTime,
 				Statistics: make(map[string]schema.JobStatistics),
 			}
 			log.Debugf("Generated JobMeta %v", req.BaseJob.JobID)
@@ -445,41 +415,41 @@ func (cfg *SlurmRestSchedulerConfig) HandleJobsResponse(jobsResponse openapi.V00
 			// }
 		} else {
 			// Check if completed job with combination of (job_id, cluster_id, start_time) already exists:
-			var jobID int64
-			jobID = int64(*job.JobId)
-			log.Debugf("jobID: %v Cluster: %v StartTime: %v", jobID, *job.Cluster, *job.StartTime)
+			jobID := job.JobID
+			log.Debugf("jobID: %v Cluster: %v StartTime: %v", jobID, job.Cluster, job.StartTime)
 			// commented out as it will cause panic
 			// note down params invoked
 
-			existingJob, err := cfg.JobRepository.Find(&jobID, job.Cluster, job.StartTime)
+			// existingJob, err := cfg.JobRepository.Find(&jobID, &job.Cluster, &job.StartTime)
 
-			if err == nil {
-				existingJob.BaseJob.Duration = int32(*job.EndTime - *job.StartTime)
-				existingJob.BaseJob.State = schema.JobState(*job.JobState)
-				existingJob.BaseJob.Walltime = *job.StartTime
+			// if err == nil {
+			// 	existingJob.BaseJob.Duration = int32(job.EndTime - job.StartTime)
+			// 	existingJob.BaseJob.State = schema.JobState(job.JobState)
+			// 	existingJob.BaseJob.Walltime = job.StartTime
 
-				req := &StopJobRequest{
-					Cluster:   job.Cluster,
-					JobId:     &jobID,
-					State:     schema.JobState(*job.JobState),
-					StartTime: &existingJob.StartTimeUnix,
-					StopTime:  *job.EndTime,
-				}
-				// req := new(schema.JobMeta)
-				cfg.checkAndHandleStopJob(existingJob, req)
-			}
+			// 	req := &StopJobRequest{
+			// 		Cluster:   &job.Cluster,
+			// 		JobId:     &jobID,
+			// 		State:     schema.JobState(job.JobState),
+			// 		StartTime: &existingJob.StartTimeUnix,
+			// 		StopTime:  job.EndTime,
+			// 	}
+			// 	// req := new(schema.JobMeta)
+			// 	cfg.checkAndHandleStopJob(existingJob, req)
+			// }
 
 		}
 	}
+
 }
 
 func (cfg *SlurmRestSchedulerConfig) Sync() {
 
-	// Fetch an instance of V0037JobsResponse
+	// Fetch an instance of JobsResponse
 	jobsResponse, err := queryAllJobsLocal()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	cfg.HandleJobsResponse(jobsResponse)
+	cfg.HandleJobsResponse(jobsResponse.Jobs)
 
 }

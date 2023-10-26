@@ -89,11 +89,30 @@ type Meta struct {
 	} `json:"Slurm"`
 }
 
+type JobResource struct {
+	Nodes          string          `json:"nodes"`
+	AllocatedCores int             `json:"allocated_cores"`
+	AllocatedHosts int             `json:"allocated_hosts"`
+	AllocatedNodes []AllocatedNode `json:"allocated_nodes"`
+}
+
+type AllocatedNode struct {
+	Sockets         map[string]Socket `json:"sockets"`
+	Nodename        string            `json:"nodename"`
+	CPUsUsed        *int              `json:"cpus_used"`
+	MemoryUsed      *int              `json:"memory_used"`
+	MemoryAllocated *int              `json:"memory_allocated"`
+}
+
+type Socket struct {
+	Cores map[string]string `json:"cores"`
+}
+
 type Job struct {
 	Account                  string      `json:"account"`
 	AccrueTime               int         `json:"accrue_time"`
 	AdminComment             string      `json:"admin_comment"`
-	ArrayJobID               int         `json:"array_job_id"`
+	ArrayJobID               int64       `json:"array_job_id"`
 	ArrayTaskID              interface{} `json:"array_task_id"`
 	ArrayMaxTasks            int         `json:"array_max_tasks"`
 	ArrayTaskString          string      `json:"array_task_string"`
@@ -124,7 +143,7 @@ type Job struct {
 	Dependency               string      `json:"dependency"`
 	DerivedExitCode          int         `json:"derived_exit_code"`
 	EligibleTime             int         `json:"eligible_time"`
-	EndTime                  int         `json:"end_time"`
+	EndTime                  int64       `json:"end_time"`
 	ExcludedNodes            string      `json:"excluded_nodes"`
 	ExitCode                 int         `json:"exit_code"`
 	Features                 string      `json:"features"`
@@ -134,7 +153,8 @@ type Job struct {
 	GresDetail               []string    `json:"gres_detail"`
 	GroupID                  int         `json:"group_id"`
 	GroupName                string      `json:"group_name"`
-	JobID                    int         `json:"job_id"`
+	JobID                    int64       `json:"job_id"`
+	JobResources             JobResource `json:"job_resources"`
 	JobState                 string      `json:"job_state"`
 	LastSchedEvaluation      int         `json:"last_sched_evaluation"`
 	Licenses                 string      `json:"licenses"`
@@ -149,8 +169,8 @@ type Job struct {
 	TasksPerNode             int         `json:"tasks_per_node"`
 	TasksPerSocket           interface{} `json:"tasks_per_socket"`
 	TasksPerBoard            int         `json:"tasks_per_board"`
-	CPUs                     int         `json:"cpus"`
-	NodeCount                int         `json:"node_count"`
+	CPUs                     int32       `json:"cpus"`
+	NodeCount                int32       `json:"node_count"`
 	Tasks                    int         `json:"tasks"`
 	HETJobID                 int         `json:"het_job_id"`
 	HETJobIDSet              string      `json:"het_job_id_set"`
@@ -171,11 +191,11 @@ type Job struct {
 	ResizeTime               int         `json:"resize_time"`
 	RestartCnt               int         `json:"restart_cnt"`
 	ResvName                 string      `json:"resv_name"`
-	Shared                   interface{} `json:"shared"`
+	Shared                   *string     `json:"shared"`
 	ShowFlags                []string    `json:"show_flags"`
 	SocketsPerBoard          int         `json:"sockets_per_board"`
 	SocketsPerNode           interface{} `json:"sockets_per_node"`
-	StartTime                int         `json:"start_time"`
+	StartTime                int64       `json:"start_time"`
 	StateDescription         string      `json:"state_description"`
 	StateReason              string      `json:"state_reason"`
 	StandardError            string      `json:"standard_error"`
@@ -201,7 +221,7 @@ type Job struct {
 	CurrentWorkingDirectory  string      `json:"current_working_directory"`
 }
 
-type SlurmData struct {
+type SlurmPayload struct {
 	Meta   Meta          `json:"meta"`
 	Errors []interface{} `json:"errors"`
 	Jobs   []Job         `json:"jobs"`
@@ -268,8 +288,8 @@ func DecodeClusterConfig(filename string) (ClusterConfig, error) {
 	return clusterConfig, nil
 }
 
-func UnmarshalSlurmPayload(jsonPayload string) (SlurmData, error) {
-	var slurmData SlurmData
+func UnmarshalSlurmPayload(jsonPayload string) (SlurmPayload, error) {
+	var slurmData SlurmPayload
 	err := json.Unmarshal([]byte(jsonPayload), &slurmData)
 	if err != nil {
 		return slurmData, fmt.Errorf("failed to unmarshal JSON data: %v", err)

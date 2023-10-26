@@ -26,7 +26,6 @@ type MetricConfig struct {
 	Caution     float64 `json:"caution"`
 	Alert       float64 `json:"alert"`
 }
-
 type SubCluster struct {
 	Name           string `json:"name"`
 	Nodes          string `json:"nodes"`
@@ -74,7 +73,7 @@ type ClusterConfig struct {
 	SubClusters  []SubCluster   `json:"subClusters"`
 }
 
-type Meta struct {
+type Metadata struct {
 	Plugin struct {
 		Type string `json:"type"`
 		Name string `json:"name"`
@@ -184,7 +183,7 @@ type Job struct {
 	PreSUSTime               int         `json:"pre_sus_time"`
 	Priority                 int         `json:"priority"`
 	Profile                  interface{} `json:"profile"`
-	QOS                      string      `json:"qos"`
+	QoS                      string      `json:"qos"`
 	Reboot                   bool        `json:"reboot"`
 	RequiredNodes            string      `json:"required_nodes"`
 	Requeue                  bool        `json:"requeue"`
@@ -222,9 +221,191 @@ type Job struct {
 }
 
 type SlurmPayload struct {
-	Meta   Meta          `json:"meta"`
+	Meta   Metadata      `json:"meta"`
 	Errors []interface{} `json:"errors"`
 	Jobs   []Job         `json:"jobs"`
+}
+
+type DumpedComment struct {
+	Administrator interface{} `json:"administrator"`
+	Job           interface{} `json:"job"`
+	System        interface{} `json:"system"`
+}
+
+type MaxLimits struct {
+	Running struct {
+		Tasks int `json:"tasks"`
+	} `json:"max"`
+}
+
+type ArrayInfo struct {
+	JobID  int         `json:"job_id"`
+	Limits MaxLimits   `json:"limits"`
+	Task   interface{} `json:"task"`
+	TaskID interface{} `json:"task_id"`
+}
+
+type Association struct {
+	Account   string      `json:"account"`
+	Cluster   string      `json:"cluster"`
+	Partition interface{} `json:"partition"`
+	User      string      `json:"user"`
+}
+
+type TimeInfo struct {
+	Elapsed    int64 `json:"elapsed"`
+	Eligible   int64 `json:"eligible"`
+	End        int64 `json:"end"`
+	Start      int64 `json:"start"`
+	Submission int64 `json:"submission"`
+	Suspended  int64 `json:"suspended"`
+	System     struct {
+		Seconds      int `json:"seconds"`
+		Microseconds int `json:"microseconds"`
+	} `json:"system"`
+	Limit int `json:"limit"`
+	Total struct {
+		Seconds      int `json:"seconds"`
+		Microseconds int `json:"microseconds"`
+	} `json:"total"`
+	User struct {
+		Seconds      int `json:"seconds"`
+		Microseconds int `json:"microseconds"`
+	} `json:"user"`
+}
+
+type ExitCode struct {
+	Status     string `json:"status"`
+	ReturnCode int    `json:"return_code"`
+}
+
+type DumpedJob struct {
+	Account         string        `json:"account"`
+	Comment         DumpedComment `json:"comment"`
+	AllocationNodes int           `json:"allocation_nodes"`
+	Array           ArrayInfo     `json:"array"`
+	Association     Association   `json:"association"`
+	Cluster         string        `json:"cluster"`
+	Constraints     string        `json:"constraints"`
+	Container       interface{}   `json:"container"`
+	DerivedExitCode ExitCode      `json:"derived_exit_code"`
+	Time            TimeInfo      `json:"time"`
+	ExitCode        ExitCode      `json:"exit_code"`
+	Flags           []string      `json:"flags"`
+	Group           string        `json:"group"`
+	Het             struct {
+		JobID     int         `json:"job_id"`
+		JobOffset interface{} `json:"job_offset"`
+	} `json:"het"`
+	JobID int64  `json:"job_id"`
+	Name  string `json:"name"`
+	MCS   struct {
+		Label string `json:"label"`
+	} `json:"mcs"`
+	Nodes     string `json:"nodes"`
+	Partition string `json:"partition"`
+	Priority  int    `json:"priority"`
+	QoS       string `json:"qos"`
+	Required  struct {
+		CPUs   int `json:"CPUs"`
+		Memory int `json:"memory"`
+	} `json:"required"`
+	KillRequestUser interface{} `json:"kill_request_user"`
+	Reservation     struct {
+		ID   int `json:"id"`
+		Name int `json:"name"`
+	} `json:"reservation"`
+	State struct {
+		Current string `json:"current"`
+		Reason  string `json:"reason"`
+	} `json:"state"`
+	Steps []struct {
+		Nodes struct {
+			List  []string `json:"list"`
+			Count int      `json:"count"`
+			Range string   `json:"range"`
+		} `json:"nodes"`
+		Tres struct {
+			Requested struct {
+				Max     []interface{} `json:"max"`
+				Min     []interface{} `json:"min"`
+				Average []interface{} `json:"average"`
+				Total   []interface{} `json:"total"`
+			} `json:"requested"`
+			Consumed struct {
+				Max     []interface{} `json:"max"`
+				Min     []interface{} `json:"min"`
+				Average []interface{} `json:"average"`
+				Total   []interface{} `json:"total"`
+			} `json:"consumed"`
+			Allocated []struct {
+				Type  string      `json:"type"`
+				Name  interface{} `json:"name"`
+				ID    int         `json:"id"`
+				Count int         `json:"count"`
+			} `json:"allocated"`
+		} `json:"tres"`
+		Time     TimeInfo `json:"time"`
+		ExitCode ExitCode `json:"exit_code"`
+		Tasks    struct {
+			Count int `json:"count"`
+		} `json:"tasks"`
+		PID interface{} `json:"pid"`
+		CPU struct {
+			RequestedFrequency struct {
+				Min int `json:"min"`
+				Max int `json:"max"`
+			} `json:"requested_frequency"`
+			Governor []interface{} `json:"governor"`
+		} `json:"CPU"`
+		KillRequestUser interface{} `json:"kill_request_user"`
+		State           string      `json:"state"`
+		Statistics      struct {
+			CPU struct {
+				ActualFrequency int `json:"actual_frequency"`
+			} `json:"CPU"`
+			Energy struct {
+				Consumed int `json:"consumed"`
+			} `json:"energy"`
+		} `json:"statistics"`
+		Step struct {
+			JobID int `json:"job_id"`
+			Het   struct {
+				Component interface{} `json:"component"`
+			} `json:"het"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"step"`
+		Task struct {
+			Distribution string `json:"distribution"`
+		} `json:"task"`
+	} `json:"steps"`
+	Tres struct {
+		Allocated []struct {
+			Type  string      `json:"type"`
+			Name  interface{} `json:"name"`
+			ID    int         `json:"id"`
+			Count int         `json:"count"`
+		} `json:"allocated"`
+		Requested []struct {
+			Type  string      `json:"type"`
+			Name  interface{} `json:"name"`
+			ID    int         `json:"id"`
+			Count int         `json:"count"`
+		} `json:"requested"`
+	} `json:"tres"`
+	User  string `json:"user"`
+	Wckey struct {
+		Wckey string   `json:"wckey"`
+		Flags []string `json:"flags"`
+	} `json:"wckey"`
+	WorkingDirectory string `json:"working_directory"`
+}
+
+type SlurmDBPayload struct {
+	Meta   Metadata    `json:"meta"`
+	Errors []string    `json:"errors"`
+	Jobs   []DumpedJob `json:"jobs"`
 }
 
 func DecodeClusterConfig(filename string) (ClusterConfig, error) {

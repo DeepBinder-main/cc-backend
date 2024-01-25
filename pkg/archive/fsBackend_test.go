@@ -7,6 +7,7 @@ package archive
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -30,6 +31,7 @@ func TestInitNoJson(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
 func TestInitNotExists(t *testing.T) {
 	var fsa FsArchive
 	_, err := fsa.Init(json.RawMessage("{\"path\":\"testdata/job-archive\"}"))
@@ -61,8 +63,12 @@ func TestLoadJobMetaInternal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	b, err := os.ReadFile("testdata/archive/emmy/1404/397/1609300556/meta.json")
+	if err != nil {
+		t.Fatalf("loadJobMeta() > open file error: %v", err)
+	}
 
-	job, err := loadJobMeta("testdata/archive/emmy/1404/397/1609300556/meta.json")
+	job, err := loadJobMeta(b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +139,6 @@ func TestLoadJobData(t *testing.T) {
 }
 
 func BenchmarkLoadJobData(b *testing.B) {
-
 	tmpdir := b.TempDir()
 	jobarchive := filepath.Join(tmpdir, "job-archive")
 	util.CopyDir("./testdata/archive/", jobarchive)
@@ -157,7 +162,6 @@ func BenchmarkLoadJobData(b *testing.B) {
 }
 
 func BenchmarkLoadJobDataCompressed(b *testing.B) {
-
 	tmpdir := b.TempDir()
 	jobarchive := filepath.Join(tmpdir, "job-archive")
 	util.CopyDir("./testdata/archive/", jobarchive)

@@ -57,3 +57,46 @@ func TestS3LoadJobMeta(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestS3LoadJobData(t *testing.T) {
+	var s3a S3Archive
+	_, err := s3a.Init(json.RawMessage("{\"endpoint\":\"192.168.1.10:9100\",\"accessKeyID\":\"uACSaCN2Chiotpnr4bBS\",\"secretAccessKey\":\"MkEbBsFvMii1K5GreUriTJZxH359B1n28Au9Kaml\",\"bucket\":\"cc-archive\",\"useSSL\":false}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jobIn := schema.Job{BaseJob: schema.JobDefaults}
+	jobIn.StartTime = time.Unix(1675954353, 0)
+	jobIn.JobID = 398764
+	jobIn.Cluster = "fritz"
+
+	data, err := s3a.LoadJobData(&jobIn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, scopes := range data {
+		// fmt.Printf("Metric name: %s\n", name)
+
+		if _, exists := scopes[schema.MetricScopeNode]; !exists {
+			t.Fail()
+		}
+	}
+}
+
+func TestS3LoadCluster(t *testing.T) {
+	var s3a S3Archive
+	_, err := s3a.Init(json.RawMessage("{\"endpoint\":\"192.168.1.10:9100\",\"accessKeyID\":\"uACSaCN2Chiotpnr4bBS\",\"secretAccessKey\":\"MkEbBsFvMii1K5GreUriTJZxH359B1n28Au9Kaml\",\"bucket\":\"cc-archive\",\"useSSL\":false}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := s3a.LoadClusterCfg("fritz")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cfg.SubClusters[0].CoresPerSocket != 36 {
+		t.Fail()
+	}
+}

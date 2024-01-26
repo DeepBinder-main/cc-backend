@@ -9,14 +9,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/pkg/schema"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/pkg/errors"
 )
 
 type S3ArchiveConfig struct {
@@ -31,6 +34,30 @@ type S3Archive struct {
 	client   *minio.Client
 	bucket   string
 	clusters []string
+}
+
+func (s3a *S3Archive) stat(object string) (*minio.ObjectInfo, error) {
+	objectStat, e := s3a.client.StatObject(context.Background(),
+		s3a.bucket,
+		object, minio.GetObjectOptions{})
+
+	if e != nil {
+		errResponse := minio.ToErrorResponse(e)
+		if errResponse.Code == "AccessDenied" {
+			return nil, errors.Wrap(e, "AccessDenied")
+		}
+		if errResponse.Code == "NoSuchBucket" {
+			return nil, errors.Wrap(e, "NoSuchBucket")
+		}
+		if errResponse.Code == "InvalidBucketName" {
+			return nil, errors.Wrap(e, "InvalidBucketName")
+		}
+		if errResponse.Code == "NoSuchKey" {
+			return nil, errors.Wrap(e, "NoSuchKey")
+		}
+		return nil, e
+	}
+	return &objectStat, nil
 }
 
 func (s3a *S3Archive) Init(rawConfig json.RawMessage) (uint64, error) {
@@ -152,6 +179,8 @@ func (s3a *S3Archive) LoadJobMeta(job *schema.Job) (*schema.JobMeta, error) {
 		err = fmt.Errorf("Init() : Get version object failed")
 		return nil, err
 	}
+	defer r.Close()
+
 	b, err := io.ReadAll(r)
 	if err != nil {
 		log.Errorf("Init() : %v", err)
@@ -162,23 +191,119 @@ func (s3a *S3Archive) LoadJobMeta(job *schema.Job) (*schema.JobMeta, error) {
 }
 
 func (s3a *S3Archive) LoadJobData(job *schema.Job) (schema.JobData, error) {
-	var err error
-	return schema.JobData{}, err
+	isCompressed := true
+	key := getPath(job, "./", "data.json.gz")
+
+	_, err := s3a.stat(key)
+	if err != nil {
+		if err.Error() == "NoSuchKey" {
+			key = getPath(job, "./", "data.json")
+			isCompressed = false
+		}
+	}
+
+	r, err := s3a.client.GetObject(context.Background(),
+		s3a.bucket, key, minio.GetObjectOptions{})
+	if err != nil {
+		err = fmt.Errorf("Init() : Get version object failed")
+		return nil, err
+	}
+	defer r.Close()
+
+	return loadJobData(r, key, isCompressed)
 }
 
-//	func (s3a *S3Archive) LoadClusterCfg(name string) (*schema.Cluster, error) {
-//		var err error
-//		return &schema.Cluster{}, err
-//	}
-//
-// func (s3a *S3Archive) StoreJobMeta(jobMeta *schema.JobMeta) error
-func (s3a *S3Archive) ImportJob(jobMeta *schema.JobMeta, jobData *schema.JobData) error {
-	var err error
-	return err
+func (s3a *S3Archive) LoadClusterCfg(name string) (*schema.Cluster, error) {
+	key := filepath.Join("./", name, "cluster.json")
+
+	r, err := s3a.client.GetObject(context.Background(),
+		s3a.bucket, key, minio.GetObjectOptions{})
+	if err != nil {
+		err = fmt.Errorf("Init() : Get version object failed")
+		return nil, err
+	}
+	defer r.Close()
+
+	return DecodeCluster(r)
 }
 
-//
-// func (s3a *S3Archive) GetClusters() []string
+func (s3a *S3Archive) ImportJob(
+	jobMeta *schema.JobMeta,
+	jobData *schema.JobData,
+) error {
+	job := schema.Job{
+		BaseJob:       jobMeta.BaseJob,
+		StartTime:     time.Unix(jobMeta.StartTime, 0),
+		StartTimeUnix: jobMeta.StartTime,
+	}
+
+	r, w := io.Pipe()
+
+	if err := EncodeJobMeta(w, jobMeta); err != nil {
+		log.Error("Error while encoding job metadata to meta.json file")
+		return err
+	}
+
+	key := getPath(&job, "./", "meta.json")
+	s3a.client.PutObject(context.Background(),
+		s3a.bucket, key, r,
+		int64(unsafe.Sizeof(job)), minio.PutObjectOptions{})
+
+	if err := w.Close(); err != nil {
+		log.Warn("Error while closing meta.json file")
+		return err
+	}
+
+	//
+	// f, err = os.Create(path.Join(dir, "data.json"))
+	// if err != nil {
+	// 	log.Error("Error while creating filepath for data.json")
+	// 	return err
+	// }
+	// if err := EncodeJobData(f, jobData); err != nil {
+	// 	log.Error("Error while encoding job metricdata to data.json file")
+	// 	return err
+	// }
+	// if err := f.Close(); err != nil {
+	// 	log.Warn("Error while closing data.json file")
+	// }
+	// return err
+	//
+
+	return nil
+}
+
+func (s3a *S3Archive) StoreJobMeta(jobMeta *schema.JobMeta) error {
+	job := schema.Job{
+		BaseJob:       jobMeta.BaseJob,
+		StartTime:     time.Unix(jobMeta.StartTime, 0),
+		StartTimeUnix: jobMeta.StartTime,
+	}
+
+	r, w := io.Pipe()
+
+	if err := EncodeJobMeta(w, jobMeta); err != nil {
+		log.Error("Error while encoding job metadata to meta.json file")
+		return err
+	}
+
+	key := getPath(&job, "./", "meta.json")
+	s3a.client.PutObject(context.Background(),
+		s3a.bucket, key, r,
+		int64(unsafe.Sizeof(job)), minio.PutObjectOptions{})
+
+	if err := w.Close(); err != nil {
+		log.Warn("Error while closing meta.json file")
+		return err
+	}
+
+	return nil
+}
+
+func (s3a *S3Archive) GetClusters() []string {
+	return s3a.clusters
+}
+
 //
 // func (s3a *S3Archive) CleanUp(jobs []*schema.Job)
 //

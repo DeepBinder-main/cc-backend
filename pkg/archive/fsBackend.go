@@ -5,9 +5,7 @@
 package archive
 
 import (
-	"bufio"
 	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,7 +18,6 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/config"
 	"github.com/ClusterCockpit/cc-backend/internal/util"
 	"github.com/ClusterCockpit/cc-backend/pkg/log"
 	"github.com/ClusterCockpit/cc-backend/pkg/schema"
@@ -41,71 +38,6 @@ type clusterInfo struct {
 	dateFirst int64
 	dateLast  int64
 	diskSize  float64
-}
-
-func getDirectory(
-	job *schema.Job,
-	rootPath string,
-) string {
-	lvl1, lvl2 := fmt.Sprintf("%d", job.JobID/1000), fmt.Sprintf("%03d", job.JobID%1000)
-
-	return filepath.Join(
-		rootPath,
-		job.Cluster,
-		lvl1, lvl2,
-		strconv.FormatInt(job.StartTime.Unix(), 10))
-}
-
-func getPath(
-	job *schema.Job,
-	rootPath string,
-	file string,
-) string {
-	return filepath.Join(
-		getDirectory(job, rootPath), file)
-}
-
-func loadJobMeta(b []byte) (*schema.JobMeta, error) {
-	if config.Keys.Validate {
-		if err := schema.Validate(schema.Meta, bytes.NewReader(b)); err != nil {
-			return &schema.JobMeta{}, fmt.Errorf("validate job meta: %v", err)
-		}
-	}
-
-	return DecodeJobMeta(bytes.NewReader(b))
-}
-
-func loadJobData(filename string, isCompressed bool) (schema.JobData, error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		log.Errorf("fsBackend LoadJobData()- %v", err)
-		return nil, err
-	}
-	defer f.Close()
-
-	if isCompressed {
-		r, err := gzip.NewReader(f)
-		if err != nil {
-			log.Errorf(" %v", err)
-			return nil, err
-		}
-		defer r.Close()
-
-		if config.Keys.Validate {
-			if err := schema.Validate(schema.Data, r); err != nil {
-				return schema.JobData{}, fmt.Errorf("validate job data: %v", err)
-			}
-		}
-
-		return DecodeJobData(r, filename)
-	} else {
-		if config.Keys.Validate {
-			if err := schema.Validate(schema.Data, bufio.NewReader(f)); err != nil {
-				return schema.JobData{}, fmt.Errorf("validate job data: %v", err)
-			}
-		}
-		return DecodeJobData(bufio.NewReader(f), filename)
-	}
 }
 
 func (fsa *FsArchive) Init(rawConfig json.RawMessage) (uint64, error) {
@@ -368,7 +300,7 @@ func (fsa *FsArchive) CompressLast(starttime int64) int64 {
 }
 
 func (fsa *FsArchive) LoadJobData(job *schema.Job) (schema.JobData, error) {
-	var isCompressed bool = true
+	isCompressed := true
 	filename := getPath(job, fsa.path, "data.json.gz")
 
 	if !util.CheckFileExists(filename) {
@@ -376,7 +308,13 @@ func (fsa *FsArchive) LoadJobData(job *schema.Job) (schema.JobData, error) {
 		isCompressed = false
 	}
 
-	return loadJobData(filename, isCompressed)
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Errorf("fsBackend LoadJobData()- %v", err)
+		return nil, err
+	}
+	defer f.Close()
+	return loadJobData(f, filename, isCompressed)
 }
 
 func (fsa *FsArchive) LoadJobMeta(job *schema.Job) (*schema.JobMeta, error) {
@@ -393,13 +331,11 @@ func (fsa *FsArchive) LoadClusterCfg(name string) (*schema.Cluster, error) {
 	b, err := os.ReadFile(filepath.Join(fsa.path, name, "cluster.json"))
 	if err != nil {
 		log.Errorf("LoadClusterCfg() > open file error: %v", err)
-		// if config.Keys.Validate {
 		if err := schema.Validate(schema.ClusterCfg, bytes.NewReader(b)); err != nil {
 			log.Warnf("Validate cluster config: %v\n", err)
 			return &schema.Cluster{}, fmt.Errorf("validate cluster config: %v", err)
 		}
 	}
-	// }
 	return DecodeCluster(bytes.NewReader(b))
 }
 
@@ -458,7 +394,13 @@ func (fsa *FsArchive) Iter(loadMetricData bool) <-chan JobContainer {
 									isCompressed = false
 								}
 
-								data, err := loadJobData(filename, isCompressed)
+								f, err := os.Open(filename)
+								if err != nil {
+									log.Errorf("fsBackend LoadJobData()- %v", err)
+								}
+								defer f.Close()
+
+								data, err := loadJobData(f, filename, isCompressed)
 								if err != nil && !errors.Is(err, &jsonschema.ValidationError{}) {
 									log.Errorf("in %s: %s", filepath.Join(dirpath, startTimeDir.Name()), err.Error())
 								}

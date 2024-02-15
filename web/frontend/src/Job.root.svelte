@@ -27,6 +27,7 @@
     import TagManagement from "./TagManagement.svelte";
     import MetricSelection from "./MetricSelection.svelte";
     import StatsTable from "./StatsTable.svelte";
+    import JobFootprint from "./JobFootprint.svelte";
     import { getContext } from "svelte";
 
     export let dbid;
@@ -46,7 +47,8 @@
             resources { hostname, hwthreads, accelerators },
             metaData,
             userData { name, email },
-            concurrentJobs { items { id, jobId }, count, listQuery }
+            concurrentJobs { items { id, jobId }, count, listQuery },
+            flopsAnyAvg, memBwAvg, loadAvg
         }
     `);
 
@@ -93,7 +95,9 @@
             startFetching(
                 job,
                 [...toFetch],
-                job.numNodes > 2 ? ["node"] : ["node", "core"]
+                job.numNodes > 2
+                    ? ["node"]
+                    : ["node", "socket", "core"]
             );
         } else {
             // Accels and not on node scope
@@ -102,7 +106,7 @@
                 [...toFetch],
                 job.numNodes > 2
                     ? ["node", "accelerator"]
-                    : ["node", "accelerator", "core"]
+                    : ["node", "accelerator", "socket", "core"]
             );
         }
 
@@ -132,7 +136,9 @@
 
     let plots = {},
         jobTags,
-        statsTable;
+        statsTable,
+        jobFootprint;
+
     $: document.title = $initq.fetching
         ? "Loading..."
         : $initq.error
@@ -200,6 +206,17 @@
             <Spinner secondary />
         {/if}
     </Col>
+    {#if $jobMetrics.data}
+        {#key $jobMetrics.data}
+            <Col>
+                <JobFootprint
+                    bind:this={jobFootprint}
+                    job={$initq.data.job}
+                    jobMetrics={$jobMetrics.data.jobMetrics}
+                />
+            </Col>
+        {/key}
+    {/if}
     {#if $jobMetrics.data && $initq.data}
         {#if $initq.data.job.concurrentJobs != null && $initq.data.job.concurrentJobs.items.length != 0}
             {#if authlevel > roles.manager}
@@ -390,8 +407,6 @@
                                 bind:this={statsTable}
                                 job={$initq.data.job}
                                 jobMetrics={$jobMetrics.data.jobMetrics}
-                                accMetrics={accMetrics}
-                                accNodeOnly={accNodeOnly}
                             />
                         {/key}
                     {/if}

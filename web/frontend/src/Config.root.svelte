@@ -5,6 +5,7 @@
 
     import PlotSettings from './config/PlotSettings.svelte'
     import AdminSettings from './config/AdminSettings.svelte'
+    import Configuration from './config/Configuration.svelte'
 
     const { query: initq } = init()
 
@@ -25,7 +26,14 @@
 
 <Card>
     <CardHeader>
+        <CardTitle class="mb-1">Configurations</CardTitle>
+    </CardHeader>
+    <Configuration/>
+</Card>
+<!-- 
+<Card>
+    <CardHeader>
         <CardTitle class="mb-1">Plotting Options</CardTitle>
     </CardHeader>
     <PlotSettings config={ccconfig}/>
-</Card>
+</Card> -->

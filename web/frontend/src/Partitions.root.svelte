@@ -215,7 +215,7 @@
     <CardHeader>
         <CardTitle>Partition Configuration</CardTitle>
     </CardHeader>
-    <CardBody class="h5">
+    <CardBody class="h5 m-3">
         <CardSubtitle>Create and manage LVM partitions</CardSubtitle>
         <CardText></CardText>
         <VerticalTab />

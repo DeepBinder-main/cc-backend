@@ -56,22 +56,22 @@
             perCluster: false,
             menu: "Groups",
         },
-        {
-            title: "Projects",
-            requiredRole: roles.support,
-            href: "/monitoring/projects/",
-            icon: "folder",
-            perCluster: false,
-            menu: "Groups",
-        },
-        {
-            title: "Tags",
-            requiredRole: roles.user,
-            href: "/monitoring/tags/",
-            icon: "tags",
-            perCluster: false,
-            menu: "Groups",
-        },
+        // {
+        //     title: "Projects",
+        //     requiredRole: roles.support,
+        //     href: "/monitoring/projects/",
+        //     icon: "folder",
+        //     perCluster: false,
+        //     menu: "Groups",
+        // },
+        // {
+        //     title: "Tags",
+        //     requiredRole: roles.user,
+        //     href: "/monitoring/tags/",
+        //     icon: "tags",
+        //     perCluster: false,
+        //     menu: "Groups",
+        // },
         {
             title: "Analysis",
             requiredRole: roles.support,
@@ -84,7 +84,7 @@
             title: "Nodes",
             requiredRole: roles.admin,
             href: "/monitoring/systems/",
-            icon: "cpu",
+            icon: "folder-symlink-fill",
             perCluster: true,
             menu: "Groups",
         },
@@ -99,8 +99,16 @@
         {
             title: "Partitions",
             requiredRole: roles.admin,
-            href: "partitions/systems/",
+            href: "/monitoring/partitions/",
             icon: "device-hdd",
+            perCluster: true,
+            menu: "Stats",
+        },
+        {
+            title: "Control",
+            requiredRole: roles.admin,
+            href: "/monitoring/control/",
+            icon: "folder-symlink-fill",
             perCluster: true,
             menu: "Stats",
         },
@@ -125,7 +133,7 @@
                 <NavbarLinks
                     {clusters}
                     links={views.filter(
-                        (item) => item.requiredRole <= authlevel
+                        (item) => item.requiredRole <= authlevel,
                     )}
                 />
             {:else if screenSize > 1300}
@@ -134,7 +142,7 @@
                     links={views.filter(
                         (item) =>
                             item.requiredRole <= authlevel &&
-                            item.menu != "Stats"
+                            item.menu != "Stats",
                     )}
                 />
                 <Dropdown nav>
@@ -148,7 +156,7 @@
                             links={views.filter(
                                 (item) =>
                                     item.requiredRole <= authlevel &&
-                                    item.menu == "Stats"
+                                    item.menu == "Stats",
                             )}
                         />
                     </DropdownMenu>
@@ -159,7 +167,7 @@
                     links={views.filter(
                         (item) =>
                             item.requiredRole <= authlevel &&
-                            item.menu == "none"
+                            item.menu == "none",
                     )}
                 />
                 {#each Array("Groups", "Stats") as menu}
@@ -173,7 +181,7 @@
                                 links={views.filter(
                                     (item) =>
                                         item.requiredRole <= authlevel &&
-                                        item.menu == menu
+                                        item.menu == menu,
                                 )}
                             />
                         </DropdownMenu>

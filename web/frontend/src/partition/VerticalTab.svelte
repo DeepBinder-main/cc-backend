@@ -1,24 +1,52 @@
 <script lang="ts">
-    import { TabContent, TabPane } from 'sveltestrap';
-  </script>
-  
-  <TabContent vertical pills >
-    <TabPane tabId="alpha" tab="Alpha" active>
-      <h2>Alpha</h2>
-      <img
-        alt="Alpha Flight"
-        src="https://upload.wikimedia.org/wikipedia/en/4/49/Alpha_Flight_cast_picture_%28John_Byrne_era%29.gif"
-      />
+    import { Icon, TabContent, TabPane } from "sveltestrap";
+    import {LayoutDashboard, DatabaseZap, Activity , Wrench ,Workflow} from "lucide-svelte";
+    import Dashboard from "./Content/Dashboard.svelte";
+</script>
+
+<TabContent >
+    <TabPane tabId="dashboard" active class="mt-4">
+        <span slot="tab" class="small">
+            <!-- <Icon name="gear" /> -->
+            <LayoutDashboard />
+            Dashboard 
+        </span>
+        <Dashboard />
     </TabPane>
-    <TabPane tabId="bravo" tab="Bravo">
-      <h2>Bravo</h2>
-      <img
-        alt="Johnny Bravo"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Johnny_Bravo_series_logo.png/320px-Johnny_Bravo_series_logo.png"
-      />
+    <TabPane tabId="createlv" class="mt-4">
+        <span slot="tab" class="small">
+            <DatabaseZap />
+            Create LV
+             <!-- <Icon name="hand-thumbs-up" /> -->
+        </span>
+        <Dashboard />
+        
     </TabPane>
-    <TabPane tabId="charlie" tab="Charlie">
-      <h2>Charlie</h2>
-      <img alt="Charlie Brown" src="https://upload.wikimedia.org/wikipedia/en/2/22/Charlie_Brown.png" />
+    <TabPane tabId="Monitor" class="mt-4">
+        <span slot="tab" class="small">
+            <Activity />
+            Monitor
+             <!-- <Icon name="alarm" /> -->
+        </span>
+        <Dashboard />
+        
     </TabPane>
-  </TabContent>
+    <TabPane tabId="autostorage" class="mt-4">
+        <span slot="tab" class="small">
+            <Workflow />
+            Auto Storage
+             <!-- <Icon name="alarm" /> -->
+        </span>
+        <Dashboard />
+        
+    </TabPane>
+    <TabPane tabId="settings" class="mt-4">
+        <span slot="tab" class="small">
+            <Wrench />
+            Settings
+             <!-- <Icon name="alarm" /> -->
+        </span>
+        <Dashboard />
+        
+    </TabPane>
+</TabContent>

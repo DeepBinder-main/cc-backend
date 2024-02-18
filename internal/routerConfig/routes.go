@@ -45,8 +45,8 @@ var routes []Route = []Route{
 	{"/monitoring/node/{cluster}/{hostname}", "monitoring/node.tmpl", "Node <ID> - ClusterCockpit", false, setupNodeRoute},
 	{"/monitoring/analysis/{cluster}", "monitoring/analysis.tmpl", "Analysis - ClusterCockpit", true, setupAnalysisRoute},
 	{"/monitoring/status/{cluster}", "monitoring/status.tmpl", "Status of <ID> - ClusterCockpit", false, setupClusterRoute},
-	{"/partitions/systems/{cluster}", "partitions/systems.tmpl", "Cluster <ID> - ClusterCockpit", false, setupClusterRoute},
-
+	{"/monitoring/partitions/{cluster}", "partitions/systems.tmpl", "Cluster <ID> - ClusterCockpit", false, setupClusterRoute},
+	{"/monitoring/control/{cluster}", "partitions/systems.tmpl", "Cluster <ID> - ClusterCockpit", false, setupClusterRoute},
 }
 
 func setupHomeRoute(i InfoType, r *http.Request) InfoType {

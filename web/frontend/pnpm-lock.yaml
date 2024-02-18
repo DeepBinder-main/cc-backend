@@ -20,6 +20,9 @@ dependencies:
   graphql:
     specifier: ^16.6.0
     version: 16.8.1
+  lucide-svelte:
+    specifier: ^0.331.0
+    version: 0.331.0(svelte@3.59.2)
   mathjs:
     specifier: ^12.0.0
     version: 12.3.2
@@ -390,6 +393,14 @@ packages:
 
   /javascript-natural-sort@0.7.1:
     resolution: {integrity: sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==}
+    dev: false
+
+  /lucide-svelte@0.331.0(svelte@3.59.2):
+    resolution: {integrity: sha512-QlXeBFJ2ipe5Fgt7qKx1v37FLuA9zFa+68tASm5tGgz+ocNdMkXDxSIsED2SegEZCuuiFW+UAckD2H+susexrQ==}
+    peerDependencies:
+      svelte: ^3 || ^4 || ^5.0.0-next.42
+    dependencies:
+      svelte: 3.59.2
     dev: false
 
   /magic-string@0.27.0:

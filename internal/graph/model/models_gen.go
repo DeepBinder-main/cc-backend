@@ -16,6 +16,11 @@ type Count struct {
 	Count int    `json:"count"`
 }
 
+type FileStashURL struct {
+	ID  string `json:"id"`
+	URL string `json:"url"`
+}
+
 type FloatRange struct {
 	From float64 `json:"from"`
 	To   float64 `json:"to"`

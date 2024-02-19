@@ -353,6 +353,16 @@ func (r *queryResolver) NodeMetrics(ctx context.Context, cluster string, nodes [
 	return nodeMetrics, nil
 }
 
+// GetFileStashURL is the resolver for the getFileStashUrl field.
+func (r *queryResolver) GetFileStashURL(ctx context.Context, id string) (*model.FileStashURL, error) {
+	panic(fmt.Errorf("not implemented: GetFileStashURL - getFileStashUrl"))
+}
+
+// GetAllFileStashUrls is the resolver for the getAllFileStashUrls field.
+func (r *queryResolver) GetAllFileStashUrls(ctx context.Context) ([]*model.FileStashURL, error) {
+	panic(fmt.Errorf("not implemented: GetAllFileStashUrls - getAllFileStashUrls"))
+}
+
 // NumberOfNodes is the resolver for the numberOfNodes field.
 func (r *subClusterResolver) NumberOfNodes(ctx context.Context, obj *schema.SubCluster) (int, error) {
 	nodeList, err := archive.ParseNodeList(obj.Nodes)

@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 import css from 'rollup-plugin-css-only';
-import livereload from 'rollup-plugin-livereload';
+// import livereload from 'rollup-plugin-livereload';
 
 // const production = !process.env.ROLLUP_WATCH;
 const production = false
@@ -52,7 +52,7 @@ const entrypoint = (name, path) => ({
         // we'll extract any component CSS out into
         // a separate file - better for performance
         css({ output: `${name}.css` }),
-        livereload('public')
+        // livereload('public')
     ],
     watch: {
         clearScreen: false

@@ -9,21 +9,27 @@
     let displayMessage = false
 
     async function handleUrlSubmit() {
-        let form = document.querySelector('#create-url-form')
-        let formData = new FormData(form)
+        let urlInput = document.querySelector('#url');
+        let data = { url: urlInput.value };
 
         try {
-            const res = await fetch(form.action, { method: 'POST', body: formData });
+            const res = await fetch('/api/file_stash/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
             if (res.ok) {
-                let text = await res.text()
-                popMessage(text, '#048109')
-                form.reset()
+                let text = await res.text();
+                popMessage(text, '#048109');
+                urlInput.value = '';
             } else {
-                let text = await res.text()
-                throw new Error('Response Code ' + res.status + '-> ' + text)
+                let text = await res.text();
+                throw new Error('Response Code ' + res.status + '-> ' + text);
             }
         } catch (err)  {
-            popMessage(err, '#d63384')
+            popMessage(err, '#d63384');
         }
     }
 
@@ -38,7 +44,7 @@
 
 <Card>
     <!-- default url  -->
-    <form id="create-url-form" method="post" action="/api/url/" class="card-body" on:submit|preventDefault={handleUrlSubmit}>
+    <form id="create-url-form" method="post" action="/api/file_stash/" class="card-body" on:submit|preventDefault={handleUrlSubmit}>
         <CardTitle class="mb-3">FileBrowser Configuration</CardTitle>
         <CardText><p>Current URL :</p></CardText>
         <div class="mb-3">

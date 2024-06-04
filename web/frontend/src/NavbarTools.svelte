@@ -10,7 +10,9 @@
         Container,
         Row,
         Col,
+        Badge
     } from "sveltestrap";
+    import NavBadge from "./navbar/nav-badge.svelte";
 
     export let username; // empty string if auth. is disabled, otherwise the username as string
     export let authlevel; // Integer
@@ -20,6 +22,7 @@
 
 <Nav navbar>
     {#if screenSize >= 768}
+        <NavBadge /> 
         <NavItem>
             <form method="GET" action="/search">
                 <InputGroup>
@@ -103,6 +106,7 @@
                 </Row>
             </Container>
         </NavItem>
+
         <NavItem style="margin-left: 10px; margin-right:10px;">
             <form method="GET" action="/search">
                 <InputGroup>
@@ -123,5 +127,7 @@
                 </InputGroup>
             </form>
         </NavItem>
+
+        <!-- <NavBadge />       -->
     {/if}
 </Nav>

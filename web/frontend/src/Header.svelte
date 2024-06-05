@@ -12,6 +12,7 @@
   } from "sveltestrap";
   import NavbarLinks from "./NavbarLinks.svelte";
   import NavbarTools from "./NavbarTools.svelte";
+  import NavBadge from "./navbar/nav-badge.svelte";
 
   export let username; // empty string if auth. is disabled, otherwise the username as string
   export let authlevel; // Integer
@@ -92,10 +93,10 @@
       title: "Control",
       requiredRole: roles.admin,
       href: "/monitoring/control/",
-    //   icontype : "lucide",
+      //   icontype : "lucide",
       icon: "folder-symlink-fill",
       perCluster: true,
-      menu: "Stats",
+      menu: "menu",
     },
     {
       title: "Partitions",
@@ -103,7 +104,7 @@
       href: "/monitoring/partition/",
       icon: "device-hdd",
       perCluster: true,
-      menu: "Stats",
+      menu: "menu",
     },
     {
       title: "History",
@@ -111,17 +112,24 @@
       href: "/monitoring/history/",
       icon: "clock-history",
       perCluster: false,
-      menu: "Stats",
+      menu: "menu",
     },
   ];
 </script>
 
 <svelte:window bind:innerWidth={screenSize} />
-<Navbar color="light" light expand="md" fixed="top">
+<Navbar color="light" light expand="md" fixed="top" style="list-style-type=none;  ">
   <NavbarBrand href="/">
     <img alt="ClusterCockpit Logo" src="/img/logo.png" height="25rem" />
   </NavbarBrand>
+
+  {#if screenSize < 750} 
+    <NavBadge />
+  {/if}
+
   <NavbarToggler on:click={() => (isOpen = !isOpen)} />
+
+
   <Collapse
     style="justify-content: space-between"
     {isOpen}
@@ -139,19 +147,21 @@
         <NavbarLinks
           {clusters}
           links={views.filter(
-            (item) => item.requiredRole <= authlevel && item.menu != "Stats"
+            (item) => item.requiredRole <= authlevel && item.menu != "menu",
           )}
         />
+
         <Dropdown nav>
           <DropdownToggle nav caret>
-            <Icon name="graph-up" />
-            Stats
+            <Icon name="menu-button-wide-fill" />
+            Menu
           </DropdownToggle>
           <DropdownMenu class="dropdown-menu-lg-end">
             <NavbarLinks
               {clusters}
               links={views.filter(
-                (item) => item.requiredRole <= authlevel && item.menu == "Stats"
+                (item) =>
+                  item.requiredRole <= authlevel && item.menu == "menu",
               )}
             />
           </DropdownMenu>
@@ -160,10 +170,11 @@
         <NavbarLinks
           {clusters}
           links={views.filter(
-            (item) => item.requiredRole <= authlevel && item.menu == "none"
+            (item) => item.requiredRole <= authlevel && item.menu == "none",
           )}
         />
-        {#each Array("Groups", "Stats") as menu}
+
+        {#each Array("menu") as menu}
           <Dropdown nav>
             <DropdownToggle nav caret>
               {menu}
@@ -172,7 +183,7 @@
               <NavbarLinks
                 {clusters}
                 links={views.filter(
-                  (item) => item.requiredRole <= authlevel && item.menu == menu
+                  (item) => item.requiredRole <= authlevel && item.menu == menu,
                 )}
               />
             </DropdownMenu>
@@ -180,6 +191,8 @@
         {/each}
       {/if}
     </Nav>
+
     <NavbarTools {username} {authlevel} {roles} {screenSize} />
   </Collapse>
 </Navbar>
+

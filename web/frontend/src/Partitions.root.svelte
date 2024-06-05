@@ -26,6 +26,8 @@
     import { getContext } from "svelte";
     import VerticalTab from "./partition/VerticalTab.svelte";
 
+    import MyTab from './partition/MyTab.svelte'
+    import Notifications from './partition/Notifications.svelte'
 
     // export let cluster;
     export let from = null;
@@ -188,7 +190,7 @@
 </Card>
 <br />
 
-
+<!-- 
 <Card class="mb-1">
     <CardHeader>
         <CardTitle>Host Cluster Configuration</CardTitle>
@@ -198,5 +200,18 @@
         <CardText></CardText>
         <VerticalTab />
     </CardBody>
+</Card> -->
+
+
+<Notifications />
+
+<Card class="mt-5">
+    <CardHeader>
+        <CardTitle>
+            <h3>Partitions</h3>
+        </CardTitle>
+        <CardSubtitle class="text-secondary">Create and manage LVM partitions</CardSubtitle>
+    </CardHeader>
+    <MyTab />
 </Card>
 <br/>

@@ -344,6 +344,7 @@ func main() {
 		web.RenderTemplate(rw, "404.tmpl", &web.Page{Title: "Page not found", Build: buildInfo})
 	})
 
+
 	secured := r.PathPrefix("/").Subrouter()
 
 	if !config.Keys.DisableAuthentication {

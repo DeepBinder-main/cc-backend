@@ -17,6 +17,9 @@
   //   import InfoxDbConf from "./config/admin/InfluxDbConf.svelte";
   import InfluxModalDefault from "./config/admin/InfluxModalDefault.svelte";
   import FileBrowser from "./config/admin/FileBrowser.svelte";
+    import AddGroup from "./config/tabs/AddGroup.svelte";
+    import Groups from "./config/tabs/Groups.svelte";
+    import Users from "./config/tabs/Users.svelte";
 
   const { query: initq } = init();
 
@@ -37,6 +40,7 @@
       </Card>
     {/if}
   </TabPane>
+
   <TabPane tabId="plotting-options" class="mt-3">
     <span slot="tab">
       Plotting Options
@@ -46,6 +50,7 @@
       <PlotSettings config={ccconfig} />
     </Card>
   </TabPane>
+
   <TabPane tabId="influx-conf" class="mt-3">
     <span slot="tab">
       Default Configuration
@@ -61,6 +66,22 @@
       </Col>
       <Col class="mb-1">
         <FileBrowser />
+      </Col>
+    </Row>
+  </TabPane>
+
+  <TabPane tabId="groups" active class="mt-3">
+    <span slot="tab">
+      Groups
+      <!-- <Icon name="gear" /> -->
+    </span>
+    <!-- <AddGroup /> -->
+    <Row cols={2} class="p-2 g-4">
+      <Col class="mb-1">
+        <Groups />
+      </Col>
+      <Col class="mb-1">
+        <Users />
       </Col>
     </Row>
   </TabPane>

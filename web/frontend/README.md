@@ -2,7 +2,9 @@
 
 [![Build](https://github.com/Deepbinder-main/cc-svelte-datatable/actions/workflows/build.yml/badge.svg)](https://github.com/Deepbinder-main/cc-svelte-datatable/actions/workflows/build.yml)
 
+
 A frontend for [ClusterCockpit](https://github.com/Deepbinder-main/ClusterCockpit) and [cc-backend](https://github.com/Deepbinder-main/cc-backend). Backend specific configuration can de done using the constants defined in the `intro` section in `./rollup.config.js`.
+
 
 Builds on:
 * [Svelte](https://svelte.dev/)

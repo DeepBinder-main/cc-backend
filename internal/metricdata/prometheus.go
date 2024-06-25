@@ -335,7 +335,7 @@ func (pdb *PrometheusDataRepository) LoadData(
 					pdb.RowToSeries(from, step, steps, row))
 			}
 			// only add metric if at least one host returned data
-			if !ok && len(jobMetric.Series) > 0{
+			if !ok && len(jobMetric.Series) > 0 {
 				jobData[metric][scope] = jobMetric
 			}
 			// sort by hostname to get uniform coloring

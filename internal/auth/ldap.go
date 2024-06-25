@@ -1,4 +1,4 @@
-// Copyright (C) 2023 NHR@FAU, University Erlangen-Nuremberg.
+// Copyright (C) NHR@FAU, University Erlangen-Nuremberg.
 // All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
@@ -74,8 +74,8 @@ func (la *LdapAuthenticator) CanLogin(
 	user *schema.User,
 	username string,
 	rw http.ResponseWriter,
-	r *http.Request) (*schema.User, bool) {
-
+	r *http.Request,
+) (*schema.User, bool) {
 	lc := config.Keys.LdapConfig
 
 	if user != nil {
@@ -138,8 +138,8 @@ func (la *LdapAuthenticator) CanLogin(
 func (la *LdapAuthenticator) Login(
 	user *schema.User,
 	rw http.ResponseWriter,
-	r *http.Request) (*schema.User, error) {
-
+	r *http.Request,
+) (*schema.User, error) {
 	l, err := la.getLdapConnection(false)
 	if err != nil {
 		log.Warn("Error while getting ldap connection")
@@ -238,7 +238,6 @@ func (la *LdapAuthenticator) Sync() error {
 }
 
 func (la *LdapAuthenticator) getLdapConnection(admin bool) (*ldap.Conn, error) {
-
 	lc := config.Keys.LdapConfig
 	conn, err := ldap.DialURL(lc.Url)
 	if err != nil {

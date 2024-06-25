@@ -21,9 +21,9 @@ the full job performance data in the job performance tree hierarchy.
 The schema includes 3 tables: the job table, a tag table and a jobtag table
 representing the MANY-TO-MANY relation between jobs and tags. The SQL schema is
 specified
-[here](https://github.com/ClusterCockpit/cc-specifications/blob/master/schemas/jobs-sqlite.sql).
+[here](https://github.com/Deepbinder-main/cc-specifications/blob/master/schemas/jobs-sqlite.sql).
 Explanation of the various columns including the JSON datatypes is documented
-[here](https://github.com/ClusterCockpit/cc-specifications/blob/master/datastructures/job-meta.schema.json).
+[here](https://github.com/Deepbinder-main/cc-specifications/blob/master/datastructures/job-meta.schema.json).
 
 # Directory hierarchy specification
 
@@ -62,7 +62,7 @@ also available in a separate repository.
 ## Specification `cluster.json`
 
 The json schema specification is available
-[here](https://github.com/ClusterCockpit/cc-specifications/blob/master/datastructures/cluster.schema.json).
+[here](https://github.com/Deepbinder-main/cc-specifications/blob/master/datastructures/cluster.schema.json).
 
 ## Specification `meta.json`
 

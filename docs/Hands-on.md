@@ -47,7 +47,7 @@ Start by creating a base folder for all of the following steps.
 
 ### Setup cc-metric-store
 * Clone Repository
-    - `git clone https://github.com/ClusterCockpit/cc-metric-store.git`
+    - `git clone https://github.com/Deepbinder-main/cc-metric-store.git`
     - `cd cc-metric-store`
 * Build Go Executable
     - `go get`

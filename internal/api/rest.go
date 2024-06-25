@@ -38,7 +38,7 @@ import (
 // @description                API for batch job control.
 
 // @contact.name               ClusterCockpit Project
-// @contact.url                https://github.com/ClusterCockpit
+// @contact.url                https://github.com/Deepbinder-main
 // @contact.email              support@clustercockpit.org
 
 // @license.name               MIT License
@@ -1015,12 +1015,13 @@ func (api *RestApi) createUser(rw http.ResponseWriter, r *http.Request) {
 		Password: password,
 		Email:    email,
 		Projects: []string{project},
-		Roles:    []string{role}}); err != nil {
+		Roles:    []string{role},
+	}); err != nil {
 		http.Error(rw, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 
-	rw.Write([]byte(fmt.Sprintf("User %v successfully created!\n", username)))
+	fmt.Fprintf(rw, "User %v successfully created!\n", username)
 }
 
 // deleteUser godoc

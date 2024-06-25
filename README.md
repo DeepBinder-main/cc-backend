@@ -6,11 +6,11 @@ Please have a look at the [Release Notes](https://github.com/Deepbinder-main/cc-
 [![Build](https://github.com/Deepbinder-main/cc-backend/actions/workflows/test.yml/badge.svg)](https://github.com/Deepbinder-main/cc-backend/actions/workflows/test.yml)
 
 This is a Golang backend implementation for a REST and GraphQL API according to
-the [ClusterCockpit specifications](https://github.com/ClusterCockpit/cc-specifications). It also
+the [ClusterCockpit specifications](https://github.com/Deepbinder-main/cc-specifications). It also
 includes a web interface for ClusterCockpit. This implementation replaces the
 previous PHP Symfony based ClusterCockpit web interface. The reasons for
 switching from PHP Symfony to a Golang based solution are explained
-[here](https://github.com/ClusterCockpit/ClusterCockpit/wiki/Why-we-switched-from-PHP-Symfony-to-a-Golang-based-solution).
+[here](https://github.com/Deepbinder-main/ClusterCockpit/wiki/Why-we-switched-from-PHP-Symfony-to-a-Golang-based-solution).
 
 ## Overview
 
@@ -27,7 +27,7 @@ While there are metric data  backends for the InfluxDB and Prometheus time serie
 Documentation on how to integrate ClusterCockpit with other time series databases will be added in the future. 
 
 Completed batch jobs are stored in a file-based job archive according to
-[this specification] (https://github.com/ClusterCockpit/cc-specifications/tree/master/job-archive).
+[this specification] (https://github.com/Deepbinder-main/cc-specifications/tree/master/job-archive).
 The backend supports authentication via local accounts, an external LDAP
 directory, and JWT tokens. Authorization for APIs is implemented with
 [JWT](https://jwt.io/) tokens created with public/private key encryption.
@@ -125,7 +125,7 @@ To run this program as a daemon, cc-backend comes with a [example systemd setup]
 cc-backend can be used as a local web interface for an existing job archive or
 as a server for the ClusterCockpit monitoring framework.
 
-Create your job archive according to [this specification] (https://github.com/ClusterCockpit/cc-specifications/tree/master/job-archive).
+Create your job archive according to [this specification] (https://github.com/Deepbinder-main/cc-specifications/tree/master/job-archive).
 At least one cluster directory with a valid `cluster.json` file is required. If
 you configure the job archive from scratch, you must also create the job
 archive version file that contains the job archive version as an integer.

@@ -90,6 +90,15 @@
     //   menu: "Groups",
     // },
     {
+      title: "Home",
+      requiredRole: roles.admin,
+      href: "/",
+      //   icontype : "lucide",
+      icon: "house",
+      perCluster: false,
+      menu: "menu",
+    },
+    {
       title: "Control",
       requiredRole: roles.admin,
       href: "/monitoring/control/",
@@ -195,4 +204,3 @@
     <NavbarTools {username} {authlevel} {roles} {screenSize} />
   </Collapse>
 </Navbar>
-

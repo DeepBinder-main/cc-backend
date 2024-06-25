@@ -1,5 +1,5 @@
 <script>
-    import { Button, Modal, Table, Input, Container, Row, Col, Card } from "sveltestrap";
+    import { ModalFooter, Button, Modal, Table, Input, Container, Row, Col, Card } from "sveltestrap";
     import Agent from "./agents/agent.svelte";
     let open = false;
     const toggle = () => (open = !open);
@@ -96,6 +96,9 @@
     </Row>
 </Container>
 
-<Modal body header="Modal title" isOpen={open} {toggle} size="xl">
+<Modal body header="Deploy New Agent" isOpen={open} {toggle} size="xl">
     <Agent />
+    <ModalFooter>
+        <Button color="primary" on:click={toggle}>CLOSE</Button>
+    </ModalFooter>
 </Modal>

@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/util"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/internal/util"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 func TestInitEmptyPath(t *testing.T) {

@@ -14,10 +14,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/ClusterCockpit/cc-backend/internal/config"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
 	ccunits "github.com/ClusterCockpit/cc-units"
+	"github.com/Deepbinder-main/cc-backend/internal/config"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 const Version = 1

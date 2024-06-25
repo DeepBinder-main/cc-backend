@@ -15,7 +15,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 )
 
 // Very simple and limited .env file reader.

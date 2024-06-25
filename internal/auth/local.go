@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	"golang.org/x/crypto/bcrypt"
 )
 

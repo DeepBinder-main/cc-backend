@@ -20,10 +20,10 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/config"
-	"github.com/ClusterCockpit/cc-backend/internal/util"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/internal/config"
+	"github.com/Deepbinder-main/cc-backend/internal/util"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 

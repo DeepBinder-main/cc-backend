@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
 )
 
 func TestBuildJobStatsQuery(t *testing.T) {

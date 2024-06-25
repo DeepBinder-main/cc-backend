@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/archive"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/archive"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 type CCMetricStoreConfig struct {

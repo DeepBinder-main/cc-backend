@@ -5,7 +5,7 @@
 package main
 
 import (
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 type JobData map[string]map[schema.MetricScope]*JobMetric

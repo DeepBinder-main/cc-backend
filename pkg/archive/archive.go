@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/lrucache"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/lrucache"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 const Version uint64 = 1

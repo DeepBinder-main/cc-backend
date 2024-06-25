@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 )
 
 type NodeList [][]interface {

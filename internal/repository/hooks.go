@@ -8,7 +8,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 )
 
 // Hooks satisfies the sqlhook.Hooks interface

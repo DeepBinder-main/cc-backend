@@ -9,7 +9,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"

@@ -12,16 +12,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/config"
-	"github.com/ClusterCockpit/cc-backend/internal/repository"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/internal/config"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	"github.com/go-ldap/ldap/v3"
 )
 
 type LdapAuthenticator struct {
 	syncPassword string
-	UserAttr string
+	UserAttr     string
 }
 
 var _ Authenticator = (*LdapAuthenticator)(nil)

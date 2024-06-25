@@ -7,7 +7,7 @@ package util
 import (
 	"os"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 )
 
 func DiskUsage(dirpath string) float64 {

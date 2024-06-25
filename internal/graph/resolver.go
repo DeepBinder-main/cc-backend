@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"github.com/ClusterCockpit/cc-backend/internal/repository"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
 	"github.com/jmoiron/sqlx"
 )
 

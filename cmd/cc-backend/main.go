@@ -25,21 +25,21 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/ClusterCockpit/cc-backend/internal/api"
-	"github.com/ClusterCockpit/cc-backend/internal/auth"
-	"github.com/ClusterCockpit/cc-backend/internal/config"
-	"github.com/ClusterCockpit/cc-backend/internal/graph"
-	"github.com/ClusterCockpit/cc-backend/internal/graph/generated"
-	"github.com/ClusterCockpit/cc-backend/internal/importer"
-	"github.com/ClusterCockpit/cc-backend/internal/metricdata"
-	"github.com/ClusterCockpit/cc-backend/internal/repository"
-	"github.com/ClusterCockpit/cc-backend/internal/routerConfig"
-	"github.com/ClusterCockpit/cc-backend/internal/runtimeEnv"
-	"github.com/ClusterCockpit/cc-backend/internal/util"
-	"github.com/ClusterCockpit/cc-backend/pkg/archive"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
-	"github.com/ClusterCockpit/cc-backend/web"
+	"github.com/Deepbinder-main/cc-backend/internal/api"
+	"github.com/Deepbinder-main/cc-backend/internal/auth"
+	"github.com/Deepbinder-main/cc-backend/internal/config"
+	"github.com/Deepbinder-main/cc-backend/internal/graph"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/generated"
+	"github.com/Deepbinder-main/cc-backend/internal/importer"
+	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	"github.com/Deepbinder-main/cc-backend/internal/routerConfig"
+	"github.com/Deepbinder-main/cc-backend/internal/runtimeEnv"
+	"github.com/Deepbinder-main/cc-backend/internal/util"
+	"github.com/Deepbinder-main/cc-backend/pkg/archive"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/web"
 	"github.com/go-co-op/gocron"
 	"github.com/google/gops/agent"
 	"github.com/gorilla/handlers"
@@ -343,7 +343,6 @@ func main() {
 		rw.Header().Add("Content-Type", "text/html; charset=utf-8")
 		web.RenderTemplate(rw, "404.tmpl", &web.Page{Title: "Page not found", Build: buildInfo})
 	})
-
 
 	secured := r.PathPrefix("/").Subrouter()
 

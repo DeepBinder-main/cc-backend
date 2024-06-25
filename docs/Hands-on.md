@@ -31,7 +31,7 @@ Start by creating a base folder for all of the following steps.
 
 ### Setup cc-backend
 * Clone Repository
-    - `git clone https://github.com/ClusterCockpit/cc-backend.git`
+    - `git clone https://github.com/Deepbinder-main/cc-backend.git`
     - `cd cc-backend`
 * Build
     - `make`

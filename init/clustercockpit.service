@@ -1,6 +1,6 @@
 [Unit]
 Description=ClusterCockpit Web Server (Go edition)
-Documentation=https://github.com/ClusterCockpit/cc-backend
+Documentation=https://github.com/Deepbinder-main/cc-backend
 Wants=network-online.target
 After=network-online.target
 After=mariadb.service mysql.service

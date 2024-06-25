@@ -1,4 +1,4 @@
-module github.com/ClusterCockpit/cc-backend
+module github.com/Deepbinder-main/cc-backend
 
 go 1.18
 

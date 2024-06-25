@@ -20,9 +20,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/archive"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/archive"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	promapi "github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	promcfg "github.com/prometheus/common/config"
@@ -335,7 +335,7 @@ func (pdb *PrometheusDataRepository) LoadData(
 					pdb.RowToSeries(from, step, steps, row))
 			}
 			// only add metric if at least one host returned data
-			if !ok && len(jobMetric.Series) > 0{
+			if !ok && len(jobMetric.Series) > 0 {
 				jobData[metric][scope] = jobMetric
 			}
 			// sort by hostname to get uniform coloring

@@ -1,7 +1,7 @@
 The job archive specifies an exchange format for job meta and performance metric
 data. It consists of two parts:
-* a [SQLite database schema](https://github.com/ClusterCockpit/cc-backend/wiki/Job-Archive#sqlite-database-schema)  for job meta data and performance statistics
-* a [Json file format](https://github.com/ClusterCockpit/cc-backend/wiki/Job-Archive#json-file-format) together with a [Directory hierarchy specification](https://github.com/ClusterCockpit/cc-backend/wiki/Job-Archive#directory-hierarchy-specification)
+* a [SQLite database schema](https://github.com/Deepbinder-main/cc-backend/wiki/Job-Archive#sqlite-database-schema)  for job meta data and performance statistics
+* a [Json file format](https://github.com/Deepbinder-main/cc-backend/wiki/Job-Archive#json-file-format) together with a [Directory hierarchy specification](https://github.com/Deepbinder-main/cc-backend/wiki/Job-Archive#directory-hierarchy-specification)
 
 By using an open, portable and simple specification based on files it is
 possible to exchange job performance data for research and analysis purposes as

@@ -8,7 +8,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 )
 
 func CheckFileExists(filePath string) bool {

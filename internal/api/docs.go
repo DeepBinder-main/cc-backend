@@ -11,7 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "ClusterCockpit Project",
-            "url": "https://github.com/ClusterCockpit",
+            "url": "https://github.com/Deepbinder-main",
             "email": "support@clustercockpit.org"
         },
         "license": {

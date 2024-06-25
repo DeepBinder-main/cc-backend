@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 var Keys schema.ProgramConfig = schema.ProgramConfig{

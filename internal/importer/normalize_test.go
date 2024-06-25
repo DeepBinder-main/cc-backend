@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	ccunits "github.com/ClusterCockpit/cc-units"
+	ccunits "github.com/Deepbinder-main/cc-units"
 )
 
 func TestNormalizeFactor(t *testing.T) {

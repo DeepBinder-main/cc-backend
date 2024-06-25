@@ -11,13 +11,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/graph/generated"
-	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
-	"github.com/ClusterCockpit/cc-backend/internal/metricdata"
-	"github.com/ClusterCockpit/cc-backend/internal/repository"
-	"github.com/ClusterCockpit/cc-backend/pkg/archive"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/generated"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	"github.com/Deepbinder-main/cc-backend/pkg/archive"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 // Partitions is the resolver for the partitions field.

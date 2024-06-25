@@ -10,11 +10,11 @@ import (
 	"math"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
-	"github.com/ClusterCockpit/cc-backend/internal/metricdata"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
-	// "github.com/ClusterCockpit/cc-backend/pkg/archive"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
+	// "github.com/Deepbinder-main/cc-backend/pkg/archive"
 )
 
 const MAX_JOBS_FOR_ANALYSIS = 500

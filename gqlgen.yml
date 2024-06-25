@@ -30,7 +30,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "github.com/ClusterCockpit/cc-backend/internal/graph/model"
+  - "github.com/Deepbinder-main/cc-backend/internal/graph/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -50,34 +50,34 @@ models:
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
   Job:
-    model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Job"
+    model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Job"
     fields:
       tags:
         resolver: true
       metaData:
         resolver: true
   Cluster:
-    model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Cluster"
+    model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Cluster"
     fields:
       partitions:
         resolver: true
-  NullableFloat: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Float" }
-  MetricScope: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.MetricScope" }
-  MetricValue: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.MetricValue" }
-  JobStatistics: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.JobStatistics" }
-  Tag: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Tag" }
-  Resource: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Resource" }
-  JobState: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.JobState" }
-  TimeRange: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.TimeRange" }
-  IntRange: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.IntRange" }
-  JobMetric: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.JobMetric" }
-  Series: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Series" }
-  MetricStatistics: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.MetricStatistics" }
-  MetricConfig: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.MetricConfig" }
-  SubClusterConfig: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.SubClusterConfig" }
-  Accelerator: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Accelerator" }
-  Topology: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Topology" }
-  FilterRanges: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.FilterRanges" }
-  SubCluster: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.SubCluster" }
-  StatsSeries: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.StatsSeries" }
-  Unit: { model: "github.com/ClusterCockpit/cc-backend/pkg/schema.Unit" }
+  NullableFloat: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Float" }
+  MetricScope: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.MetricScope" }
+  MetricValue: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.MetricValue" }
+  JobStatistics: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.JobStatistics" }
+  Tag: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Tag" }
+  Resource: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Resource" }
+  JobState: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.JobState" }
+  TimeRange: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.TimeRange" }
+  IntRange: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.IntRange" }
+  JobMetric: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.JobMetric" }
+  Series: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Series" }
+  MetricStatistics: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.MetricStatistics" }
+  MetricConfig: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.MetricConfig" }
+  SubClusterConfig: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.SubClusterConfig" }
+  Accelerator: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Accelerator" }
+  Topology: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Topology" }
+  FilterRanges: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.FilterRanges" }
+  SubCluster: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.SubCluster" }
+  StatsSeries: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.StatsSeries" }
+  Unit: { model: "github.com/Deepbinder-main/cc-backend/pkg/schema.Unit" }

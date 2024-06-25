@@ -33,7 +33,7 @@ When a user logs in via the `/login` page using a browser, a session cookie (sec
 
 ## cc-metric-store
 
-The [cc-metric-store](https://github.com/ClusterCockpit/cc-metric-store) also uses JWTs for authentication. As it does not issue new tokens, it does not need to kown the private key. The public key of the keypair that is used to generate the JWTs that grant access to the `cc-metric-store` can be specified in its `config.json`. When configuring the `metricDataRepository` object in the `cluster.json` file, you can put a token issued by ClusterCockpit itself.
+The [cc-metric-store](https://github.com/Deepbinder-main/cc-metric-store) also uses JWTs for authentication. As it does not issue new tokens, it does not need to kown the private key. The public key of the keypair that is used to generate the JWTs that grant access to the `cc-metric-store` can be specified in its `config.json`. When configuring the `metricDataRepository` object in the `cluster.json` file, you can put a token issued by ClusterCockpit itself.
 
 ## Setup user and JWT token for REST API authorization
 

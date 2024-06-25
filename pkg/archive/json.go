@@ -9,8 +9,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 func DecodeJobData(r io.Reader, k string) (schema.JobData, error) {

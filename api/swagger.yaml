@@ -691,7 +691,7 @@ info:
   contact:
     email: support@clustercockpit.org
     name: ClusterCockpit Project
-    url: https://github.com/ClusterCockpit
+    url: https://github.com/Deepbinder-main
   description: API for batch job control.
   license:
     name: MIT License

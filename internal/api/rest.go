@@ -19,17 +19,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/auth"
-	"github.com/ClusterCockpit/cc-backend/internal/config"
-	"github.com/ClusterCockpit/cc-backend/internal/graph"
-	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
-	"github.com/ClusterCockpit/cc-backend/internal/importer"
-	"github.com/ClusterCockpit/cc-backend/internal/metricdata"
-	"github.com/ClusterCockpit/cc-backend/internal/repository"
-	"github.com/ClusterCockpit/cc-backend/internal/util"
-	"github.com/ClusterCockpit/cc-backend/pkg/archive"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/internal/auth"
+	"github.com/Deepbinder-main/cc-backend/internal/config"
+	"github.com/Deepbinder-main/cc-backend/internal/graph"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	"github.com/Deepbinder-main/cc-backend/internal/importer"
+	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	"github.com/Deepbinder-main/cc-backend/internal/util"
+	"github.com/Deepbinder-main/cc-backend/pkg/archive"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	"github.com/gorilla/mux"
 )
 
@@ -38,7 +38,7 @@ import (
 // @description                API for batch job control.
 
 // @contact.name               ClusterCockpit Project
-// @contact.url                https://github.com/ClusterCockpit
+// @contact.url                https://github.com/Deepbinder-main
 // @contact.email              support@clustercockpit.org
 
 // @license.name               MIT License

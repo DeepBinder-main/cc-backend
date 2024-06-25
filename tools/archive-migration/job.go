@@ -10,7 +10,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
 // Non-Swaggered Comment: BaseJob

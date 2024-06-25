@@ -1,16 +1,16 @@
 # NOTE
-Please have a look at the [Release Notes](https://github.com/ClusterCockpit/cc-backend/blob/master/ReleaseNotes.md) for breaking changes!
+Please have a look at the [Release Notes](https://github.com/Deepbinder-main/cc-backend/blob/master/ReleaseNotes.md) for breaking changes!
 
 # ClusterCockpit REST and GraphQL API backend
 
-[![Build](https://github.com/ClusterCockpit/cc-backend/actions/workflows/test.yml/badge.svg)](https://github.com/ClusterCockpit/cc-backend/actions/workflows/test.yml)
+[![Build](https://github.com/Deepbinder-main/cc-backend/actions/workflows/test.yml/badge.svg)](https://github.com/Deepbinder-main/cc-backend/actions/workflows/test.yml)
 
 This is a Golang backend implementation for a REST and GraphQL API according to
-the [ClusterCockpit specifications](https://github.com/ClusterCockpit/cc-specifications). It also
+the [ClusterCockpit specifications](https://github.com/Deepbinder-main/cc-specifications). It also
 includes a web interface for ClusterCockpit. This implementation replaces the
 previous PHP Symfony based ClusterCockpit web interface. The reasons for
 switching from PHP Symfony to a Golang based solution are explained
-[here](https://github.com/ClusterCockpit/ClusterCockpit/wiki/Why-we-switched-from-PHP-Symfony-to-a-Golang-based-solution).
+[here](https://github.com/Deepbinder-main/ClusterCockpit/wiki/Why-we-switched-from-PHP-Symfony-to-a-Golang-based-solution).
 
 ## Overview
 
@@ -27,7 +27,7 @@ While there are metric data  backends for the InfluxDB and Prometheus time serie
 Documentation on how to integrate ClusterCockpit with other time series databases will be added in the future. 
 
 Completed batch jobs are stored in a file-based job archive according to
-[this specification] (https://github.com/ClusterCockpit/cc-specifications/tree/master/job-archive).
+[this specification] (https://github.com/Deepbinder-main/cc-specifications/tree/master/job-archive).
 The backend supports authentication via local accounts, an external LDAP
 directory, and JWT tokens. Authorization for APIs is implemented with
 [JWT](https://jwt.io/) tokens created with public/private key encryption.
@@ -56,7 +56,7 @@ cc-backend. You will need `wget`, `go`, `node`, `npm` in your path to
 start the demo. The demo downloads 32MB of data (223MB on disk).
 
 ```sh
-git clone https://github.com/ClusterCockpit/cc-backend.git
+git clone https://github.com/Deepbinder-main/cc-backend.git
 cd ./cc-backend
 ./startDemo.sh
 ```
@@ -87,7 +87,7 @@ There is a Makefile to automate the build of cc-backend. The Makefile supports t
 
 A common workflow for setting up cc-backend from scratch is:
 ```sh
-git clone https://github.com/ClusterCockpit/cc-backend.git
+git clone https://github.com/Deepbinder-main/cc-backend.git
 
 # Build binary
 cd ./cc-backend/
@@ -125,7 +125,7 @@ To run this program as a daemon, cc-backend comes with a [example systemd setup]
 cc-backend can be used as a local web interface for an existing job archive or
 as a server for the ClusterCockpit monitoring framework.
 
-Create your job archive according to [this specification] (https://github.com/ClusterCockpit/cc-specifications/tree/master/job-archive).
+Create your job archive according to [this specification] (https://github.com/Deepbinder-main/cc-specifications/tree/master/job-archive).
 At least one cluster directory with a valid `cluster.json` file is required. If
 you configure the job archive from scratch, you must also create the job
 archive version file that contains the job archive version as an integer.
@@ -184,23 +184,23 @@ In case the REST or GraphQL API is changed the according code generators have to
 
 ## Project file structure
 
-- [`api/`](https://github.com/ClusterCockpit/cc-backend/tree/master/api) contains the API schema files for the REST and GraphQL APIs. The REST API is documented in the OpenAPI 3.0 format in [./api/openapi.yaml](./api/openapi.yaml).
-- [`cmd/cc-backend`](https://github.com/ClusterCockpit/cc-backend/tree/master/cmd/cc-backend) contains `main.go` for the main application.
-- [`configs/`](https://github.com/ClusterCockpit/cc-backend/tree/master/configs) contains documentation about configuration and command line options and required environment variables. A sample configuration file is provided.
-- [`docs/`](https://github.com/ClusterCockpit/cc-backend/tree/master/docs) contains more in-depth documentation.
-- [`init/`](https://github.com/ClusterCockpit/cc-backend/tree/master/init) contains an example of setting up systemd for production use.
-- [`internal/`](https://github.com/ClusterCockpit/cc-backend/tree/master/internal) contains library source code that is not intended for use by others.
-- [`pkg/`](https://github.com/ClusterCockpit/cc-backend/tree/master/pkg) contains Go packages that can be used by other projects.
-- [`tools/`](https://github.com/ClusterCockpit/cc-backend/tree/master/tools) Additional command line helper tools.
-   - [`archive-manager`](https://github.com/ClusterCockpit/cc-backend/tree/master/tools/archive-manager) Commands for getting infos about and existing job archive.
-   - [`archive-migration`](https://github.com/ClusterCockpit/cc-backend/tree/master/tools/archive-migration) Tool to migrate from previous to current job archive version.
-   - [`convert-pem-pubkey`](https://github.com/ClusterCockpit/cc-backend/tree/master/tools/convert-pem-pubkey) Tool to convert external pubkey for use in `cc-backend`.
-   - [`gen-keypair`](https://github.com/ClusterCockpit/cc-backend/tree/master/tools/gen-keypair) contains a small application to generate a compatible JWT keypair. You find documentation on how to use it [here](https://github.com/ClusterCockpit/cc-backend/blob/master/docs/JWT-Handling.md).
-- [`web/`](https://github.com/ClusterCockpit/cc-backend/tree/master/web) Server-side templates and frontend-related files:
-   - [`frontend`](https://github.com/ClusterCockpit/cc-backend/tree/master/web/frontend) Svelte components and static assets for the frontend UI
-   - [`templates`](https://github.com/ClusterCockpit/cc-backend/tree/master/web/templates) Server-side Go templates
-- [`gqlgen.yml`](https://github.com/ClusterCockpit/cc-backend/blob/master/gqlgen.yml) Configures the behaviour and generation of [gqlgen](https://github.com/99designs/gqlgen).
-- [`startDemo.sh`](https://github.com/ClusterCockpit/cc-backend/blob/master/startDemo.sh) is a shell script that sets up demo data, and builds and starts `cc-backend`.
+- [`api/`](https://github.com/Deepbinder-main/cc-backend/tree/master/api) contains the API schema files for the REST and GraphQL APIs. The REST API is documented in the OpenAPI 3.0 format in [./api/openapi.yaml](./api/openapi.yaml).
+- [`cmd/cc-backend`](https://github.com/Deepbinder-main/cc-backend/tree/master/cmd/cc-backend) contains `main.go` for the main application.
+- [`configs/`](https://github.com/Deepbinder-main/cc-backend/tree/master/configs) contains documentation about configuration and command line options and required environment variables. A sample configuration file is provided.
+- [`docs/`](https://github.com/Deepbinder-main/cc-backend/tree/master/docs) contains more in-depth documentation.
+- [`init/`](https://github.com/Deepbinder-main/cc-backend/tree/master/init) contains an example of setting up systemd for production use.
+- [`internal/`](https://github.com/Deepbinder-main/cc-backend/tree/master/internal) contains library source code that is not intended for use by others.
+- [`pkg/`](https://github.com/Deepbinder-main/cc-backend/tree/master/pkg) contains Go packages that can be used by other projects.
+- [`tools/`](https://github.com/Deepbinder-main/cc-backend/tree/master/tools) Additional command line helper tools.
+   - [`archive-manager`](https://github.com/Deepbinder-main/cc-backend/tree/master/tools/archive-manager) Commands for getting infos about and existing job archive.
+   - [`archive-migration`](https://github.com/Deepbinder-main/cc-backend/tree/master/tools/archive-migration) Tool to migrate from previous to current job archive version.
+   - [`convert-pem-pubkey`](https://github.com/Deepbinder-main/cc-backend/tree/master/tools/convert-pem-pubkey) Tool to convert external pubkey for use in `cc-backend`.
+   - [`gen-keypair`](https://github.com/Deepbinder-main/cc-backend/tree/master/tools/gen-keypair) contains a small application to generate a compatible JWT keypair. You find documentation on how to use it [here](https://github.com/Deepbinder-main/cc-backend/blob/master/docs/JWT-Handling.md).
+- [`web/`](https://github.com/Deepbinder-main/cc-backend/tree/master/web) Server-side templates and frontend-related files:
+   - [`frontend`](https://github.com/Deepbinder-main/cc-backend/tree/master/web/frontend) Svelte components and static assets for the frontend UI
+   - [`templates`](https://github.com/Deepbinder-main/cc-backend/tree/master/web/templates) Server-side Go templates
+- [`gqlgen.yml`](https://github.com/Deepbinder-main/cc-backend/blob/master/gqlgen.yml) Configures the behaviour and generation of [gqlgen](https://github.com/99designs/gqlgen).
+- [`startDemo.sh`](https://github.com/Deepbinder-main/cc-backend/blob/master/startDemo.sh) is a shell script that sets up demo data, and builds and starts `cc-backend`.
 
 
 ## Docker Mariadb

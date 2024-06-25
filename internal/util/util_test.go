@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ClusterCockpit/cc-backend/internal/util"
+	"github.com/Deepbinder-main/cc-backend/internal/util"
 )
 
 func TestCheckFileExists(t *testing.T) {

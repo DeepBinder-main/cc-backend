@@ -10,7 +10,7 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
 )
 
 // A custom float type is used so that (Un)MarshalJSON and

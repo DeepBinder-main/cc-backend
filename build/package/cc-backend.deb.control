@@ -6,7 +6,7 @@ Maintainer: thomas.gruber@fau.de
 Depends: libc6 (>= 2.2.1)
 Build-Depends: debhelper-compat (= 13), git, golang-go, npm, yarn
 Description: ClusterCockpit backend and web frontend
-Homepage: https://github.com/ClusterCockpit/cc-backend
+Homepage: https://github.com/Deepbinder-main/cc-backend
 Source: cc-backend
 Rules-Requires-Root: no
 

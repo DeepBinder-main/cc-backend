@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClusterCockpit/cc-backend/internal/graph/model"
-	"github.com/ClusterCockpit/cc-backend/internal/repository"
-	"github.com/ClusterCockpit/cc-backend/internal/util"
-	"github.com/ClusterCockpit/cc-backend/pkg/log"
-	"github.com/ClusterCockpit/cc-backend/pkg/schema"
-	"github.com/ClusterCockpit/cc-backend/web"
+	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	"github.com/Deepbinder-main/cc-backend/internal/util"
+	"github.com/Deepbinder-main/cc-backend/pkg/log"
+	"github.com/Deepbinder-main/cc-backend/pkg/schema"
+	"github.com/Deepbinder-main/cc-backend/web"
 	"github.com/gorilla/mux"
 )
 
@@ -47,9 +47,6 @@ var routes []Route = []Route{
 	{"/monitoring/control/{cluster}", "monitoring/control.tmpl", "Status of <ID> - ClusterCockpit", false, setupClusterRoute},
 	{"/monitoring/partition/{cluster}", "partitions/systems.tmpl", "Cluster <ID> - ClusterCockpit", false, setupClusterRoute},
 	{"/monitoring/history/", "monitoring/history.tmpl", "Cluster <ID> - ClusterCockpit", false, setupClusterRoute},
-
-
-
 }
 
 func setupHomeRoute(i InfoType, r *http.Request) InfoType {
@@ -102,7 +99,7 @@ func setupClusterRoute(i InfoType, r *http.Request) InfoType {
 	i["id"] = vars["cluster"]
 	i["cluster"] = vars["cluster"]
 	from, to := r.URL.Query().Get("from"), r.URL.Query().Get("to")
-	fmt.Println(i["cluster"], i["hostname"] , i["id"], from, to)
+	fmt.Println(i["cluster"], i["hostname"], i["id"], from, to)
 	fmt.Println(i)
 	if from != "" || to != "" {
 		i["from"] = from

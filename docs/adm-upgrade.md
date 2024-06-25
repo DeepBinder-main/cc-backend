@@ -26,7 +26,7 @@ $ ./cc-backend -migrate-db
 ```
 
 The migration files are embedded in the binary and can also be viewed in the cc
-backend [source tree](https://github.com/ClusterCockpit/cc-backend/tree/master/internal/repository/migrations).
+backend [source tree](https://github.com/Deepbinder-main/cc-backend/tree/master/internal/repository/migrations).
 There are separate migration files for both supported
 database backends.
 We use the [migrate library](https://github.com/golang-migrate/migrate).

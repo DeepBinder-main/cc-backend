@@ -179,7 +179,7 @@
 </Row>
 <br /> -->
 
-<Card>
+<!-- <Card>
     <CardHeader>
         <CardTitle>Storage Partition Graph</CardTitle>
     </CardHeader>
@@ -188,7 +188,7 @@
         <CardText></CardText>
     </CardBody>
 </Card>
-<br />
+<br /> -->
 
 <!-- 
 <Card class="mb-1">
@@ -203,9 +203,9 @@
 </Card> -->
 
 
-<Notifications />
+<!-- <Notifications /> -->
 
-<Card class="mt-5">
+<Card class="mt-2">
     <CardHeader>
         <CardTitle>
             <h3>Partitions</h3>

@@ -1,14 +1,13 @@
 <script>
     import { TabContent, TabPane } from "sveltestrap";
     import DashboardTab from "./tabs/Dashboard.svelte"
-    import CreateLVMTab from "./tabs/CreateLVM.svelte"
-    import MonitorTab from "./tabs/Monitor.svelte"
-    import AutoStorageTab from "./tabs/AutoStorage.svelte"
+    import LVMManager from "./tabs/CreateLVM.svelte"
+    import AttachLVM from "./tabs/AttachLVM.svelte"
     import SettingTab from "./tabs/Setting.svelte"
     import AutoStorage from "./tabs/AutoStorage.svelte";
 </script>
 
-<TabContent vertical pills class="p-3">
+<TabContent  class="p-3">
     <TabPane tabId="dashboard" active>
         <span class="fs-4" slot="tab">
             Dashboard
@@ -17,18 +16,18 @@
     </TabPane>
     <TabPane tabId="create-lvm">
         <span class="fs-4" slot="tab">
-            Create LVM
+            LVM Manager
         </span>
 
-        <CreateLVMTab />
+        <LVMManager />
     </TabPane>
     
     <TabPane tabId="monitor-tab">
         <span class="fs-4" slot="tab">
-            Monitor
+            Attach Volume
         </span>
 
-        <MonitorTab />
+        <AttachLVM />
     </TabPane>
     
     <TabPane tabId="auto-storage">
@@ -39,12 +38,12 @@
         <AutoStorage />
     </TabPane>
     
-    <TabPane tabId="setting-tab">
+    <!-- <TabPane tabId="setting-tab">
         <span class="fs-4" slot="tab">
             Setting
         </span>
 
         <SettingTab />
-    </TabPane>
+    </TabPane> -->
     
 </TabContent>

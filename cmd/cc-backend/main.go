@@ -72,39 +72,59 @@ SESSION_KEY="67d829bf61dc5f87a73fd814e2c9f629"
 
 const configString = `
 {
-    "addr": "127.0.0.1:8080",
-    "archive": {
-        "kind": "file",
-        "path": "./var/job-archive"
-    },
+    "embed-static-files": false,
+    "static-files": "./web/frontend/public/",
+    "addr": "0.0.0.0:8080",
+    "db-driver": "mysql",
+    "apiAllowedIPs" : "[*]",
+    "db": "root:my-secret-pw@(127.0.0.1:3306)/cockpit",
     "jwts": {
-        "max-age": "2000h"
+      "max-age": "2000h"
+    },
+    "oidc": {
+      "provider": "http://localhost:5556/dex",
+      "syncUserOnLogin": true
+    },
+    "ldap": {
+      "url": "ldap://ldap.forumsys.com:389",
+      "user_base": "ou=Users,dc=example,dc=com",
+      "search_dn": "dc=example,dc=com",
+      "user_bind": "cn=read-only-admin,dc=example,dc=com",
+      "user_filter": "(objectClass=person)",
+      "username_attr": "uid",
+      "sync_interval": "24h",
+      "sync_del_old_users": false,
+      "syncUserOnLogin": false
+    },
+    "archive": {
+      "kind": "file",
+      "path": "./var/job-archive"
     },
     "clusters": [
-        {
-            "name": "name",
-            "metricDataRepository": {
-                "kind": "cc-metric-store",
-                "url": "http://localhost:8082",
-                "token": ""
-            },
-            "filterRanges": {
-                "numNodes": {
-                    "from": 1,
-                    "to": 64
-                },
-                "duration": {
-                    "from": 0,
-                    "to": 86400
-                },
-                "startTime": {
-                    "from": "2023-01-01T00:00:00Z",
-                    "to": null
-                }
-            }
+      {
+        "name": "name",
+        "metricDataRepository": {
+          "kind": "cc-metric-store",
+          "url": "http://localhost:8082",
+          "token": ""
+        },
+        "filterRanges": {
+          "numNodes": {
+            "from": 1,
+            "to": 64
+          },
+          "duration": {
+            "from": 0,
+            "to": 86400
+          },
+          "startTime": {
+            "from": "2023-01-01T00:00:00Z",
+            "to": null
+          }
         }
+      }
     ]
-}
+  }
 `
 
 var (

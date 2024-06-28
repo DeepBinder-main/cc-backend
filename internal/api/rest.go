@@ -22,8 +22,8 @@ import (
 	"github.com/Deepbinder-main/cc-backend/internal/auth"
 	"github.com/Deepbinder-main/cc-backend/internal/config"
 	"github.com/Deepbinder-main/cc-backend/internal/graph"
-	// "github.com/Deepbinder-main/cc-backend/internal/graph/model" 
-	// "github.com/Deepbinder-main/cc-backend/internal/importer" 
+	// "github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	// "github.com/Deepbinder-main/cc-backend/internal/importer"
 	// "github.com/Deepbinder-main/cc-backend/internal/metricdata"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
 	"github.com/Deepbinder-main/cc-backend/internal/util"
@@ -33,23 +33,23 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// @title                      ClusterCockpit REST API
-// @version                    1.0.0
-// @description                API for batch job control.
+//	@title			ClusterCockpit REST API
+//	@version		1.0.0
+//	@description	API for batch job control.
 
-// @contact.name               ClusterCockpit Project
-// @contact.url                https://github.com/Deepbinder-main
-// @contact.email              support@clustercockpit.org
+//	@contact.name	ClusterCockpit Project
+//	@contact.url	https://github.com/Deepbinder-main
+//	@contact.email	support@clustercockpit.org
 
-// @license.name               MIT License
-// @license.url                https://opensource.org/licenses/MIT
+//	@license.name	MIT License
+//	@license.url	https://opensource.org/licenses/MIT
 
-// @host                       localhost:8080
-// @basePath                   /api
+//	@host		localhost:8080
+//	@basePath	/api
 
-// @securityDefinitions.apikey ApiKeyAuth
-// @in                         header
-// @name                       X-Auth-Token
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						X-Auth-Token
 
 type RestApi struct {
 	JobRepository   *repository.JobRepository
@@ -146,20 +146,20 @@ type ApiTag struct {
 	Name string `json:"name" example:"Testjob"` // Tag Name
 }
 
-type TagJobApiRequest []*ApiTag
+// type TagJobApiRequest []*ApiTag
 
-type GetJobApiRequest []string
+// type GetJobApiRequest []string
 
-type GetJobApiResponse struct {
-	Meta *schema.Job
-	Data []*JobMetricWithName
-}
+// type GetJobApiResponse struct {
+// 	Meta *schema.Job
+// 	Data []*JobMetricWithName
+// }
 
-type JobMetricWithName struct {
-	Name   string             `json:"name"`
-	Scope  schema.MetricScope `json:"scope"`
-	Metric *schema.JobMetric  `json:"metric"`
-}
+// type JobMetricWithName struct {
+// 	Name   string             `json:"name"`
+// 	Scope  schema.MetricScope `json:"scope"`
+// 	Metric *schema.JobMetric  `json:"metric"`
+// }
 
 type ApiReturnedUser struct {
 	Username string   `json:"username"`
@@ -223,28 +223,27 @@ func securedCheck(r *http.Request) error {
 	return nil
 }
 
-
 // createUser godoc
-// @summary     Adds a new user
-// @tags User
-// @description User specified in form data will be saved to database.
-// @description Only accessible from IPs registered with apiAllowedIPs configuration option.
-// @accept      mpfd
-// @produce     plain
-// @param       username formData string                       true  "Unique user ID"
-// @param       password formData string                       true  "User password"
-// @param       role 	 formData string                       true  "User role" Enums(admin, support, manager, user, api)
-// @param       project  formData string                       false "Managed project, required for new manager role user"
-// @param       name 	 formData string                       false "Users name"
-// @param       email 	 formData string                       false "Users email"
-// @success     200      {string} string                       "Success Response"
-// @failure     400      {string} string                       "Bad Request"
-// @failure     401      {string} string                       "Unauthorized"
-// @failure     403      {string} string                       "Forbidden"
-// @failure     422      {string} string                       "Unprocessable Entity: creating user failed"
-// @failure     500      {string} string                       "Internal Server Error"
-// @security    ApiKeyAuth
-// @router      /users/ [post]
+//	@summary		Adds a new user
+//	@tags			User
+//	@description	User specified in form data will be saved to database.
+//	@description	Only accessible from IPs registered with apiAllowedIPs configuration option.
+//	@accept			mpfd
+//	@produce		plain
+//	@param			username	formData	string	true	"Unique user ID"
+//	@param			password	formData	string	true	"User password"
+//	@param			role		formData	string	true	"User role"	Enums(admin, support, manager, user, api)
+//	@param			project		formData	string	false	"Managed project, required for new manager role user"
+//	@param			name		formData	string	false	"Users name"
+//	@param			email		formData	string	false	"Users email"
+//	@success		200			{string}	string	"Success Response"
+//	@failure		400			{string}	string	"Bad Request"
+//	@failure		401			{string}	string	"Unauthorized"
+//	@failure		403			{string}	string	"Forbidden"
+//	@failure		422			{string}	string	"Unprocessable Entity: creating user failed"
+//	@failure		500			{string}	string	"Internal Server Error"
+//	@security		ApiKeyAuth
+//	@router			/users/ [post]
 func (api *RestApi) createUser(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
@@ -294,21 +293,21 @@ func (api *RestApi) createUser(rw http.ResponseWriter, r *http.Request) {
 }
 
 // deleteUser godoc
-// @summary     Deletes a user
-// @tags User
-// @description User defined by username in form data will be deleted from database.
-// @description Only accessible from IPs registered with apiAllowedIPs configuration option.
-// @accept      mpfd
-// @produce     plain
-// @param       username formData string         true "User ID to delete"
-// @success     200      "User deleted successfully"
-// @failure     400      {string} string              "Bad Request"
-// @failure     401      {string} string              "Unauthorized"
-// @failure     403      {string} string              "Forbidden"
-// @failure     422      {string} string              "Unprocessable Entity: deleting user failed"
-// @failure     500      {string} string              "Internal Server Error"
-// @security    ApiKeyAuth
-// @router      /users/ [delete]
+//	@summary		Deletes a user
+//	@tags			User
+//	@description	User defined by username in form data will be deleted from database.
+//	@description	Only accessible from IPs registered with apiAllowedIPs configuration option.
+//	@accept			mpfd
+//	@produce		plain
+//	@param			username	formData	string	true	"User ID to delete"
+//	@success		200			"User deleted successfully"
+//	@failure		400			{string}	string	"Bad Request"
+//	@failure		401			{string}	string	"Unauthorized"
+//	@failure		403			{string}	string	"Forbidden"
+//	@failure		422			{string}	string	"Unprocessable Entity: deleting user failed"
+//	@failure		500			{string}	string	"Internal Server Error"
+//	@security		ApiKeyAuth
+//	@router			/users/ [delete]
 func (api *RestApi) deleteUser(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
@@ -331,20 +330,20 @@ func (api *RestApi) deleteUser(rw http.ResponseWriter, r *http.Request) {
 }
 
 // getUsers godoc
-// @summary     Returns a list of users
-// @tags User
-// @description Returns a JSON-encoded list of users.
-// @description Required query-parameter defines if all users or only users with additional special roles are returned.
-// @description Only accessible from IPs registered with apiAllowedIPs configuration option.
-// @produce     json
-// @param       not-just-user query bool true "If returned list should contain all users or only users with additional special roles"
-// @success     200     {array} api.ApiReturnedUser "List of users returned successfully"
-// @failure     400     {string} string             "Bad Request"
-// @failure     401     {string} string             "Unauthorized"
-// @failure     403     {string} string             "Forbidden"
-// @failure     500     {string} string             "Internal Server Error"
-// @security    ApiKeyAuth
-// @router      /users/ [get]
+//	@summary		Returns a list of users
+//	@tags			User
+//	@description	Returns a JSON-encoded list of users.
+//	@description	Required query-parameter defines if all users or only users with additional special roles are returned.
+//	@description	Only accessible from IPs registered with apiAllowedIPs configuration option.
+//	@produce		json
+//	@param			not-just-user	query		bool				true	"If returned list should contain all users or only users with additional special roles"
+//	@success		200				{array}		api.ApiReturnedUser	"List of users returned successfully"
+//	@failure		400				{string}	string				"Bad Request"
+//	@failure		401				{string}	string				"Unauthorized"
+//	@failure		403				{string}	string				"Forbidden"
+//	@failure		500				{string}	string				"Internal Server Error"
+//	@security		ApiKeyAuth
+//	@router			/users/ [get]
 func (api *RestApi) getUsers(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
@@ -367,26 +366,26 @@ func (api *RestApi) getUsers(rw http.ResponseWriter, r *http.Request) {
 }
 
 // updateUser godoc
-// @summary     Updates an existing user
-// @tags User
-// @description Modifies user defined by username (id) in one of four possible ways.
-// @description If more than one formValue is set then only the highest priority field is used.
-// @description Only accessible from IPs registered with apiAllowedIPs configuration option.
-// @accept      mpfd
-// @produce     plain
-// @param       id             path     string     true  "Database ID of User"
-// @param       add-role       formData string     false "Priority 1: Role to add" Enums(admin, support, manager, user, api)
-// @param       remove-role    formData string     false "Priority 2: Role to remove" Enums(admin, support, manager, user, api)
-// @param       add-project    formData string     false "Priority 3: Project to add"
-// @param       remove-project formData string     false "Priority 4: Project to remove"
-// @success     200     {string} string            "Success Response Message"
-// @failure     400     {string} string            "Bad Request"
-// @failure     401     {string} string            "Unauthorized"
-// @failure     403     {string} string            "Forbidden"
-// @failure     422     {string} string            "Unprocessable Entity: The user could not be updated"
-// @failure     500     {string} string            "Internal Server Error"
-// @security    ApiKeyAuth
-// @router      /user/{id} [post]
+//	@summary		Updates an existing user
+//	@tags			User
+//	@description	Modifies user defined by username (id) in one of four possible ways.
+//	@description	If more than one formValue is set then only the highest priority field is used.
+//	@description	Only accessible from IPs registered with apiAllowedIPs configuration option.
+//	@accept			mpfd
+//	@produce		plain
+//	@param			id				path		string	true	"Database ID of User"
+//	@param			add-role		formData	string	false	"Priority 1: Role to add"		Enums(admin, support, manager, user, api)
+//	@param			remove-role		formData	string	false	"Priority 2: Role to remove"	Enums(admin, support, manager, user, api)
+//	@param			add-project		formData	string	false	"Priority 3: Project to add"
+//	@param			remove-project	formData	string	false	"Priority 4: Project to remove"
+//	@success		200				{string}	string	"Success Response Message"
+//	@failure		400				{string}	string	"Bad Request"
+//	@failure		401				{string}	string	"Unauthorized"
+//	@failure		403				{string}	string	"Forbidden"
+//	@failure		422				{string}	string	"Unprocessable Entity: The user could not be updated"
+//	@failure		500				{string}	string	"Internal Server Error"
+//	@security		ApiKeyAuth
+//	@router			/user/{id} [post]
 func (api *RestApi) updateUser(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
@@ -548,9 +547,6 @@ func (api *RestApi) getMachineState(rw http.ResponseWriter, r *http.Request) {
 	// Sets the content-type and 'Last-Modified' Header and so on automatically
 	http.ServeFile(rw, r, filename)
 }
-
-
-
 
 // // getJobs godoc
 // // @summary     Lists all jobs
@@ -792,10 +788,6 @@ func (api *RestApi) getMachineState(rw http.ResponseWriter, r *http.Request) {
 // 		return
 // 	}
 // }
-
-
-
-
 
 // // tagJob godoc
 // // @summary     Adds one or more tags to a job

@@ -52,7 +52,7 @@ import (
 //	@name						X-Auth-Token
 
 type RestApi struct {
-	JobRepository   *repository.JobRepository
+	// JobRepository   *repository.JobRepository
 	Resolver        *graph.Resolver
 	Authentication  *auth.Authentication
 	MachineStateDir string
@@ -92,45 +92,45 @@ func (api *RestApi) MountRoutes(r *mux.Router) {
 	}
 }
 
-// StartJobApiResponse model
-type StartJobApiResponse struct {
-	// Database ID of new job
-	DBID int64 `json:"id"`
-}
+// // StartJobApiResponse model
+// type StartJobApiResponse struct {
+// 	// Database ID of new job
+// 	DBID int64 `json:"id"`
+// }
 
-// DeleteJobApiResponse model
-type DeleteJobApiResponse struct {
-	Message string `json:"msg"`
-}
+// // DeleteJobApiResponse model
+// type DeleteJobApiResponse struct {
+// 	Message string `json:"msg"`
+// }
 
-// UpdateUserApiResponse model
-type UpdateUserApiResponse struct {
-	Message string `json:"msg"`
-}
+// // UpdateUserApiResponse model
+// type UpdateUserApiResponse struct {
+// 	Message string `json:"msg"`
+// }
 
-// StopJobApiRequest model
-type StopJobApiRequest struct {
-	// Stop Time of job as epoch
-	StopTime  int64           `json:"stopTime" validate:"required" example:"1649763839"`
-	State     schema.JobState `json:"jobState" validate:"required" example:"completed"` // Final job state
-	JobId     *int64          `json:"jobId" example:"123000"`                           // Cluster Job ID of job
-	Cluster   *string         `json:"cluster" example:"fritz"`                          // Cluster of job
-	StartTime *int64          `json:"startTime" example:"1649723812"`                   // Start Time of job as epoch
-}
+// // StopJobApiRequest model
+// type StopJobApiRequest struct {
+// 	// Stop Time of job as epoch
+// 	StopTime  int64           `json:"stopTime" validate:"required" example:"1649763839"`
+// 	State     schema.JobState `json:"jobState" validate:"required" example:"completed"` // Final job state
+// 	JobId     *int64          `json:"jobId" example:"123000"`                           // Cluster Job ID of job
+// 	Cluster   *string         `json:"cluster" example:"fritz"`                          // Cluster of job
+// 	StartTime *int64          `json:"startTime" example:"1649723812"`                   // Start Time of job as epoch
+// }
 
-// DeleteJobApiRequest model
-type DeleteJobApiRequest struct {
-	JobId     *int64  `json:"jobId" validate:"required" example:"123000"` // Cluster Job ID of job
-	Cluster   *string `json:"cluster" example:"fritz"`                    // Cluster of job
-	StartTime *int64  `json:"startTime" example:"1649723812"`             // Start Time of job as epoch
-}
+// // DeleteJobApiRequest model
+// type DeleteJobApiRequest struct {
+// 	JobId     *int64  `json:"jobId" validate:"required" example:"123000"` // Cluster Job ID of job
+// 	Cluster   *string `json:"cluster" example:"fritz"`                    // Cluster of job
+// 	StartTime *int64  `json:"startTime" example:"1649723812"`             // Start Time of job as epoch
+// }
 
-// GetJobsApiResponse model
-type GetJobsApiResponse struct {
-	Jobs  []*schema.JobMeta `json:"jobs"`  // Array of jobs
-	Items int               `json:"items"` // Number of jobs returned
-	Page  int               `json:"page"`  // Page id returned
-}
+// // GetJobsApiResponse model
+// type GetJobsApiResponse struct {
+// 	Jobs  []*schema.JobMeta `json:"jobs"`  // Array of jobs
+// 	Items int               `json:"items"` // Number of jobs returned
+// 	Page  int               `json:"page"`  // Page id returned
+// }
 
 // ErrorResponse model
 type ErrorResponse struct {

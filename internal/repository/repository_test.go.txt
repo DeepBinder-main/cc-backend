@@ -14,23 +14,23 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestPragma(t *testing.T) {
-	t.Run("sets up a new DB", func(t *testing.T) {
-		db := setup(t)
+// func TestPragma(t *testing.T) {
+// 	t.Run("sets up a new DB", func(t *testing.T) {
+// 		db := setup(t)
 
-		for _, pragma := range []string{"synchronous", "journal_mode", "busy_timeout", "auto_vacuum", "foreign_keys"} {
-			t.Log("PRAGMA", pragma, getPragma(db, pragma))
-		}
-	})
-}
+// 		for _, pragma := range []string{"synchronous", "journal_mode", "busy_timeout", "auto_vacuum", "foreign_keys"} {
+// 			t.Log("PRAGMA", pragma, getPragma(db, pragma))
+// 		}
+// 	})
+// }
 
-func getPragma(db *JobRepository, name string) string {
-	var s string
-	if err := db.DB.QueryRow(`PRAGMA ` + name).Scan(&s); err != nil {
-		panic(err)
-	}
-	return s
-}
+// func getPragma(db *JobRepository, name string) string {
+// 	var s string
+// 	if err := db.DB.QueryRow(`PRAGMA ` + name).Scan(&s); err != nil {
+// 		panic(err)
+// 	}
+// 	return s
+// }
 
 func BenchmarkSelect1(b *testing.B) {
 	db := setup(b)
@@ -145,15 +145,15 @@ func getContext(tb testing.TB) context.Context {
 	return context.WithValue(ctx, ContextUserKey, user)
 }
 
-func setup(tb testing.TB) *JobRepository {
-	tb.Helper()
-	log.Init("warn", true)
-	dbfile := "testdata/job.db"
-	err := MigrateDB("sqlite3", dbfile)
-	noErr(tb, err)
-	Connect("sqlite3", dbfile)
-	return GetJobRepository()
-}
+// func setup(tb testing.TB) *JobRepository {
+// 	tb.Helper()
+// 	log.Init("warn", true)
+// 	dbfile := "testdata/job.db"
+// 	err := MigrateDB("sqlite3", dbfile)
+// 	noErr(tb, err)
+// 	Connect("sqlite3", dbfile)
+// 	return GetJobRepository()
+// }
 
 func noErr(tb testing.TB, err error) {
 	tb.Helper()

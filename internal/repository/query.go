@@ -6,7 +6,7 @@ package repository
 
 import (
 	"context"
-	"errors"
+	// "errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -18,79 +18,79 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
-func (r *JobRepository) QueryJobs(
-	ctx context.Context,
-	filters []*model.JobFilter,
-	page *model.PageRequest,
-	order *model.OrderByInput) ([]*schema.Job, error) {
+// func (r *JobRepository) QueryJobs(
+// 	ctx context.Context,
+// 	filters []*model.JobFilter,
+// 	page *model.PageRequest,
+// 	order *model.OrderByInput) ([]*schema.Job, error) {
 
-	query, qerr := SecurityCheck(ctx, sq.Select(jobColumns...).From("job"))
-	if qerr != nil {
-		return nil, qerr
-	}
+// 	query, qerr := SecurityCheck(ctx, sq.Select(jobColumns...).From("job"))
+// 	if qerr != nil {
+// 		return nil, qerr
+// 	}
 
-	if order != nil {
-		field := toSnakeCase(order.Field)
+// 	if order != nil {
+// 		field := toSnakeCase(order.Field)
 
-		switch order.Order {
-		case model.SortDirectionEnumAsc:
-			query = query.OrderBy(fmt.Sprintf("job.%s ASC", field))
-		case model.SortDirectionEnumDesc:
-			query = query.OrderBy(fmt.Sprintf("job.%s DESC", field))
-		default:
-			return nil, errors.New("REPOSITORY/QUERY > invalid sorting order")
-		}
-	}
+// 		switch order.Order {
+// 		case model.SortDirectionEnumAsc:
+// 			query = query.OrderBy(fmt.Sprintf("job.%s ASC", field))
+// 		case model.SortDirectionEnumDesc:
+// 			query = query.OrderBy(fmt.Sprintf("job.%s DESC", field))
+// 		default:
+// 			return nil, errors.New("REPOSITORY/QUERY > invalid sorting order")
+// 		}
+// 	}
 
-	if page != nil && page.ItemsPerPage != -1 {
-		limit := uint64(page.ItemsPerPage)
-		query = query.Offset((uint64(page.Page) - 1) * limit).Limit(limit)
-	}
+// 	if page != nil && page.ItemsPerPage != -1 {
+// 		limit := uint64(page.ItemsPerPage)
+// 		query = query.Offset((uint64(page.Page) - 1) * limit).Limit(limit)
+// 	}
 
-	for _, f := range filters {
-		query = BuildWhereClause(f, query)
-	}
+// 	for _, f := range filters {
+// 		query = BuildWhereClause(f, query)
+// 	}
 
-	rows, err := query.RunWith(r.stmtCache).Query()
-	if err != nil {
-		log.Errorf("Error while running query: %v", err)
-		return nil, err
-	}
+// 	rows, err := query.RunWith(r.stmtCache).Query()
+// 	if err != nil {
+// 		log.Errorf("Error while running query: %v", err)
+// 		return nil, err
+// 	}
 
-	jobs := make([]*schema.Job, 0, 50)
-	for rows.Next() {
-		job, err := scanJob(rows)
-		if err != nil {
-			rows.Close()
-			log.Warn("Error while scanning rows (Jobs)")
-			return nil, err
-		}
-		jobs = append(jobs, job)
-	}
+// 	jobs := make([]*schema.Job, 0, 50)
+// 	for rows.Next() {
+// 		job, err := scanJob(rows)
+// 		if err != nil {
+// 			rows.Close()
+// 			log.Warn("Error while scanning rows (Jobs)")
+// 			return nil, err
+// 		}
+// 		jobs = append(jobs, job)
+// 	}
 
-	return jobs, nil
-}
+// 	return jobs, nil
+// }
 
-func (r *JobRepository) CountJobs(
-	ctx context.Context,
-	filters []*model.JobFilter) (int, error) {
+// func (r *JobRepository) CountJobs(
+// 	ctx context.Context,
+// 	filters []*model.JobFilter) (int, error) {
 
-	query, qerr := SecurityCheck(ctx, sq.Select("count(*)").From("job"))
-	if qerr != nil {
-		return 0, qerr
-	}
+// 	query, qerr := SecurityCheck(ctx, sq.Select("count(*)").From("job"))
+// 	if qerr != nil {
+// 		return 0, qerr
+// 	}
 
-	for _, f := range filters {
-		query = BuildWhereClause(f, query)
-	}
+// 	for _, f := range filters {
+// 		query = BuildWhereClause(f, query)
+// 	}
 
-	var count int
-	if err := query.RunWith(r.DB).Scan(&count); err != nil {
-		return 0, err
-	}
+// 	var count int
+// 	if err := query.RunWith(r.DB).Scan(&count); err != nil {
+// 		return 0, err
+// 	}
 
-	return count, nil
-}
+// 	return count, nil
+// }
 
 func SecurityCheck(ctx context.Context, query sq.SelectBuilder) (sq.SelectBuilder, error) {
 	user := GetUserFromContext(ctx)

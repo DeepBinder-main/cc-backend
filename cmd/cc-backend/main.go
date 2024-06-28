@@ -7,8 +7,8 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
-	"errors"
+	// "encoding/json"
+	// "errors"
 	"flag"
 	"fmt"
 	"io"
@@ -16,21 +16,21 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime"
+	// "runtime"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql/handler"
+	// "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Deepbinder-main/cc-backend/internal/api"
 	"github.com/Deepbinder-main/cc-backend/internal/auth"
 	"github.com/Deepbinder-main/cc-backend/internal/config"
 	"github.com/Deepbinder-main/cc-backend/internal/graph"
-	"github.com/Deepbinder-main/cc-backend/internal/graph/generated"
-	"github.com/Deepbinder-main/cc-backend/internal/importer"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph/generated"
+	// "github.com/Deepbinder-main/cc-backend/internal/importer"
 	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
 	"github.com/Deepbinder-main/cc-backend/internal/routerConfig"
@@ -303,17 +303,17 @@ func main() {
 		log.Fatalf("failed to initialize metricdata repository: %s", err.Error())
 	}
 
-	if flagReinitDB {
-		if err := importer.InitDB(); err != nil {
-			log.Fatalf("failed to re-initialize repository DB: %s", err.Error())
-		}
-	}
+	// if flagReinitDB {
+	// 	if err := importer.InitDB(); err != nil {
+	// 		log.Fatalf("failed to re-initialize repository DB: %s", err.Error())
+	// 	}
+	// }
 
-	if flagImportJob != "" {
-		if err := importer.HandleImportFlag(flagImportJob); err != nil {
-			log.Fatalf("job import failed: %s", err.Error())
-		}
-	}
+	// if flagImportJob != "" {
+	// 	if err := importer.HandleImportFlag(flagImportJob); err != nil {
+	// 		log.Fatalf("job import failed: %s", err.Error())
+	// 	}
+	// }
 
 	if !flagServer {
 		return
@@ -322,24 +322,25 @@ func main() {
 	// Setup the http.Handler/Router used by the server
 	jobRepo := repository.GetJobRepository()
 	resolver := &graph.Resolver{DB: db.DB, Repo: jobRepo}
-	graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
-	if os.Getenv("DEBUG") != "1" {
-		// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
-		// The problem with this is that then, no more stacktrace is printed to stderr.
-		graphQLEndpoint.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-			switch e := err.(type) {
-			case string:
-				return fmt.Errorf("MAIN > Panic: %s", e)
-			case error:
-				return fmt.Errorf("MAIN > Panic caused by: %w", e)
-			}
+	// TODO : GrapQL Endpoint
+	// graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver})) 
+	// if os.Getenv("DEBUG") != "1" {
+	// 	// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
+	// 	// The problem with this is that then, no more stacktrace is printed to stderr.
+	// 	graphQLEndpoint.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+	// 		switch e := err.(type) {
+	// 		case string:
+	// 			return fmt.Errorf("MAIN > Panic: %s", e)
+	// 		case error:
+	// 			return fmt.Errorf("MAIN > Panic caused by: %w", e)
+	// 		}
 
-			return errors.New("MAIN > Internal server error (panic)")
-		})
-	}
+	// 		return errors.New("MAIN > Internal server error (panic)")
+	// 	})
+	// }
 
 	api := &api.RestApi{
-		JobRepository:   jobRepo,
+		// JobRepository:   jobRepo,
 		Resolver:        resolver,
 		MachineStateDir: config.Keys.MachineStateDir,
 		Authentication:  authentication,
@@ -452,12 +453,12 @@ func main() {
 		//swagger doc
 		// httpSwagger.URL("http://" + config.Keys.Addr + "/swagger/doc.json"))).Methods(http.MethodGet)
 	}
-	secured.Handle("/query", graphQLEndpoint)
+	// secured.Handle("/query", graphQLEndpoint)
 
 	// Send a searchId and then reply with a redirect to a user, or directly send query to job table for jobid and project.
-	secured.HandleFunc("/search", func(rw http.ResponseWriter, r *http.Request) {
-		routerConfig.HandleSearchBar(rw, r, buildInfo)
-	})
+	// secured.HandleFunc("/search", func(rw http.ResponseWriter, r *http.Request) {
+	// 	routerConfig.HandleSearchBar(rw, r, buildInfo)
+	// })
 
 	// Mount all /monitoring/... and /api/... routes.
 	routerConfig.SetupRoutes(secured, buildInfo)
@@ -562,106 +563,106 @@ func main() {
 		server.Shutdown(context.Background())
 
 		// Then, wait for any async archivings still pending...
-		api.JobRepository.WaitForArchiving()
+		// api.JobRepository.WaitForArchiving()
 	}()
 
 	s := gocron.NewScheduler(time.Local)
 
-	if config.Keys.StopJobsExceedingWalltime > 0 {
-		log.Info("Register undead jobs service")
+	// if config.Keys.StopJobsExceedingWalltime > 0 {
+	// 	log.Info("Register undead jobs service")
 
-		s.Every(1).Day().At("3:00").Do(func() {
-			err = jobRepo.StopJobsExceedingWalltimeBy(config.Keys.StopJobsExceedingWalltime)
-			if err != nil {
-				log.Warnf("Error while looking for jobs exceeding their walltime: %s", err.Error())
-			}
-			runtime.GC()
-		})
-	}
+	// 	s.Every(1).Day().At("3:00").Do(func() {
+	// 		err = jobRepo.StopJobsExceedingWalltimeBy(config.Keys.StopJobsExceedingWalltime)
+	// 		if err != nil {
+	// 			log.Warnf("Error while looking for jobs exceeding their walltime: %s", err.Error())
+	// 		}
+	// 		runtime.GC()
+	// 	})
+	// }
 
-	var cfg struct {
-		Retention   schema.Retention `json:"retention"`
-		Compression int              `json:"compression"`
-	}
+	// var cfg struct {
+	// 	Retention   schema.Retention `json:"retention"`
+	// 	Compression int              `json:"compression"`
+	// }
 
-	cfg.Retention.IncludeDB = true
+	// cfg.Retention.IncludeDB = true
 
-	if err = json.Unmarshal(config.Keys.Archive, &cfg); err != nil {
-		log.Warn("Error while unmarshaling raw config json")
-	}
+	// if err = json.Unmarshal(config.Keys.Archive, &cfg); err != nil {
+	// 	log.Warn("Error while unmarshaling raw config json")
+	// }
 
-	switch cfg.Retention.Policy {
-	case "delete":
-		log.Info("Register retention delete service")
+	// switch cfg.Retention.Policy {
+	// case "delete":
+	// 	log.Info("Register retention delete service")
 
-		s.Every(1).Day().At("4:00").Do(func() {
-			startTime := time.Now().Unix() - int64(cfg.Retention.Age*24*3600)
-			jobs, err := jobRepo.FindJobsBetween(0, startTime)
-			if err != nil {
-				log.Warnf("Error while looking for retention jobs: %s", err.Error())
-			}
-			archive.GetHandle().CleanUp(jobs)
+	// 	s.Every(1).Day().At("4:00").Do(func() {
+	// 		startTime := time.Now().Unix() - int64(cfg.Retention.Age*24*3600)
+	// 		jobs, err := jobRepo.FindJobsBetween(0, startTime)
+	// 		if err != nil {
+	// 			log.Warnf("Error while looking for retention jobs: %s", err.Error())
+	// 		}
+	// 		archive.GetHandle().CleanUp(jobs)
 
-			if cfg.Retention.IncludeDB {
-				cnt, err := jobRepo.DeleteJobsBefore(startTime)
-				if err != nil {
-					log.Errorf("Error while deleting retention jobs from db: %s", err.Error())
-				} else {
-					log.Infof("Retention: Removed %d jobs from db", cnt)
-				}
-				if err = jobRepo.Optimize(); err != nil {
-					log.Errorf("Error occured in db optimization: %s", err.Error())
-				}
-			}
-		})
-	case "move":
-		log.Info("Register retention move service")
+	// 		if cfg.Retention.IncludeDB {
+	// 			cnt, err := jobRepo.DeleteJobsBefore(startTime)
+	// 			if err != nil {
+	// 				log.Errorf("Error while deleting retention jobs from db: %s", err.Error())
+	// 			} else {
+	// 				log.Infof("Retention: Removed %d jobs from db", cnt)
+	// 			}
+	// 			if err = jobRepo.Optimize(); err != nil {
+	// 				log.Errorf("Error occured in db optimization: %s", err.Error())
+	// 			}
+	// 		}
+	// 	})
+	// case "move":
+	// 	log.Info("Register retention move service")
 
-		s.Every(1).Day().At("4:00").Do(func() {
-			startTime := time.Now().Unix() - int64(cfg.Retention.Age*24*3600)
-			jobs, err := jobRepo.FindJobsBetween(0, startTime)
-			if err != nil {
-				log.Warnf("Error while looking for retention jobs: %s", err.Error())
-			}
-			archive.GetHandle().Move(jobs, cfg.Retention.Location)
+	// 	s.Every(1).Day().At("4:00").Do(func() {
+	// 		startTime := time.Now().Unix() - int64(cfg.Retention.Age*24*3600)
+	// 		jobs, err := jobRepo.FindJobsBetween(0, startTime)
+	// 		if err != nil {
+	// 			log.Warnf("Error while looking for retention jobs: %s", err.Error())
+	// 		}
+	// 		archive.GetHandle().Move(jobs, cfg.Retention.Location)
 
-			if cfg.Retention.IncludeDB {
-				cnt, err := jobRepo.DeleteJobsBefore(startTime)
-				if err != nil {
-					log.Errorf("Error while deleting retention jobs from db: %v", err)
-				} else {
-					log.Infof("Retention: Removed %d jobs from db", cnt)
-				}
-				if err = jobRepo.Optimize(); err != nil {
-					log.Errorf("Error occured in db optimization: %v", err)
-				}
-			}
-		})
-	}
+	// 		if cfg.Retention.IncludeDB {
+	// 			cnt, err := jobRepo.DeleteJobsBefore(startTime)
+	// 			if err != nil {
+	// 				log.Errorf("Error while deleting retention jobs from db: %v", err)
+	// 			} else {
+	// 				log.Infof("Retention: Removed %d jobs from db", cnt)
+	// 			}
+	// 			if err = jobRepo.Optimize(); err != nil {
+	// 				log.Errorf("Error occured in db optimization: %v", err)
+	// 			}
+	// 		}
+	// 	})
+	// }
 
-	if cfg.Compression > 0 {
-		log.Info("Register compression service")
+	// if cfg.Compression > 0 {
+	// 	log.Info("Register compression service")
 
-		s.Every(1).Day().At("5:00").Do(func() {
-			var jobs []*schema.Job
+	// 	s.Every(1).Day().At("5:00").Do(func() {
+	// 		var jobs []*schema.Job
 
-			ar := archive.GetHandle()
-			startTime := time.Now().Unix() - int64(cfg.Compression*24*3600)
-			lastTime := ar.CompressLast(startTime)
-			if startTime == lastTime {
-				log.Info("Compression Service - Complete archive run")
-				jobs, err = jobRepo.FindJobsBetween(0, startTime)
+	// 		ar := archive.GetHandle()
+	// 		startTime := time.Now().Unix() - int64(cfg.Compression*24*3600)
+	// 		lastTime := ar.CompressLast(startTime)
+	// 		if startTime == lastTime {
+	// 			log.Info("Compression Service - Complete archive run")
+	// 			jobs, err = jobRepo.FindJobsBetween(0, startTime)
 
-			} else {
-				jobs, err = jobRepo.FindJobsBetween(lastTime, startTime)
-			}
+	// 		} else {
+	// 			jobs, err = jobRepo.FindJobsBetween(lastTime, startTime)
+	// 		}
 
-			if err != nil {
-				log.Warnf("Error while looking for compression jobs: %v", err)
-			}
-			ar.Compress(jobs)
-		})
-	}
+	// 		if err != nil {
+	// 			log.Warnf("Error while looking for compression jobs: %v", err)
+	// 		}
+	// 		ar.Compress(jobs)
+	// 	})
+	// }
 
 	s.StartAsync()
 

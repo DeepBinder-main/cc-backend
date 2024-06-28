@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph/model"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
 	"github.com/Deepbinder-main/cc-backend/internal/util"
 	"github.com/Deepbinder-main/cc-backend/pkg/log"
@@ -50,20 +50,20 @@ var routes []Route = []Route{
 }
 
 func setupHomeRoute(i InfoType, r *http.Request) InfoType {
-	jobRepo := repository.GetJobRepository()
-	groupBy := model.AggregateCluster
+	// jobRepo := repository.GetJobRepository()
+	// groupBy := model.AggregateCluster
 
-	stats, err := jobRepo.JobCountGrouped(r.Context(), nil, &groupBy)
-	if err != nil {
-		log.Warnf("failed to count jobs: %s", err.Error())
-	}
+	// stats, err := jobRepo.JobCountGrouped(r.Context(), nil, &groupBy)
+	// if err != nil {
+	// 	log.Warnf("failed to count jobs: %s", err.Error())
+	// }
 
-	stats, err = jobRepo.AddJobCountGrouped(r.Context(), nil, &groupBy, stats, "running")
-	if err != nil {
-		log.Warnf("failed to count running jobs: %s", err.Error())
-	}
+	// stats, err = jobRepo.AddJobCountGrouped(r.Context(), nil, &groupBy, stats, "running")
+	// if err != nil {
+	// 	log.Warnf("failed to count running jobs: %s", err.Error())
+	// }
 
-	i["clusters"] = stats
+	i["clusters"] =  []string{"cluster1", "cluster2", "cluster3"}
 
 	if util.CheckFileExists("./var/notice.txt") {
 		msg, err := os.ReadFile("./var/notice.txt")
@@ -126,29 +126,29 @@ func setupAnalysisRoute(i InfoType, r *http.Request) InfoType {
 	return i
 }
 
-func setupTaglistRoute(i InfoType, r *http.Request) InfoType {
-	jobRepo := repository.GetJobRepository()
-	user := repository.GetUserFromContext(r.Context())
+// func setupTaglistRoute(i InfoType, r *http.Request) InfoType {
+// 	jobRepo := repository.GetJobRepository()
+// 	user := repository.GetUserFromContext(r.Context())
 
-	tags, counts, err := jobRepo.CountTags(user)
-	tagMap := make(map[string][]map[string]interface{})
-	if err != nil {
-		log.Warnf("GetTags failed: %s", err.Error())
-		i["tagmap"] = tagMap
-		return i
-	}
+// 	tags, counts, err := jobRepo.CountTags(user)
+// 	tagMap := make(map[string][]map[string]interface{})
+// 	if err != nil {
+// 		log.Warnf("GetTags failed: %s", err.Error())
+// 		i["tagmap"] = tagMap
+// 		return i
+// 	}
 
-	for _, tag := range tags {
-		tagItem := map[string]interface{}{
-			"id":    tag.ID,
-			"name":  tag.Name,
-			"count": counts[tag.Name],
-		}
-		tagMap[tag.Type] = append(tagMap[tag.Type], tagItem)
-	}
-	i["tagmap"] = tagMap
-	return i
-}
+// 	for _, tag := range tags {
+// 		tagItem := map[string]interface{}{
+// 			"id":    tag.ID,
+// 			"name":  tag.Name,
+// 			"count": counts[tag.Name],
+// 		}
+// 		tagMap[tag.Type] = append(tagMap[tag.Type], tagItem)
+// 	}
+// 	i["tagmap"] = tagMap
+// 	return i
+// }
 
 func buildFilterPresets(query url.Values) map[string]interface{} {
 	filterPresets := map[string]interface{}{}
@@ -293,65 +293,65 @@ func SetupRoutes(router *mux.Router, buildInfo web.Build) {
 	}
 }
 
-func HandleSearchBar(rw http.ResponseWriter, r *http.Request, buildInfo web.Build) {
-	user := repository.GetUserFromContext(r.Context())
-	availableRoles, _ := schema.GetValidRolesMap(user)
+// func HandleSearchBar(rw http.ResponseWriter, r *http.Request, buildInfo web.Build) {
+// 	user := repository.GetUserFromContext(r.Context())
+// 	availableRoles, _ := schema.GetValidRolesMap(user)
 
-	if search := r.URL.Query().Get("searchId"); search != "" {
-		repo := repository.GetJobRepository()
-		splitSearch := strings.Split(search, ":")
+// 	if search := r.URL.Query().Get("searchId"); search != "" {
+// 		repo := repository.GetJobRepository()
+// 		splitSearch := strings.Split(search, ":")
 
-		if len(splitSearch) == 2 {
-			switch strings.Trim(splitSearch[0], " ") {
-			case "jobId":
-				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
-			case "jobName":
-				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
-			case "projectId":
-				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
-			case "arrayJobId":
-				http.Redirect(rw, r, "/monitoring/jobs/?arrayJobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
-			case "username":
-				if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleManager}) {
-					http.Redirect(rw, r, "/monitoring/users/?user="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound)
-				} else {
-					web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Missing Access Rights", User: *user, Roles: availableRoles, Build: buildInfo})
-				}
-			case "name":
-				usernames, _ := repo.FindColumnValues(user, strings.Trim(splitSearch[1], " "), "user", "username", "name")
-				if len(usernames) != 0 {
-					joinedNames := strings.Join(usernames, "&user=")
-					http.Redirect(rw, r, "/monitoring/users/?user="+joinedNames, http.StatusFound)
-				} else {
-					if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleManager}) {
-						http.Redirect(rw, r, "/monitoring/users/?user=NoUserNameFound", http.StatusPermanentRedirect)
-					} else {
-						web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Missing Access Rights", User: *user, Roles: availableRoles, Build: buildInfo})
-					}
-				}
-			default:
-				web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Warning", MsgType: "alert-warning", Message: fmt.Sprintf("Unknown search type: %s", strings.Trim(splitSearch[0], " ")), User: *user, Roles: availableRoles, Build: buildInfo})
-			}
-		} else if len(splitSearch) == 1 {
+// 		if len(splitSearch) == 2 {
+// 			switch strings.Trim(splitSearch[0], " ") {
+// 			case "jobId":
+// 				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
+// 			case "jobName":
+// 				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
+// 			case "projectId":
+// 				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
+// 			case "arrayJobId":
+// 				http.Redirect(rw, r, "/monitoring/jobs/?arrayJobId="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound) // All Users: Redirect to Tablequery
+// 			case "username":
+// 				if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleManager}) {
+// 					http.Redirect(rw, r, "/monitoring/users/?user="+url.QueryEscape(strings.Trim(splitSearch[1], " ")), http.StatusFound)
+// 				} else {
+// 					web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Missing Access Rights", User: *user, Roles: availableRoles, Build: buildInfo})
+// 				}
+// 			case "name":
+// 				usernames, _ := repo.FindColumnValues(user, strings.Trim(splitSearch[1], " "), "user", "username", "name")
+// 				if len(usernames) != 0 {
+// 					joinedNames := strings.Join(usernames, "&user=")
+// 					http.Redirect(rw, r, "/monitoring/users/?user="+joinedNames, http.StatusFound)
+// 				} else {
+// 					if user.HasAnyRole([]schema.Role{schema.RoleAdmin, schema.RoleSupport, schema.RoleManager}) {
+// 						http.Redirect(rw, r, "/monitoring/users/?user=NoUserNameFound", http.StatusPermanentRedirect)
+// 					} else {
+// 						web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Missing Access Rights", User: *user, Roles: availableRoles, Build: buildInfo})
+// 					}
+// 				}
+// 			default:
+// 				web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Warning", MsgType: "alert-warning", Message: fmt.Sprintf("Unknown search type: %s", strings.Trim(splitSearch[0], " ")), User: *user, Roles: availableRoles, Build: buildInfo})
+// 			}
+// 		} else if len(splitSearch) == 1 {
 
-			jobid, username, project, jobname := repo.FindUserOrProjectOrJobname(user, strings.Trim(search, " "))
+// 			jobid, username, project, jobname := repo.FindUserOrProjectOrJobname(user, strings.Trim(search, " "))
 
-			if jobid != "" {
-				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(jobid), http.StatusFound) // JobId (Match)
-			} else if username != "" {
-				http.Redirect(rw, r, "/monitoring/user/"+username, http.StatusFound) // User: Redirect to user page of first match
-			} else if project != "" {
-				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(project), http.StatusFound) // projectId (equal)
-			} else if jobname != "" {
-				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(jobname), http.StatusFound) // JobName (contains)
-			} else {
-				web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Info", MsgType: "alert-info", Message: "Search without result", User: *user, Roles: availableRoles, Build: buildInfo})
-			}
+// 			if jobid != "" {
+// 				http.Redirect(rw, r, "/monitoring/jobs/?jobId="+url.QueryEscape(jobid), http.StatusFound) // JobId (Match)
+// 			} else if username != "" {
+// 				http.Redirect(rw, r, "/monitoring/user/"+username, http.StatusFound) // User: Redirect to user page of first match
+// 			} else if project != "" {
+// 				http.Redirect(rw, r, "/monitoring/jobs/?projectMatch=eq&project="+url.QueryEscape(project), http.StatusFound) // projectId (equal)
+// 			} else if jobname != "" {
+// 				http.Redirect(rw, r, "/monitoring/jobs/?jobName="+url.QueryEscape(jobname), http.StatusFound) // JobName (contains)
+// 			} else {
+// 				web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Info", MsgType: "alert-info", Message: "Search without result", User: *user, Roles: availableRoles, Build: buildInfo})
+// 			}
 
-		} else {
-			web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Searchbar query parameters malformed", User: *user, Roles: availableRoles, Build: buildInfo})
-		}
-	} else {
-		web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Warning", MsgType: "alert-warning", Message: "Empty search", User: *user, Roles: availableRoles, Build: buildInfo})
-	}
-}
+// 		} else {
+// 			web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Error", MsgType: "alert-danger", Message: "Searchbar query parameters malformed", User: *user, Roles: availableRoles, Build: buildInfo})
+// 		}
+// 	} else {
+// 		web.RenderTemplate(rw, "message.tmpl", &web.Page{Title: "Warning", MsgType: "alert-warning", Message: "Empty search", User: *user, Roles: availableRoles, Build: buildInfo})
+// 	}
+// }

@@ -39,7 +39,6 @@ import (
 	"github.com/Deepbinder-main/cc-backend/pkg/log"
 	"github.com/Deepbinder-main/cc-backend/pkg/runtimeEnv"
 
-
 	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	"github.com/Deepbinder-main/cc-backend/web"
 	"github.com/go-co-op/gocron"
@@ -371,7 +370,6 @@ func main() {
 		rw.Header().Add("Content-Type", "text/html; charset=utf-8")
 		web.RenderTemplate(rw, "privacy.tmpl", &web.Page{Title: "Privacy", Build: buildInfo})
 	})
-
 
 	r.NotFoundHandler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusNotFound)

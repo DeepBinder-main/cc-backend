@@ -66,7 +66,8 @@ func NewOIDC(a *Authentication) *OIDC {
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "oidc-callback",
+		// RedirectURL:  "oidc-callback",
+		RedirectURL:  "http://localhost:8080/oidc-callback",
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 

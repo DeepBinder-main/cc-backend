@@ -2,8 +2,6 @@ module github.com/Deepbinder-main/cc-backend
 
 go 1.21
 
-toolchain go1.22.0
-
 require (
 	github.com/99designs/gqlgen v0.17.40
 	github.com/ClusterCockpit/cc-units v0.4.0

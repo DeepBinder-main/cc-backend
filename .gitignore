@@ -19,3 +19,4 @@ dist/
 *.db
 job-archive-demo.tar
 internal/repository/migrations/mysql/.idea/*
+vendor/

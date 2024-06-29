@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - schema: "internal/repository/migrations/mysql/07_init_db_configs.up.sql"
+    queries: "internal/repository/sqlc/query.sql"
+    engine: "mysql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/repository/sqlc/db"

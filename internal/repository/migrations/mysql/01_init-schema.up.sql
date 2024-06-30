@@ -173,3 +173,28 @@ CREATE TABLE IF NOT EXISTS file_stash_url (
     id INT AUTO_INCREMENT PRIMARY KEY,
     url VARCHAR(255) NOT NULL
 );
+
+-- Create the group table
+CREATE TABLE IF NOT EXISTS `group` (
+    group_id INT AUTO_INCREMENT PRIMARY KEY,
+    group_name VARCHAR(255) NOT NULL,
+    is_disabled TINYINT(1) NOT NULL DEFAULT 0
+);
+
+-- Create the group permissions table
+CREATE TABLE IF NOT EXISTS `group_permission` (
+    permission_id INT AUTO_INCREMENT PRIMARY KEY,
+    group_id INT NOT NULL,
+    permission_name ENUM('Admin', 'Create new User', 'Create new User Group') NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES `group`(group_id) ON DELETE CASCADE
+);
+
+-- Create the user_group table to establish a many-to-many relationship between users and groups
+CREATE TABLE IF NOT EXISTS `user_group` (
+    user_group_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    group_id INT NOT NULL,
+    FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES `group`(group_id) ON DELETE CASCADE
+);
+

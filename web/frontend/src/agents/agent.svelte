@@ -25,15 +25,16 @@
             </Card>
             <Card style="width: 350px;" class=" p-3">
                 <h2 class="mb-0 text-center">Windows</h2>
+                <span class="text-danger">*currently under development</span>
                 <hr>
                 <Input type="radio" label="MSI 32/64 bit" name="radio1" />
             </Card>
-            <Card style="width: 350px;" class=" p-3">
+            <!-- <Card style="width: 350px;" class=" p-3">
                 <h2 class="mb-0 text-center">mac OS</h2>
                 <hr>
                 <Input type="radio" label="intel" name="radio1" />
                 <Input type="radio" label="Apple silicon" name="radio1" />
-            </Card>
+            </Card> -->
         </div>
     </div>
 </div>

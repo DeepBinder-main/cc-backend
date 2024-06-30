@@ -36,10 +36,4 @@
     </div>
     <hr>
 
-    <div class="d-flex justify-content-center">
-        <Button color="dark">save</Button>
-        <Button color="dark" class="ms-2">clone</Button>
-        <Button color="dark" class="ms-2">cancel</Button>
-        <Button color="danger" class="ms-2">delete</Button>
-    </div>
 </Container>

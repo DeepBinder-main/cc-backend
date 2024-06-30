@@ -1,5 +1,5 @@
 <script>
-    import {Button, Modal, ModalHeader, Input, ModalBody} from 'sveltestrap';
+    import {Button, Modal, ModalFooter, Input} from 'sveltestrap';
     import AddGroup from './AddGroup.svelte';
     let open = false;
     const toggle = () => (open = !open);
@@ -40,4 +40,12 @@
 
 <Modal body header="Add Or Edit Group" isOpen={open} {toggle} size="xl">
     <AddGroup />
+    <ModalFooter>
+        <div class="d-flex justify-content-center">
+            <Button color="dark">save</Button>
+            <Button color="dark" class="ms-2">clone</Button>
+            <Button color="dark" class="ms-2" on:click={toggle}>cancel</Button>
+            <Button color="danger" class="ms-2">delete</Button>
+        </div>
+    </ModalFooter>
 </Modal>

@@ -1,5 +1,5 @@
 <script>
-    import {Button, Modal, ModalHeader, Input, ModalBody} from 'sveltestrap';
+    import {Button, Modal, Input, ModalFooter} from 'sveltestrap';
     import AddUser from './AddUser.svelte';
     let open = false;
     const toggle = () => (open = !open);
@@ -46,6 +46,14 @@
     </tbody>
 </table>
 
-<Modal body header="Add Or Edit User" isOpen={open} {toggle} size="xl">
+<Modal body header="Add Or Edit Group" isOpen={open} {toggle} size="xl">
     <AddUser />
+    <ModalFooter>
+        <div class="d-flex justify-content-center">
+            <Button color="dark">save</Button>
+            <Button color="dark" class="ms-2">clone</Button>
+            <Button color="dark" class="ms-2" on:click={toggle}>cancel</Button>
+            <Button color="danger" class="ms-2">delete</Button>
+        </div>
+    </ModalFooter>
 </Modal>

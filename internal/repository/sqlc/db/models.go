@@ -9,16 +9,123 @@ import (
 )
 
 type FileStashUrl struct {
-	ID                int32
-	Url               string
-	CreatedAt         sql.NullTime
-	SingleRowEnforcer int32
+	ID                int32        `json:"id"`
+	Url               string       `json:"url"`
+	CreatedAt         sql.NullTime `json:"created_at"`
+	SingleRowEnforcer int32        `json:"single_row_enforcer"`
+}
+
+type InfluxdbConfiguration struct {
+	ID                   int32          `json:"id"`
+	Type                 string         `json:"type"`
+	DatabaseName         string         `json:"database_name"`
+	Host                 string         `json:"host"`
+	Port                 int32          `json:"port"`
+	User                 string         `json:"user"`
+	Password             string         `json:"password"`
+	Organization         string         `json:"organization"`
+	SslEnabled           bool           `json:"ssl_enabled"`
+	BatchSize            int32          `json:"batch_size"`
+	RetryInterval        string         `json:"retry_interval"`
+	RetryExponentialBase int32          `json:"retry_exponential_base"`
+	MaxRetries           int32          `json:"max_retries"`
+	MaxRetryTime         string         `json:"max_retry_time"`
+	MetaAsTags           sql.NullString `json:"meta_as_tags"`
+	SingleRowEnforcer    int32          `json:"single_row_enforcer"`
+}
+
+type LogicalVolume struct {
+	LvID      int32        `json:"lv_id"`
+	MachineID string       `json:"machine_id"`
+	LvName    string       `json:"lv_name"`
+	VgName    string       `json:"vg_name"`
+	LvAttr    string       `json:"lv_attr"`
+	LvSize    string       `json:"lv_size"`
+	CreatedAt sql.NullTime `json:"created_at"`
+}
+
+type LvStorageIssuer struct {
+	ID                  int32         `json:"id"`
+	MachineID           string        `json:"machine_id"`
+	IncBuffer           sql.NullInt32 `json:"inc_buffer"`
+	DecBuffer           sql.NullInt32 `json:"dec_buffer"`
+	Hostname            string        `json:"hostname"`
+	Username            string        `json:"username"`
+	Minavailablespacegb float64       `json:"minavailablespacegb"`
+	Maxavailablespacegb float64       `json:"maxavailablespacegb"`
+}
+
+type LvmConf struct {
+	ID                  int32        `json:"id"`
+	MachineID           string       `json:"machine_id"`
+	Username            string       `json:"username"`
+	Minavailablespacegb float64      `json:"minavailablespacegb"`
+	Maxavailablespacegb float64      `json:"maxavailablespacegb"`
+	CreatedAt           sql.NullTime `json:"created_at"`
+}
+
+type Machine struct {
+	MachineID string       `json:"machine_id"`
+	Hostname  string       `json:"hostname"`
+	OsVersion string       `json:"os_version"`
+	IpAddress string       `json:"ip_address"`
+	CreatedAt sql.NullTime `json:"created_at"`
+}
+
+type MachineConf struct {
+	ID         int32          `json:"id"`
+	MachineID  string         `json:"machine_id"`
+	Hostname   string         `json:"hostname"`
+	Username   string         `json:"username"`
+	Passphrase sql.NullString `json:"passphrase"`
+	PortNumber int32          `json:"port_number"`
+	Password   sql.NullString `json:"password"`
+	HostKey    sql.NullString `json:"host_key"`
+	FolderPath sql.NullString `json:"folder_path"`
+}
+
+type Notification struct {
+	ID        int32        `json:"id"`
+	Message   string       `json:"message"`
+	CreatedAt sql.NullTime `json:"created_at"`
+}
+
+type PhysicalVolume struct {
+	PvID      int32        `json:"pv_id"`
+	MachineID string       `json:"machine_id"`
+	PvName    string       `json:"pv_name"`
+	VgName    string       `json:"vg_name"`
+	PvFmt     string       `json:"pv_fmt"`
+	PvAttr    string       `json:"pv_attr"`
+	PvSize    string       `json:"pv_size"`
+	PvFree    string       `json:"pv_free"`
+	CreatedAt sql.NullTime `json:"created_at"`
 }
 
 type RabbitMqConfig struct {
-	ConnUrl           string
-	Username          string
-	Password          string
-	CreatedAt         sql.NullTime
-	SingleRowEnforcer int32
+	ConnUrl           string       `json:"conn_url"`
+	Username          string       `json:"username"`
+	Password          string       `json:"password"`
+	CreatedAt         sql.NullTime `json:"created_at"`
+	SingleRowEnforcer int32        `json:"single_row_enforcer"`
+}
+
+type RealtimeLog struct {
+	ID         int32        `json:"id"`
+	LogMessage string       `json:"log_message"`
+	MachineID  string       `json:"machine_id"`
+	CreatedAt  sql.NullTime `json:"created_at"`
+}
+
+type VolumeGroup struct {
+	VgID      int32        `json:"vg_id"`
+	MachineID string       `json:"machine_id"`
+	VgName    string       `json:"vg_name"`
+	PvCount   string       `json:"pv_count"`
+	LvCount   string       `json:"lv_count"`
+	SnapCount string       `json:"snap_count"`
+	VgAttr    string       `json:"vg_attr"`
+	VgSize    string       `json:"vg_size"`
+	VgFree    string       `json:"vg_free"`
+	CreatedAt sql.NullTime `json:"created_at"`
 }

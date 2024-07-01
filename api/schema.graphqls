@@ -3,187 +3,8 @@ scalar Any
 
 scalar NullableFloat
 scalar MetricScope
-scalar JobState
 
-type Job {
-  id:               ID!
-  jobId:            Int!
-  user:             String!
-  project:          String!
-  cluster:          String!
-  subCluster:       String!
-  startTime:        Time!
-  duration:         Int!
-  walltime:         Int!
-  numNodes:         Int!
-  numHWThreads:     Int!
-  numAcc:           Int!
-  SMT:              Int!
-  exclusive:        Int!
-  partition:        String!
-  arrayJobId:       Int!
-  monitoringStatus: Int!
-  state:            JobState!
-  tags:             [Tag!]!
-  resources:        [Resource!]!
-  concurrentJobs:   JobLinkResultList
 
-  memUsedMax:       Float
-  flopsAnyAvg:      Float
-  memBwAvg:         Float
-  loadAvg:          Float
-
-  metaData:         Any
-  userData:         User
-}
-
-type JobLink {
-  id:               ID!
-  jobId:            Int!
-}
-
-type Cluster {
-  name:         String!
-  partitions:   [String!]!        # Slurm partitions
-  metricConfig: [MetricConfig!]!
-  subClusters:  [SubCluster!]!    # Hardware partitions/subclusters
-}
-
-type SubCluster {
-  name:            String!
-  nodes:           String!
-  numberOfNodes:   Int!
-  processorType:   String!
-  socketsPerNode:  Int!
-  coresPerSocket:  Int!
-  threadsPerCore:  Int!
-  flopRateScalar:  MetricValue!
-  flopRateSimd:    MetricValue!
-  memoryBandwidth: MetricValue!
-  topology:        Topology!
-}
-
-type MetricValue {
-  unit: Unit!
-  value: Float!
-}
-
-type Topology {
-  node:         [Int!]
-  socket:       [[Int!]!]
-  memoryDomain: [[Int!]!]
-  die:          [[Int!]!]
-  core:         [[Int!]!]
-  accelerators: [Accelerator!]
-}
-
-type Accelerator {
-  id:    String!
-  type:  String!
-  model: String!
-}
-
-type SubClusterConfig {
-  name:    String!
-  peak:    Float
-  normal:  Float
-  caution: Float
-  alert:   Float
-  remove:  Boolean
-}
-
-type MetricConfig {
-  name:        String!
-  unit:        Unit!
-  scope:       MetricScope!
-  aggregation: String!
-  timestep:    Int!
-  peak:    Float!
-  normal:  Float
-  caution: Float!
-  alert:   Float!
-  subClusters: [SubClusterConfig!]!
-}
-
-type Tag {
-  id:   ID!
-  type: String!
-  name: String!
-}
-
-type Resource {
-  hostname:      String!
-  hwthreads:     [Int!]
-  accelerators:  [String!]
-  configuration: String
-}
-
-type JobMetricWithName {
-  name:   String!
-  scope:  MetricScope!
-  metric: JobMetric!
-}
-
-type JobMetric {
-  unit:             Unit
-  timestep:         Int!
-  series:           [Series!]
-  statisticsSeries: StatsSeries
-}
-
-type Series {
-  hostname:   String!
-  id:         String
-  statistics: MetricStatistics
-  data:       [NullableFloat!]!
-}
-
-type Unit {
-  base: String!
-  prefix: String
-}
-
-type MetricStatistics {
-  avg: Float!
-  min: Float!
-  max: Float!
-}
-
-type StatsSeries {
-  mean: [NullableFloat!]!
-  min:  [NullableFloat!]!
-  max:  [NullableFloat!]!
-}
-
-type MetricFootprints {
-  metric: String!
-  data:   [NullableFloat!]!
-}
-
-type Footprints {
-  timeWeights: TimeWeights!
-  metrics:   [MetricFootprints!]!
-}
-
-type TimeWeights {
-  nodeHours: [NullableFloat!]!
-  accHours: [NullableFloat!]!
-  coreHours: [NullableFloat!]!
-}
-
-enum Aggregate { USER, PROJECT, CLUSTER }
-enum SortByAggregate { TOTALWALLTIME, TOTALJOBS, TOTALNODES, TOTALNODEHOURS, TOTALCORES, TOTALCOREHOURS, TOTALACCS, TOTALACCHOURS }
-
-type NodeMetrics {
-  host:       String!
-  subCluster: String!
-  metrics:    [JobMetricWithName!]!
-}
-
-type Count {
-  name:  String!
-  count: Int!
-}
 
 type User {
   username: String!
@@ -192,63 +13,246 @@ type User {
 }
 
 type Query {
-  clusters:     [Cluster!]!   # List of all clusters
-  tags:         [Tag!]!       # List of all tags
-
-  user(username: String!): User
-  allocatedNodes(cluster: String!): [Count!]!
-
-  job(id: ID!): Job
-  jobMetrics(id: ID!, metrics: [String!], scopes: [MetricScope!]): [JobMetricWithName!]!
-  jobsFootprints(filter: [JobFilter!], metrics: [String!]!): Footprints
-
-  jobs(filter: [JobFilter!], page: PageRequest, order: OrderByInput): JobResultList!
-  jobsStatistics(filter: [JobFilter!], metrics: [String!], page: PageRequest, sortBy: SortByAggregate, groupBy: Aggregate): [JobsStatistics!]!
-
-  rooflineHeatmap(filter: [JobFilter!]!, rows: Int!, cols: Int!, minX: Float!, minY: Float!, maxX: Float!, maxY: Float!): [[Float!]!]!
-
-  nodeMetrics(cluster: String!, nodes: [String!], scopes: [MetricScope!], metrics: [String!], from: Time!, to: Time!): [NodeMetrics!]!
+  notifications(limit: Int): [Notification!]!
+  realtimeLogs(machineID: String!, limit: Int): [RealtimeLog!]!
+  lvmConf(machineID: String!): LVMConf
+  machine(machineID: String!): Machine
+  logicalVolumes(machineID: String!): [LogicalVolume!]!
+  volumeGroups(machineID: String!): [VolumeGroup!]!
+  physicalVolumes(machineID: String!): [PhysicalVolume!]!
+  lvStorageIssuers: [LVStorageIssuer!]!
+  machineConf(machineID: String!): MachineConf
+  fileStashURL: FileStashURL
+  rabbitMQConfig: RabbitMQConfig
+  influxDBConfiguration: InfluxDBConfiguration
 }
 
 type Mutation {
-  createTag(type: String!, name: String!): Tag!
-  deleteTag(id: ID!): ID!
-  addTagsToJob(job: ID!, tagIds: [ID!]!): [Tag!]!
-  removeTagsFromJob(job: ID!, tagIds: [ID!]!): [Tag!]!
+  createNotification(message: String!): Boolean!
+  createRealtimeLog(machineID: String!, logMessage: String!): Boolean!
+  createLVMConf(input: LVMConfInput!): Boolean!
+  createMachine(input: MachineInput!): Boolean!
+  createLogicalVolume(input: LogicalVolumeInput!): Boolean!
+  createVolumeGroup(input: VolumeGroupInput!): Boolean!
+  createPhysicalVolume(input: PhysicalVolumeInput!): Boolean!
+  createLVStorageIssuer(input: LVStorageIssuerInput!): Boolean!
+  createMachineConf(input: MachineConfInput!): Boolean!
+  createFileStashURL(url: String!): Boolean!
+  createRabbitMQConfig(input: RabbitMQConfigInput!): Boolean!
+  createInfluxDBConfiguration(input: InfluxDBConfigurationInput!): Boolean!
+  updateRabbitMQConfig(input: RabbitMQConfigInput!): Boolean!
+}
 
-  updateConfiguration(name: String!, value: String!): String
+type Notification {
+  id: ID!
+  message: String!
+  createdAt: Time
+}
+
+type RealtimeLog {
+  id: ID!
+  logMessage: String!
+  machineID: String!
+  createdAt: Time
+}
+
+type LVMConf {
+  id: ID!
+  machineID: String!
+  username: String!
+  minAvailableSpaceGB: Float!
+  maxAvailableSpaceGB: Float!
+  createdAt: Time
+}
+
+type Machine {
+  machineID: ID!
+  hostname: String!
+  osVersion: String!
+  ipAddress: String!
+  createdAt: Time
+}
+
+type LogicalVolume {
+  lvID: ID!
+  machineID: String!
+  lvName: String!
+  vgName: String!
+  lvAttr: String!
+  lvSize: String!
+  createdAt: Time
+}
+
+type VolumeGroup {
+  vgID: ID!
+  machineID: String!
+  vgName: String!
+  pvCount: String!
+  lvCount: String!
+  snapCount: String!
+  vgAttr: String!
+  vgSize: String!
+  vgFree: String!
+  createdAt: Time
+}
+
+type PhysicalVolume {
+  pvID: ID!
+  machineID: String!
+  pvName: String!
+  vgName: String!
+  pvFmt: String!
+  pvAttr: String!
+  pvSize: String!
+  pvFree: String!
+  createdAt: Time
+}
+
+type LVStorageIssuer {
+  id: ID!
+  machineID: String!
+  incBuffer: Int
+  decBuffer: Int
+  hostname: String!
+  username: String!
+  minAvailableSpaceGB: Float!
+  maxAvailableSpaceGB: Float!
+}
+
+type MachineConf {
+  id: ID!
+  machineID: String!
+  hostname: String!
+  username: String!
+  passphrase: String
+  portNumber: Int!
+  password: String
+  hostKey: String
+  folderPath: String
+}
+
+type FileStashURL {
+  id: ID!
+  url: String!
+  createdAt: Time
+  singleRowEnforcer: Int!
+}
+
+type RabbitMQConfig {
+  connURL: String!
+  username: String!
+  password: String!
+  createdAt: Time
+  singleRowEnforcer: Int!
+}
+
+type InfluxDBConfiguration {
+  id: ID!
+  type: String!
+  databaseName: String!
+  host: String!
+  port: Int!
+  user: String!
+  password: String!
+  organization: String!
+  sslEnabled: Boolean!
+  batchSize: Int!
+  retryInterval: String!
+  retryExponentialBase: Int!
+  maxRetries: Int!
+  maxRetryTime: String!
+  metaAsTags: String
+  singleRowEnforcer: Int!
+}
+
+input LVMConfInput {
+  machineID: String!
+  username: String!
+  minAvailableSpaceGB: Float!
+  maxAvailableSpaceGB: Float!
+}
+
+input MachineInput {
+  machineID: String!
+  hostname: String!
+  osVersion: String!
+  ipAddress: String!
+}
+
+input LogicalVolumeInput {
+  machineID: String!
+  lvName: String!
+  vgName: String!
+  lvAttr: String!
+  lvSize: String!
+}
+
+input VolumeGroupInput {
+  machineID: String!
+  vgName: String!
+  pvCount: String!
+  lvCount: String!
+  snapCount: String!
+  vgAttr: String!
+  vgSize: String!
+  vgFree: String!
+}
+
+input PhysicalVolumeInput {
+  machineID: String!
+  pvName: String!
+  vgName: String!
+  pvFmt: String!
+  pvAttr: String!
+  pvSize: String!
+  pvFree: String!
+}
+
+input LVStorageIssuerInput {
+  machineID: String!
+  hostname: String!
+  username: String!
+  minAvailableSpaceGB: Float!
+  maxAvailableSpaceGB: Float!
+}
+
+input MachineConfInput {
+  machineID: String!
+  hostname: String!
+  username: String!
+  passphrase: String
+  portNumber: Int!
+  password: String
+  hostKey: String
+  folderPath: String
+}
+
+input RabbitMQConfigInput {
+  connURL: String!
+  username: String!
+  password: String!
+}
+
+input InfluxDBConfigurationInput {
+  type: String!
+  databaseName: String!
+  host: String!
+  port: Int!
+  user: String!
+  password: String!
+  organization: String!
+  sslEnabled: Boolean!
+  batchSize: Int!
+  retryInterval: String!
+  retryExponentialBase: Int!
+  maxRetries: Int!
+  maxRetryTime: String!
+  metaAsTags: String
 }
 
 type IntRangeOutput { from: Int!, to: Int! }
 type TimeRangeOutput { from: Time!, to: Time! }
 
-input JobFilter {
-  tags:        [ID!]
-  jobId:       StringInput
-  arrayJobId:  Int
-  user:        StringInput
-  project:     StringInput
-  jobName:     StringInput
-  cluster:     StringInput
-  partition:   StringInput
-  duration:    IntRange
-
-  minRunningFor: Int
-
-  numNodes:        IntRange
-  numAccelerators: IntRange
-  numHWThreads:    IntRange
-
-  startTime:   TimeRange
-  state:       [JobState!]
-  flopsAnyAvg: FloatRange
-  memBwAvg:    FloatRange
-  loadAvg:     FloatRange
-  memUsedMax:  FloatRange
-
-  exclusive:     Int
-  node:    StringInput
-}
 
 input OrderByInput {
   field: String!
@@ -260,81 +264,12 @@ enum SortDirectionEnum {
   ASC
 }
 
-input StringInput {
-  eq:         String
-  neq:        String
-  contains:   String
-  startsWith: String
-  endsWith:   String
-  in:         [String!]
-}
-
 input IntRange   { from: Int!,   to: Int! }
 input FloatRange { from: Float!, to: Float! }
 input TimeRange  { from: Time,   to: Time }
 
-type JobResultList {
-  items:  [Job!]!
-  offset: Int
-  limit:  Int
-  count:  Int
-}
-
-type JobLinkResultList {
-  listQuery: String
-  items:  [JobLink!]!
-  count:  Int
-}
-
-type HistoPoint {
-  count: Int!
-  value: Int!
-}
-
-type MetricHistoPoints {
-  metric: String!
-  unit: String!
-  data: [MetricHistoPoint!]
-}
-
-type MetricHistoPoint {
-  bin: Int
-  count: Int!
-  min: Int
-  max: Int
-}
-
-type JobsStatistics  {
-  id:             ID!            # If `groupBy` was used, ID of the user/project/cluster
-  name:           String!        # if User-Statistics: Given Name of Account (ID) Owner
-  totalJobs:      Int!           # Number of jobs
-  runningJobs:    Int!           # Number of running jobs
-  shortJobs:      Int!           # Number of jobs with a duration of less than duration
-  totalWalltime:  Int!           # Sum of the duration of all matched jobs in hours
-  totalNodes:     Int!           # Sum of the nodes of all matched jobs
-  totalNodeHours: Int!           # Sum of the node hours of all matched jobs
-  totalCores:     Int!           # Sum of the cores of all matched jobs
-  totalCoreHours: Int!           # Sum of the core hours of all matched jobs
-  totalAccs:      Int!         # Sum of the accs of all matched jobs
-  totalAccHours:  Int!           # Sum of the gpu hours of all matched jobs
-  histDuration:   [HistoPoint!]! # value: hour, count: number of jobs with a rounded duration of value
-  histNumNodes:   [HistoPoint!]! # value: number of nodes, count: number of jobs with that number of nodes
-  histNumCores:   [HistoPoint!]! # value: number of cores, count: number of jobs with that number of cores
-  histNumAccs:    [HistoPoint!]! # value: number of accs, count: number of jobs with that number of accs
-  histMetrics:    [MetricHistoPoints!]! # metric: metricname, data array of histopoints: value: metric average bin, count: number of jobs with that metric average
-}
 
 input PageRequest {
   itemsPerPage: Int!
   page:         Int!
-}
-
-type FileStashUrl {
-  id: ID!
-  url: String!
-}
-
-type Query {
-  getFileStashUrl(id: ID!): FileStashUrl
-  getAllFileStashUrls: [FileStashUrl]
 }

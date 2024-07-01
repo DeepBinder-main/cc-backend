@@ -7,13 +7,13 @@ import (
 	"io"
 	"strconv"
 	"time"
-
-	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 )
 
-type Count struct {
-	Name  string `json:"name"`
-	Count int    `json:"count"`
+type FileStashURL struct {
+	ID                string     `json:"id"`
+	URL               string     `json:"url"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	SingleRowEnforcer int        `json:"singleRowEnforcer"`
 }
 
 type FloatRange struct {
@@ -21,14 +21,40 @@ type FloatRange struct {
 	To   float64 `json:"to"`
 }
 
-type Footprints struct {
-	TimeWeights *TimeWeights        `json:"timeWeights"`
-	Metrics     []*MetricFootprints `json:"metrics"`
+type InfluxDBConfiguration struct {
+	ID                   string  `json:"id"`
+	Type                 string  `json:"type"`
+	DatabaseName         string  `json:"databaseName"`
+	Host                 string  `json:"host"`
+	Port                 int     `json:"port"`
+	User                 string  `json:"user"`
+	Password             string  `json:"password"`
+	Organization         string  `json:"organization"`
+	SslEnabled           bool    `json:"sslEnabled"`
+	BatchSize            int     `json:"batchSize"`
+	RetryInterval        string  `json:"retryInterval"`
+	RetryExponentialBase int     `json:"retryExponentialBase"`
+	MaxRetries           int     `json:"maxRetries"`
+	MaxRetryTime         string  `json:"maxRetryTime"`
+	MetaAsTags           *string `json:"metaAsTags,omitempty"`
+	SingleRowEnforcer    int     `json:"singleRowEnforcer"`
 }
 
-type HistoPoint struct {
-	Count int `json:"count"`
-	Value int `json:"value"`
+type InfluxDBConfigurationInput struct {
+	Type                 string  `json:"type"`
+	DatabaseName         string  `json:"databaseName"`
+	Host                 string  `json:"host"`
+	Port                 int     `json:"port"`
+	User                 string  `json:"user"`
+	Password             string  `json:"password"`
+	Organization         string  `json:"organization"`
+	SslEnabled           bool    `json:"sslEnabled"`
+	BatchSize            int     `json:"batchSize"`
+	RetryInterval        string  `json:"retryInterval"`
+	RetryExponentialBase int     `json:"retryExponentialBase"`
+	MaxRetries           int     `json:"maxRetries"`
+	MaxRetryTime         string  `json:"maxRetryTime"`
+	MetaAsTags           *string `json:"metaAsTags,omitempty"`
 }
 
 type IntRangeOutput struct {
@@ -36,96 +62,101 @@ type IntRangeOutput struct {
 	To   int `json:"to"`
 }
 
-type JobFilter struct {
-	Tags            []string          `json:"tags,omitempty"`
-	JobID           *StringInput      `json:"jobId,omitempty"`
-	ArrayJobID      *int              `json:"arrayJobId,omitempty"`
-	User            *StringInput      `json:"user,omitempty"`
-	Project         *StringInput      `json:"project,omitempty"`
-	JobName         *StringInput      `json:"jobName,omitempty"`
-	Cluster         *StringInput      `json:"cluster,omitempty"`
-	Partition       *StringInput      `json:"partition,omitempty"`
-	Duration        *schema.IntRange  `json:"duration,omitempty"`
-	MinRunningFor   *int              `json:"minRunningFor,omitempty"`
-	NumNodes        *schema.IntRange  `json:"numNodes,omitempty"`
-	NumAccelerators *schema.IntRange  `json:"numAccelerators,omitempty"`
-	NumHWThreads    *schema.IntRange  `json:"numHWThreads,omitempty"`
-	StartTime       *schema.TimeRange `json:"startTime,omitempty"`
-	State           []schema.JobState `json:"state,omitempty"`
-	FlopsAnyAvg     *FloatRange       `json:"flopsAnyAvg,omitempty"`
-	MemBwAvg        *FloatRange       `json:"memBwAvg,omitempty"`
-	LoadAvg         *FloatRange       `json:"loadAvg,omitempty"`
-	MemUsedMax      *FloatRange       `json:"memUsedMax,omitempty"`
-	Exclusive       *int              `json:"exclusive,omitempty"`
-	Node            *StringInput      `json:"node,omitempty"`
+type LVMConf struct {
+	ID                  string     `json:"id"`
+	MachineID           string     `json:"machineID"`
+	Username            string     `json:"username"`
+	MinAvailableSpaceGb float64    `json:"minAvailableSpaceGB"`
+	MaxAvailableSpaceGb float64    `json:"maxAvailableSpaceGB"`
+	CreatedAt           *time.Time `json:"createdAt,omitempty"`
 }
 
-type JobLink struct {
-	ID    string `json:"id"`
-	JobID int    `json:"jobId"`
+type LVMConfInput struct {
+	MachineID           string  `json:"machineID"`
+	Username            string  `json:"username"`
+	MinAvailableSpaceGb float64 `json:"minAvailableSpaceGB"`
+	MaxAvailableSpaceGb float64 `json:"maxAvailableSpaceGB"`
 }
 
-type JobLinkResultList struct {
-	ListQuery *string    `json:"listQuery,omitempty"`
-	Items     []*JobLink `json:"items"`
-	Count     *int       `json:"count,omitempty"`
+type LVStorageIssuer struct {
+	ID                  string  `json:"id"`
+	MachineID           string  `json:"machineID"`
+	IncBuffer           *int    `json:"incBuffer,omitempty"`
+	DecBuffer           *int    `json:"decBuffer,omitempty"`
+	Hostname            string  `json:"hostname"`
+	Username            string  `json:"username"`
+	MinAvailableSpaceGb float64 `json:"minAvailableSpaceGB"`
+	MaxAvailableSpaceGb float64 `json:"maxAvailableSpaceGB"`
 }
 
-type JobMetricWithName struct {
-	Name   string             `json:"name"`
-	Scope  schema.MetricScope `json:"scope"`
-	Metric *schema.JobMetric  `json:"metric"`
+type LVStorageIssuerInput struct {
+	MachineID           string  `json:"machineID"`
+	Hostname            string  `json:"hostname"`
+	Username            string  `json:"username"`
+	MinAvailableSpaceGb float64 `json:"minAvailableSpaceGB"`
+	MaxAvailableSpaceGb float64 `json:"maxAvailableSpaceGB"`
 }
 
-type JobResultList struct {
-	Items  []*schema.Job `json:"items"`
-	Offset *int          `json:"offset,omitempty"`
-	Limit  *int          `json:"limit,omitempty"`
-	Count  *int          `json:"count,omitempty"`
+type LogicalVolume struct {
+	LvID      string     `json:"lvID"`
+	MachineID string     `json:"machineID"`
+	LvName    string     `json:"lvName"`
+	VgName    string     `json:"vgName"`
+	LvAttr    string     `json:"lvAttr"`
+	LvSize    string     `json:"lvSize"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 }
 
-type JobsStatistics struct {
-	ID             string               `json:"id"`
-	Name           string               `json:"name"`
-	TotalJobs      int                  `json:"totalJobs"`
-	RunningJobs    int                  `json:"runningJobs"`
-	ShortJobs      int                  `json:"shortJobs"`
-	TotalWalltime  int                  `json:"totalWalltime"`
-	TotalNodes     int                  `json:"totalNodes"`
-	TotalNodeHours int                  `json:"totalNodeHours"`
-	TotalCores     int                  `json:"totalCores"`
-	TotalCoreHours int                  `json:"totalCoreHours"`
-	TotalAccs      int                  `json:"totalAccs"`
-	TotalAccHours  int                  `json:"totalAccHours"`
-	HistDuration   []*HistoPoint        `json:"histDuration"`
-	HistNumNodes   []*HistoPoint        `json:"histNumNodes"`
-	HistNumCores   []*HistoPoint        `json:"histNumCores"`
-	HistNumAccs    []*HistoPoint        `json:"histNumAccs"`
-	HistMetrics    []*MetricHistoPoints `json:"histMetrics"`
+type LogicalVolumeInput struct {
+	MachineID string `json:"machineID"`
+	LvName    string `json:"lvName"`
+	VgName    string `json:"vgName"`
+	LvAttr    string `json:"lvAttr"`
+	LvSize    string `json:"lvSize"`
 }
 
-type MetricFootprints struct {
-	Metric string         `json:"metric"`
-	Data   []schema.Float `json:"data"`
+type Machine struct {
+	MachineID string     `json:"machineID"`
+	Hostname  string     `json:"hostname"`
+	OsVersion string     `json:"osVersion"`
+	IPAddress string     `json:"ipAddress"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 }
 
-type MetricHistoPoint struct {
-	Bin   *int `json:"bin,omitempty"`
-	Count int  `json:"count"`
-	Min   *int `json:"min,omitempty"`
-	Max   *int `json:"max,omitempty"`
+type MachineConf struct {
+	ID         string  `json:"id"`
+	MachineID  string  `json:"machineID"`
+	Hostname   string  `json:"hostname"`
+	Username   string  `json:"username"`
+	Passphrase *string `json:"passphrase,omitempty"`
+	PortNumber int     `json:"portNumber"`
+	Password   *string `json:"password,omitempty"`
+	HostKey    *string `json:"hostKey,omitempty"`
+	FolderPath *string `json:"folderPath,omitempty"`
 }
 
-type MetricHistoPoints struct {
-	Metric string              `json:"metric"`
-	Unit   string              `json:"unit"`
-	Data   []*MetricHistoPoint `json:"data,omitempty"`
+type MachineConfInput struct {
+	MachineID  string  `json:"machineID"`
+	Hostname   string  `json:"hostname"`
+	Username   string  `json:"username"`
+	Passphrase *string `json:"passphrase,omitempty"`
+	PortNumber int     `json:"portNumber"`
+	Password   *string `json:"password,omitempty"`
+	HostKey    *string `json:"hostKey,omitempty"`
+	FolderPath *string `json:"folderPath,omitempty"`
 }
 
-type NodeMetrics struct {
-	Host       string               `json:"host"`
-	SubCluster string               `json:"subCluster"`
-	Metrics    []*JobMetricWithName `json:"metrics"`
+type MachineInput struct {
+	MachineID string `json:"machineID"`
+	Hostname  string `json:"hostname"`
+	OsVersion string `json:"osVersion"`
+	IPAddress string `json:"ipAddress"`
+}
+
+type Notification struct {
+	ID        string     `json:"id"`
+	Message   string     `json:"message"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 }
 
 type OrderByInput struct {
@@ -138,24 +169,52 @@ type PageRequest struct {
 	Page         int `json:"page"`
 }
 
-type StringInput struct {
-	Eq         *string  `json:"eq,omitempty"`
-	Neq        *string  `json:"neq,omitempty"`
-	Contains   *string  `json:"contains,omitempty"`
-	StartsWith *string  `json:"startsWith,omitempty"`
-	EndsWith   *string  `json:"endsWith,omitempty"`
-	In         []string `json:"in,omitempty"`
+type PhysicalVolume struct {
+	PvID      string     `json:"pvID"`
+	MachineID string     `json:"machineID"`
+	PvName    string     `json:"pvName"`
+	VgName    string     `json:"vgName"`
+	PvFmt     string     `json:"pvFmt"`
+	PvAttr    string     `json:"pvAttr"`
+	PvSize    string     `json:"pvSize"`
+	PvFree    string     `json:"pvFree"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+}
+
+type PhysicalVolumeInput struct {
+	MachineID string `json:"machineID"`
+	PvName    string `json:"pvName"`
+	VgName    string `json:"vgName"`
+	PvFmt     string `json:"pvFmt"`
+	PvAttr    string `json:"pvAttr"`
+	PvSize    string `json:"pvSize"`
+	PvFree    string `json:"pvFree"`
+}
+
+type RabbitMQConfig struct {
+	ConnURL           string     `json:"connURL"`
+	Username          string     `json:"username"`
+	Password          string     `json:"password"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	SingleRowEnforcer int        `json:"singleRowEnforcer"`
+}
+
+type RabbitMQConfigInput struct {
+	ConnURL  string `json:"connURL"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type RealtimeLog struct {
+	ID         string     `json:"id"`
+	LogMessage string     `json:"logMessage"`
+	MachineID  string     `json:"machineID"`
+	CreatedAt  *time.Time `json:"createdAt,omitempty"`
 }
 
 type TimeRangeOutput struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
-}
-
-type TimeWeights struct {
-	NodeHours []schema.Float `json:"nodeHours"`
-	AccHours  []schema.Float `json:"accHours"`
-	CoreHours []schema.Float `json:"coreHours"`
 }
 
 type User struct {
@@ -164,100 +223,28 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-type Aggregate string
-
-const (
-	AggregateUser    Aggregate = "USER"
-	AggregateProject Aggregate = "PROJECT"
-	AggregateCluster Aggregate = "CLUSTER"
-)
-
-var AllAggregate = []Aggregate{
-	AggregateUser,
-	AggregateProject,
-	AggregateCluster,
+type VolumeGroup struct {
+	VgID      string     `json:"vgID"`
+	MachineID string     `json:"machineID"`
+	VgName    string     `json:"vgName"`
+	PvCount   string     `json:"pvCount"`
+	LvCount   string     `json:"lvCount"`
+	SnapCount string     `json:"snapCount"`
+	VgAttr    string     `json:"vgAttr"`
+	VgSize    string     `json:"vgSize"`
+	VgFree    string     `json:"vgFree"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 }
 
-func (e Aggregate) IsValid() bool {
-	switch e {
-	case AggregateUser, AggregateProject, AggregateCluster:
-		return true
-	}
-	return false
-}
-
-func (e Aggregate) String() string {
-	return string(e)
-}
-
-func (e *Aggregate) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Aggregate(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Aggregate", str)
-	}
-	return nil
-}
-
-func (e Aggregate) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type SortByAggregate string
-
-const (
-	SortByAggregateTotalwalltime  SortByAggregate = "TOTALWALLTIME"
-	SortByAggregateTotaljobs      SortByAggregate = "TOTALJOBS"
-	SortByAggregateTotalnodes     SortByAggregate = "TOTALNODES"
-	SortByAggregateTotalnodehours SortByAggregate = "TOTALNODEHOURS"
-	SortByAggregateTotalcores     SortByAggregate = "TOTALCORES"
-	SortByAggregateTotalcorehours SortByAggregate = "TOTALCOREHOURS"
-	SortByAggregateTotalaccs      SortByAggregate = "TOTALACCS"
-	SortByAggregateTotalacchours  SortByAggregate = "TOTALACCHOURS"
-)
-
-var AllSortByAggregate = []SortByAggregate{
-	SortByAggregateTotalwalltime,
-	SortByAggregateTotaljobs,
-	SortByAggregateTotalnodes,
-	SortByAggregateTotalnodehours,
-	SortByAggregateTotalcores,
-	SortByAggregateTotalcorehours,
-	SortByAggregateTotalaccs,
-	SortByAggregateTotalacchours,
-}
-
-func (e SortByAggregate) IsValid() bool {
-	switch e {
-	case SortByAggregateTotalwalltime, SortByAggregateTotaljobs, SortByAggregateTotalnodes, SortByAggregateTotalnodehours, SortByAggregateTotalcores, SortByAggregateTotalcorehours, SortByAggregateTotalaccs, SortByAggregateTotalacchours:
-		return true
-	}
-	return false
-}
-
-func (e SortByAggregate) String() string {
-	return string(e)
-}
-
-func (e *SortByAggregate) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SortByAggregate(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SortByAggregate", str)
-	}
-	return nil
-}
-
-func (e SortByAggregate) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+type VolumeGroupInput struct {
+	MachineID string `json:"machineID"`
+	VgName    string `json:"vgName"`
+	PvCount   string `json:"pvCount"`
+	LvCount   string `json:"lvCount"`
+	SnapCount string `json:"snapCount"`
+	VgAttr    string `json:"vgAttr"`
+	VgSize    string `json:"vgSize"`
+	VgFree    string `json:"vgFree"`
 }
 
 type SortDirectionEnum string

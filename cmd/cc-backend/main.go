@@ -343,21 +343,21 @@ func main() {
 	jobRepo := repository.GetJobRepository()
 	resolver := &graph.Resolver{DB: db.DB, Repo: jobRepo}
 	// TODO : GrapQL Endpoint
-	// graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver})) 
-	// if os.Getenv("DEBUG") != "1" {
-	// 	// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
-	// 	// The problem with this is that then, no more stacktrace is printed to stderr.
-	// 	graphQLEndpoint.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-	// 		switch e := err.(type) {
-	// 		case string:
-	// 			return fmt.Errorf("MAIN > Panic: %s", e)
-	// 		case error:
-	// 			return fmt.Errorf("MAIN > Panic caused by: %w", e)
-	// 		}
+	graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver})) 
+	if os.Getenv("DEBUG") != "1" {
+		// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
+		// The problem with this is that then, no more stacktrace is printed to stderr.
+		graphQLEndpoint.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+			switch e := err.(type) {
+			case string:
+				return fmt.Errorf("MAIN > Panic: %s", e)
+			case error:
+				return fmt.Errorf("MAIN > Panic caused by: %w", e)
+			}
 
-	// 		return errors.New("MAIN > Internal server error (panic)")
-	// 	})
-	// }
+			return errors.New("MAIN > Internal server error (panic)")
+		})
+	}
 
 	api := &api.RestApi{
 		// JobRepository:   jobRepo,

@@ -34,7 +34,6 @@ type JobRepository struct {
 
 	stmtCache *sq.StmtCache
 	cache     *lrucache.Cache
-
 }
 
 func GetJobRepository() *JobRepository {
@@ -45,8 +44,8 @@ func GetJobRepository() *JobRepository {
 			DB:     db.DB,
 			driver: db.Driver,
 
-			stmtCache:      sq.NewStmtCache(db.DB),
-			cache:          lrucache.New(1024 * 1024),
+			stmtCache: sq.NewStmtCache(db.DB),
+			cache:     lrucache.New(1024 * 1024),
 		}
 		// // start archiving worker
 		// go jobRepoInstance.archivingWorker()

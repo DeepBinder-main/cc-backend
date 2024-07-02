@@ -57,6 +57,11 @@ type InfluxDBConfigurationInput struct {
 	MetaAsTags           *string `json:"metaAsTags,omitempty"`
 }
 
+type IntRange struct {
+	From int `json:"from"`
+	To   int `json:"to"`
+}
+
 type IntRangeOutput struct {
 	From int `json:"from"`
 	To   int `json:"to"`
@@ -153,6 +158,9 @@ type MachineInput struct {
 	IPAddress string `json:"ipAddress"`
 }
 
+type Mutation struct {
+}
+
 type Notification struct {
 	ID        string     `json:"id"`
 	Message   string     `json:"message"`
@@ -191,6 +199,9 @@ type PhysicalVolumeInput struct {
 	PvFree    string `json:"pvFree"`
 }
 
+type Query struct {
+}
+
 type RabbitMQConfig struct {
 	ConnURL           string     `json:"connURL"`
 	Username          string     `json:"username"`
@@ -210,6 +221,11 @@ type RealtimeLog struct {
 	LogMessage string     `json:"logMessage"`
 	MachineID  string     `json:"machineID"`
 	CreatedAt  *time.Time `json:"createdAt,omitempty"`
+}
+
+type TimeRange struct {
+	From *time.Time `json:"from,omitempty"`
+	To   *time.Time `json:"to,omitempty"`
 }
 
 type TimeRangeOutput struct {

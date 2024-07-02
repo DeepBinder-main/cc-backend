@@ -63,7 +63,7 @@ func setupHomeRoute(i InfoType, r *http.Request) InfoType {
 	// 	log.Warnf("failed to count running jobs: %s", err.Error())
 	// }
 
-	i["clusters"] =  []string{"cluster1", "cluster2", "cluster3"}
+	i["clusters"] = []string{"cluster1", "cluster2", "cluster3"}
 
 	if util.CheckFileExists("./var/notice.txt") {
 		msg, err := os.ReadFile("./var/notice.txt")

@@ -14,19 +14,23 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
 	// "strconv"
 	"strings"
 	"sync"
+
 	// "time"
 
 	"github.com/Deepbinder-main/cc-backend/internal/auth"
 	"github.com/Deepbinder-main/cc-backend/internal/config"
 	"github.com/Deepbinder-main/cc-backend/internal/graph"
+
 	// "github.com/Deepbinder-main/cc-backend/internal/graph/model"
 	// "github.com/Deepbinder-main/cc-backend/internal/importer"
 	// "github.com/Deepbinder-main/cc-backend/internal/metricdata"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
 	"github.com/Deepbinder-main/cc-backend/internal/util"
+
 	// "github.com/Deepbinder-main/cc-backend/pkg/archive"
 	"github.com/Deepbinder-main/cc-backend/pkg/log"
 	"github.com/Deepbinder-main/cc-backend/pkg/schema"
@@ -224,6 +228,7 @@ func securedCheck(r *http.Request) error {
 }
 
 // createUser godoc
+//
 //	@summary		Adds a new user
 //	@tags			User
 //	@description	User specified in form data will be saved to database.
@@ -293,6 +298,7 @@ func (api *RestApi) createUser(rw http.ResponseWriter, r *http.Request) {
 }
 
 // deleteUser godoc
+//
 //	@summary		Deletes a user
 //	@tags			User
 //	@description	User defined by username in form data will be deleted from database.
@@ -330,6 +336,7 @@ func (api *RestApi) deleteUser(rw http.ResponseWriter, r *http.Request) {
 }
 
 // getUsers godoc
+//
 //	@summary		Returns a list of users
 //	@tags			User
 //	@description	Returns a JSON-encoded list of users.
@@ -366,6 +373,7 @@ func (api *RestApi) getUsers(rw http.ResponseWriter, r *http.Request) {
 }
 
 // updateUser godoc
+//
 //	@summary		Updates an existing user
 //	@tags			User
 //	@description	Modifies user defined by username (id) in one of four possible ways.

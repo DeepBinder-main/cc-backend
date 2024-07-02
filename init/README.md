@@ -17,7 +17,7 @@ readable by this user. If these files are changed, the server must be restarted.
 
 ```sh
 # 1. Clone this repository somewhere in your home
-git clone git@github.com:ClusterCockpit/cc-backend.git <DSTDIR>
+git clone git@github.com:Deepbinder-main/cc-backend.git <DSTDIR>
 
 # 2. (Optional) Install dependencies and build. In general it is recommended to use the provided release binaries.
 cd <DSTDIR>

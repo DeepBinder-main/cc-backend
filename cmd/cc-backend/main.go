@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+
 	// "encoding/json"
 	// "errors"
 	"flag"
@@ -16,6 +17,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+
 	// "runtime"
 	"runtime/debug"
 	"strings"
@@ -24,12 +26,16 @@ import (
 	"time"
 
 	// "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Deepbinder-main/cc-backend/internal/api"
 	"github.com/Deepbinder-main/cc-backend/internal/auth"
 	"github.com/Deepbinder-main/cc-backend/internal/config"
 	"github.com/Deepbinder-main/cc-backend/internal/graph"
-	// "github.com/Deepbinder-main/cc-backend/internal/graph/generated"
+
+	// "github.com/Deepbinder-main/cc-backend/internal/graph"
+
+	"github.com/Deepbinder-main/cc-backend/internal/graph/generated"
 	// "github.com/Deepbinder-main/cc-backend/internal/importer"
 	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
@@ -340,10 +346,14 @@ func main() {
 	}
 
 	// Setup the http.Handler/Router used by the server
-	jobRepo := repository.GetJobRepository()
-	resolver := &graph.Resolver{DB: db.DB, Repo: jobRepo}
+	// TODO : JobRepo
+	// jobRepo := repository.GetJobRepository()
+
+	// resolver := &graph.Resolver{DB: db.DB, Repo: jobRepo}
+	resolver := &graph.Resolver{}
+
 	// TODO : GrapQL Endpoint
-	graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver})) 
+	graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 	if os.Getenv("DEBUG") != "1" {
 		// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
 		// The problem with this is that then, no more stacktrace is printed to stderr.

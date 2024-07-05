@@ -26,7 +26,7 @@ import (
 	"time"
 
 	// "github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler"
+	// "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Deepbinder-main/cc-backend/internal/api"
 	"github.com/Deepbinder-main/cc-backend/internal/auth"
@@ -34,8 +34,15 @@ import (
 	"github.com/Deepbinder-main/cc-backend/internal/graph"
 
 	// "github.com/Deepbinder-main/cc-backend/internal/graph"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph/generated"
 
-	"github.com/Deepbinder-main/cc-backend/internal/graph/generated"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph"
+
+	// "github.com/Deepbinder-main/cc-backend/internal/graph"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph/generated"
+
+	// "github.com/Deepbinder-main/cc-backend/internal/graph"
 	// "github.com/Deepbinder-main/cc-backend/internal/importer"
 	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
@@ -254,7 +261,7 @@ func main() {
 	}
 
 	repository.Connect(config.Keys.DBDriver, config.Keys.DB)
-	db := repository.GetConnection()
+	// db := repository.GetConnection()
 
 	var authentication *auth.Authentication
 	if !config.Keys.DisableAuthentication {
@@ -353,21 +360,22 @@ func main() {
 	resolver := &graph.Resolver{}
 
 	// TODO : GrapQL Endpoint
-	graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
-	if os.Getenv("DEBUG") != "1" {
-		// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
-		// The problem with this is that then, no more stacktrace is printed to stderr.
-		graphQLEndpoint.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-			switch e := err.(type) {
-			case string:
-				return fmt.Errorf("MAIN > Panic: %s", e)
-			case error:
-				return fmt.Errorf("MAIN > Panic caused by: %w", e)
-			}
+	// graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
+	// graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	// if os.Getenv("DEBUG") != "1" {
+	// 	// Having this handler means that a error message is returned via GraphQL instead of the connection simply beeing closed.
+	// 	// The problem with this is that then, no more stacktrace is printed to stderr.
+	// 	graphQLEndpoint.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+	// 		switch e := err.(type) {
+	// 		case string:
+	// 			return fmt.Errorf("MAIN > Panic: %s", e)
+	// 		case error:
+	// 			return fmt.Errorf("MAIN > Panic caused by: %w", e)
+	// 		}
 
-			return errors.New("MAIN > Internal server error (panic)")
-		})
-	}
+	// 		return fmt.Errorf("MAIN > Internal server error (panic): %v", err)
+	// 	})
+	// }
 
 	api := &api.RestApi{
 		// JobRepository:   jobRepo,

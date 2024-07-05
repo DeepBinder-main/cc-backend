@@ -1,61 +1,9 @@
-# version: "2"
-# sql:
-#   - schema: "internal/repository/migrations/mysql/07_init_db_configs.up.sql"
-#     queries: "internal/repository/sqlc/query.sql"
-#     engine: "mysql"
-#     gen:
-#       go:
-#         package: "db"
-#         out: "internal/repository/sqlc/db"
-
 version: "2"
 sql:
-  - engine: "mysql"
-    queries:
-      - internal/repository/sqlc/queries/notifications/create.sql
-      - internal/repository/sqlc/queries/notifications/read.sql
-      - internal/repository/sqlc/queries/notifications/delete.sql
-      - internal/repository/sqlc/queries/influxdb_configurations/create.sql
-      - internal/repository/sqlc/queries/influxdb_configurations/read.sql
-      - internal/repository/sqlc/queries/influxdb_configurations/delete.sql
-      - internal/repository/sqlc/queries/realtime_logs/create.sql
-      - internal/repository/sqlc/queries/realtime_logs/read.sql
-      - internal/repository/sqlc/queries/realtime_logs/delete.sql
-      - internal/repository/sqlc/queries/lvm_conf/create.sql
-      - internal/repository/sqlc/queries/lvm_conf/read.sql
-      - internal/repository/sqlc/queries/lvm_conf/delete.sql
-      - internal/repository/sqlc/queries/machines/create.sql
-      - internal/repository/sqlc/queries/machines/read.sql
-      - internal/repository/sqlc/queries/machines/delete.sql
-      - internal/repository/sqlc/queries/logical_volumes/create.sql
-      - internal/repository/sqlc/queries/logical_volumes/read.sql
-      - internal/repository/sqlc/queries/logical_volumes/delete.sql
-      - internal/repository/sqlc/queries/volume_groups/create.sql
-      - internal/repository/sqlc/queries/volume_groups/read.sql
-      - internal/repository/sqlc/queries/volume_groups/delete.sql
-      - internal/repository/sqlc/queries/physical_volumes/create.sql
-      - internal/repository/sqlc/queries/physical_volumes/read.sql
-      - internal/repository/sqlc/queries/physical_volumes/delete.sql
-      - internal/repository/sqlc/queries/lv_storage_issuer/create.sql
-      - internal/repository/sqlc/queries/lv_storage_issuer/read.sql
-      - internal/repository/sqlc/queries/lv_storage_issuer/delete.sql
-      - internal/repository/sqlc/queries/machine_conf/create.sql
-      - internal/repository/sqlc/queries/machine_conf/read.sql
-      - internal/repository/sqlc/queries/machine_conf/delete.sql
-      - internal/repository/sqlc/queries/file_stash_url/create.sql
-      - internal/repository/sqlc/queries/file_stash_url/read.sql
-      - internal/repository/sqlc/queries/file_stash_url/delete.sql
-      - internal/repository/sqlc/queries/rabbit_mq_config/create.sql
-      - internal/repository/sqlc/queries/rabbit_mq_config/read.sql
-      - internal/repository/sqlc/queries/rabbit_mq_config/update.sql
-      - internal/repository/sqlc/queries/rabbit_mq_config/delete.sql
-    schema: "internal/repository/migrations/mysql/07_init_db_configs.up.sql"
+  - schema: "internal/repository/migrations/mysql/07_init_db_configs.up.sql"
+    queries: "internal/repository/sqlc/query.sql"
+    engine: "mysql"
     gen:
       go:
         package: "db"
         out: "internal/repository/sqlc/db"
-        emit_json_tags: true
-        emit_prepared_queries: false
-        emit_interface: true
-        emit_exact_table_names: false
-        emit_empty_slices: true

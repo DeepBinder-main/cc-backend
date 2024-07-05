@@ -8,47 +8,142 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Deepbinder-main/cc-backend/internal/graph/generated"
 	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	datab "github.com/Deepbinder-main/cc-backend/internal/repository/sqlc/db"
 )
+
+var queries = datab.New(repository.GetConnection().DB)
 
 // CreateNotification is the resolver for the createNotification field.
 func (r *mutationResolver) CreateNotification(ctx context.Context, message string) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateNotification - createNotification"))
+	err := queries.CreateNotification(ctx, message)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // CreateRealtimeLog is the resolver for the createRealtimeLog field.
 func (r *mutationResolver) CreateRealtimeLog(ctx context.Context, machineID string, logMessage string) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateRealtimeLog - createRealtimeLog"))
+	// panic(fmt.Errorf("not implemented: CreateRealtimeLog - createRealtimeLog"))
+	params := datab.CreateRealtimeLogParams{
+		MachineID:  machineID,
+		LogMessage: logMessage,
+	}
+	err := queries.CreateRealtimeLog(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // CreateLVMConf is the resolver for the createLVMConf field.
 func (r *mutationResolver) CreateLVMConf(ctx context.Context, input model.LVMConfInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateLVMConf - createLVMConf"))
+	// panic(fmt.Errorf("not implemented: CreateLVMConf - createLVMConf"))
+	params := datab.CreateLVMConfParams{
+		MachineID:           input.MachineID,
+		Username:            input.Username,
+		Minavailablespacegb: input.MinAvailableSpaceGb,
+		Maxavailablespacegb: input.MaxAvailableSpaceGb,
+	}
+	err := queries.CreateLVMConf(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // CreateMachine is the resolver for the createMachine field.
 func (r *mutationResolver) CreateMachine(ctx context.Context, input model.MachineInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateMachine - createMachine"))
+	params := datab.CreateMachineParams{
+		MachineID: input.MachineID,
+		Hostname:  input.Hostname,
+		OsVersion: input.OsVersion,
+		IpAddress: input.IPAddress,
+	}
+	err := queries.CreateMachine(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+	// panic(fmt.Errorf("not implemented: CreateMachine - createMachine"))
 }
 
 // CreateLogicalVolume is the resolver for the createLogicalVolume field.
 func (r *mutationResolver) CreateLogicalVolume(ctx context.Context, input model.LogicalVolumeInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateLogicalVolume - createLogicalVolume"))
+	// panic(fmt.Errorf("not implemented: CreateLogicalVolume - createLogicalVolume"))
+	params := datab.CreateLogicalVolumeParams{
+		MachineID: input.MachineID,
+		LvName:    input.LvName,
+		VgName:    input.VgName,
+		LvAttr:    input.LvAttr,
+		LvSize:    input.LvSize,
+	}
+	err := queries.CreateLogicalVolume(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // CreateVolumeGroup is the resolver for the createVolumeGroup field.
 func (r *mutationResolver) CreateVolumeGroup(ctx context.Context, input model.VolumeGroupInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateVolumeGroup - createVolumeGroup"))
+	params := datab.CreateVolumeGroupParams{
+		MachineID: input.MachineID,
+		VgName:    input.VgName,
+		PvCount:   input.PvCount,
+		LvCount:   input.LvCount,
+		SnapCount: input.SnapCount,
+		VgAttr:    input.VgAttr,
+		VgSize:    input.VgSize,
+		VgFree:    input.VgFree,
+	}
+	err := queries.CreateVolumeGroup(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+	// panic(fmt.Errorf("not implemented: CreateVolumeGroup - createVolumeGroup"))
 }
 
 // CreatePhysicalVolume is the resolver for the createPhysicalVolume field.
 func (r *mutationResolver) CreatePhysicalVolume(ctx context.Context, input model.PhysicalVolumeInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreatePhysicalVolume - createPhysicalVolume"))
+	params := datab.CreatePhysicalVolumeParams{
+		MachineID: input.MachineID,
+		PvName:    input.PvName,
+		VgName:    input.VgName,
+		PvFmt:     input.PvFmt,
+		PvAttr:    input.PvAttr,
+		PvSize:    input.PvSize,
+		PvFree:    input.PvFree,
+	}
+	err := queries.CreatePhysicalVolume(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+	// panic(fmt.Errorf("not implemented: CreatePhysicalVolume - createPhysicalVolume"))
 }
 
 // CreateLVStorageIssuer is the resolver for the createLVStorageIssuer field.
 func (r *mutationResolver) CreateLVStorageIssuer(ctx context.Context, input model.LVStorageIssuerInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: CreateLVStorageIssuer - createLVStorageIssuer"))
+	params := datab.CreateLVStorageIssuerParams{
+		MachineID:           input.MachineID,
+		IncBuffer:           input.IncBuffer,
+		DecBuffer:           input.DecBuffer,
+		Hostname:            input.Hostname,
+		Username:            input.Username,
+		Minavailablespacegb: input.MinAvailableSpacegb,
+		Maxavailablespacegb: input.Maxavailablespacegb,
+	}
+	err := queries.CreatePhysicalVolume(ctx, params)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+	// panic(fmt.Errorf("not implemented: CreateLVStorageIssuer - createLVStorageIssuer"))
 }
 
 // CreateMachineConf is the resolver for the createMachineConf field.
@@ -136,11 +231,11 @@ func (r *queryResolver) InfluxDBConfiguration(ctx context.Context) (*model.Influ
 	panic(fmt.Errorf("not implemented: InfluxDBConfiguration - influxDBConfiguration"))
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

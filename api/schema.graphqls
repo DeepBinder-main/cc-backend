@@ -4,12 +4,10 @@ scalar Any
 scalar NullableFloat
 scalar MetricScope
 
-
-
 type User {
   username: String!
-  name:     String!
-  email:    String!
+  name: String!
+  email: String!
 }
 
 type Query {
@@ -210,6 +208,8 @@ input PhysicalVolumeInput {
 
 input LVStorageIssuerInput {
   machineID: String!
+  incBuffer: Int
+  decBuffer: Int
   hostname: String!
   username: String!
   minAvailableSpaceGB: Float!
@@ -250,9 +250,14 @@ input InfluxDBConfigurationInput {
   metaAsTags: String
 }
 
-type IntRangeOutput { from: Int!, to: Int! }
-type TimeRangeOutput { from: Time!, to: Time! }
-
+type IntRangeOutput {
+  from: Int!
+  to: Int!
+}
+type TimeRangeOutput {
+  from: Time!
+  to: Time!
+}
 
 input OrderByInput {
   field: String!
@@ -264,12 +269,20 @@ enum SortDirectionEnum {
   ASC
 }
 
-input IntRange   { from: Int!,   to: Int! }
-input FloatRange { from: Float!, to: Float! }
-input TimeRange  { from: Time,   to: Time }
-
+input IntRange {
+  from: Int!
+  to: Int!
+}
+input FloatRange {
+  from: Float!
+  to: Float!
+}
+input TimeRange {
+  from: Time
+  to: Time
+}
 
 input PageRequest {
   itemsPerPage: Int!
-  page:         Int!
+  page: Int!
 }

@@ -14,6 +14,7 @@ import (
 	"sync"
 
 	// "github.com/Deepbinder-main/cc-backend/internal/graph/model"
+	// "github.com/Deepbinder-main/cc-backend/internal/graph/model"
 	"github.com/Deepbinder-main/cc-backend/internal/graph/model"
 	"github.com/Deepbinder-main/cc-backend/pkg/log"
 	"github.com/Deepbinder-main/cc-backend/pkg/schema"
@@ -286,7 +287,7 @@ func (r *UserRepository) RemoveProject(ctx context.Context, username string, pro
 	}
 
 	if !user.HasProject(project) {
-		return fmt.Errorf("user '%#v': Cannot remove project '%#v' - Does not match!", username, project)
+		return fmt.Errorf("user '%#v': cannot remove project '%#v' - Does not match!", username, project)
 	}
 
 	var exists bool

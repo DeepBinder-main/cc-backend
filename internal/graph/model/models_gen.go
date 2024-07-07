@@ -6,231 +6,14 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"time"
 )
-
-type FileStashURL struct {
-	ID                string     `json:"id"`
-	URL               string     `json:"url"`
-	CreatedAt         *time.Time `json:"createdAt,omitempty"`
-	SingleRowEnforcer int        `json:"singleRowEnforcer"`
-}
-
-type FloatRange struct {
-	From float64 `json:"from"`
-	To   float64 `json:"to"`
-}
-
-type InfluxDBConfiguration struct {
-	ID                   string  `json:"id"`
-	Type                 string  `json:"type"`
-	DatabaseName         string  `json:"databaseName"`
-	Host                 string  `json:"host"`
-	Port                 int     `json:"port"`
-	User                 string  `json:"user"`
-	Password             string  `json:"password"`
-	Organization         string  `json:"organization"`
-	SslEnabled           bool    `json:"sslEnabled"`
-	BatchSize            int     `json:"batchSize"`
-	RetryInterval        string  `json:"retryInterval"`
-	RetryExponentialBase int     `json:"retryExponentialBase"`
-	MaxRetries           int     `json:"maxRetries"`
-	MaxRetryTime         string  `json:"maxRetryTime"`
-	MetaAsTags           *string `json:"metaAsTags,omitempty"`
-	SingleRowEnforcer    int     `json:"singleRowEnforcer"`
-}
-
-type InfluxDBConfigurationInput struct {
-	Type                 string  `json:"type"`
-	DatabaseName         string  `json:"databaseName"`
-	Host                 string  `json:"host"`
-	Port                 int     `json:"port"`
-	User                 string  `json:"user"`
-	Password             string  `json:"password"`
-	Organization         string  `json:"organization"`
-	SslEnabled           bool    `json:"sslEnabled"`
-	BatchSize            int     `json:"batchSize"`
-	RetryInterval        string  `json:"retryInterval"`
-	RetryExponentialBase int     `json:"retryExponentialBase"`
-	MaxRetries           int     `json:"maxRetries"`
-	MaxRetryTime         string  `json:"maxRetryTime"`
-	MetaAsTags           *string `json:"metaAsTags,omitempty"`
-}
 
 type IntRange struct {
 	From int `json:"from"`
 	To   int `json:"to"`
 }
 
-type IntRangeOutput struct {
-	From int `json:"from"`
-	To   int `json:"to"`
-}
-
-type LVMConf struct {
-	ID                  string     `json:"id"`
-	MachineID           string     `json:"machineID"`
-	Username            string     `json:"username"`
-	MinAvailableSpaceGb float64    `json:"minAvailableSpaceGB"`
-	MaxAvailableSpaceGb float64    `json:"maxAvailableSpaceGB"`
-	CreatedAt           *time.Time `json:"createdAt,omitempty"`
-}
-
-type LVMConfInput struct {
-	MachineID           string  `json:"machineID"`
-	Username            string  `json:"username"`
-	MinAvailableSpaceGb float64 `json:"minAvailableSpaceGB"`
-	MaxAvailableSpaceGb float64 `json:"maxAvailableSpaceGB"`
-}
-
-type LVStorageIssuer struct {
-	ID                  string  `json:"id"`
-	MachineID           string  `json:"machineID"`
-	IncBuffer           *int    `json:"incBuffer,omitempty"`
-	DecBuffer           *int    `json:"decBuffer,omitempty"`
-	Hostname            string  `json:"hostname"`
-	Username            string  `json:"username"`
-	MinAvailableSpaceGb float64 `json:"minAvailableSpaceGB"`
-	MaxAvailableSpaceGb float64 `json:"maxAvailableSpaceGB"`
-}
-
-type LVStorageIssuerInput struct {
-	MachineID           string  `json:"machineID"`
-	Hostname            string  `json:"hostname"`
-	Username            string  `json:"username"`
-	MinAvailableSpaceGb float64 `json:"minAvailableSpaceGB"`
-	MaxAvailableSpaceGb float64 `json:"maxAvailableSpaceGB"`
-}
-
-type LogicalVolume struct {
-	LvID      string     `json:"lvID"`
-	MachineID string     `json:"machineID"`
-	LvName    string     `json:"lvName"`
-	VgName    string     `json:"vgName"`
-	LvAttr    string     `json:"lvAttr"`
-	LvSize    string     `json:"lvSize"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-}
-
-type LogicalVolumeInput struct {
-	MachineID string `json:"machineID"`
-	LvName    string `json:"lvName"`
-	VgName    string `json:"vgName"`
-	LvAttr    string `json:"lvAttr"`
-	LvSize    string `json:"lvSize"`
-}
-
-type Machine struct {
-	MachineID string     `json:"machineID"`
-	Hostname  string     `json:"hostname"`
-	OsVersion string     `json:"osVersion"`
-	IPAddress string     `json:"ipAddress"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-}
-
-type MachineConf struct {
-	ID         string  `json:"id"`
-	MachineID  string  `json:"machineID"`
-	Hostname   string  `json:"hostname"`
-	Username   string  `json:"username"`
-	Passphrase *string `json:"passphrase,omitempty"`
-	PortNumber int     `json:"portNumber"`
-	Password   *string `json:"password,omitempty"`
-	HostKey    *string `json:"hostKey,omitempty"`
-	FolderPath *string `json:"folderPath,omitempty"`
-}
-
-type MachineConfInput struct {
-	MachineID  string  `json:"machineID"`
-	Hostname   string  `json:"hostname"`
-	Username   string  `json:"username"`
-	Passphrase *string `json:"passphrase,omitempty"`
-	PortNumber int     `json:"portNumber"`
-	Password   *string `json:"password,omitempty"`
-	HostKey    *string `json:"hostKey,omitempty"`
-	FolderPath *string `json:"folderPath,omitempty"`
-}
-
-type MachineInput struct {
-	MachineID string `json:"machineID"`
-	Hostname  string `json:"hostname"`
-	OsVersion string `json:"osVersion"`
-	IPAddress string `json:"ipAddress"`
-}
-
-type Mutation struct {
-}
-
-type Notification struct {
-	ID        string     `json:"id"`
-	Message   string     `json:"message"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-}
-
-type OrderByInput struct {
-	Field string            `json:"field"`
-	Order SortDirectionEnum `json:"order"`
-}
-
-type PageRequest struct {
-	ItemsPerPage int `json:"itemsPerPage"`
-	Page         int `json:"page"`
-}
-
-type PhysicalVolume struct {
-	PvID      string     `json:"pvID"`
-	MachineID string     `json:"machineID"`
-	PvName    string     `json:"pvName"`
-	VgName    string     `json:"vgName"`
-	PvFmt     string     `json:"pvFmt"`
-	PvAttr    string     `json:"pvAttr"`
-	PvSize    string     `json:"pvSize"`
-	PvFree    string     `json:"pvFree"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-}
-
-type PhysicalVolumeInput struct {
-	MachineID string `json:"machineID"`
-	PvName    string `json:"pvName"`
-	VgName    string `json:"vgName"`
-	PvFmt     string `json:"pvFmt"`
-	PvAttr    string `json:"pvAttr"`
-	PvSize    string `json:"pvSize"`
-	PvFree    string `json:"pvFree"`
-}
-
 type Query struct {
-}
-
-type RabbitMQConfig struct {
-	ConnURL           string     `json:"connURL"`
-	Username          string     `json:"username"`
-	Password          string     `json:"password"`
-	CreatedAt         *time.Time `json:"createdAt,omitempty"`
-	SingleRowEnforcer int        `json:"singleRowEnforcer"`
-}
-
-type RabbitMQConfigInput struct {
-	ConnURL  string `json:"connURL"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type RealtimeLog struct {
-	ID         string     `json:"id"`
-	LogMessage string     `json:"logMessage"`
-	MachineID  string     `json:"machineID"`
-	CreatedAt  *time.Time `json:"createdAt,omitempty"`
-}
-
-type TimeRange struct {
-	From *time.Time `json:"from,omitempty"`
-	To   *time.Time `json:"to,omitempty"`
-}
-
-type TimeRangeOutput struct {
-	From time.Time `json:"from"`
-	To   time.Time `json:"to"`
 }
 
 type User struct {
@@ -239,67 +22,45 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-type VolumeGroup struct {
-	VgID      string     `json:"vgID"`
-	MachineID string     `json:"machineID"`
-	VgName    string     `json:"vgName"`
-	PvCount   string     `json:"pvCount"`
-	LvCount   string     `json:"lvCount"`
-	SnapCount string     `json:"snapCount"`
-	VgAttr    string     `json:"vgAttr"`
-	VgSize    string     `json:"vgSize"`
-	VgFree    string     `json:"vgFree"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-}
-
-type VolumeGroupInput struct {
-	MachineID string `json:"machineID"`
-	VgName    string `json:"vgName"`
-	PvCount   string `json:"pvCount"`
-	LvCount   string `json:"lvCount"`
-	SnapCount string `json:"snapCount"`
-	VgAttr    string `json:"vgAttr"`
-	VgSize    string `json:"vgSize"`
-	VgFree    string `json:"vgFree"`
-}
-
-type SortDirectionEnum string
+type Aggregate string
 
 const (
-	SortDirectionEnumDesc SortDirectionEnum = "DESC"
-	SortDirectionEnumAsc  SortDirectionEnum = "ASC"
+	AggregateUser    Aggregate = "USER"
+	AggregateProject Aggregate = "PROJECT"
+	AggregateCluster Aggregate = "CLUSTER"
 )
 
-var AllSortDirectionEnum = []SortDirectionEnum{
-	SortDirectionEnumDesc,
-	SortDirectionEnumAsc,
+var AllAggregate = []Aggregate{
+	AggregateUser,
+	AggregateProject,
+	AggregateCluster,
 }
 
-func (e SortDirectionEnum) IsValid() bool {
+func (e Aggregate) IsValid() bool {
 	switch e {
-	case SortDirectionEnumDesc, SortDirectionEnumAsc:
+	case AggregateUser, AggregateProject, AggregateCluster:
 		return true
 	}
 	return false
 }
 
-func (e SortDirectionEnum) String() string {
+func (e Aggregate) String() string {
 	return string(e)
 }
 
-func (e *SortDirectionEnum) UnmarshalGQL(v interface{}) error {
+func (e *Aggregate) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = SortDirectionEnum(str)
+	*e = Aggregate(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SortDirectionEnum", str)
+		return fmt.Errorf("%s is not a valid Aggregate", str)
 	}
 	return nil
 }
 
-func (e SortDirectionEnum) MarshalGQL(w io.Writer) {
+func (e Aggregate) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

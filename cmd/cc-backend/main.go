@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"database/sql"
 
 	// "encoding/json"
 	// "errors"
@@ -367,7 +368,7 @@ func main() {
 	// jobRepo := repository.GetJobRepository()
 
 	// resolver := &graph.Resolver{DB: db.DB, Repo: jobRepo}
-	resolver := &graph.Resolver{DB: db.DB, Queries: queries}
+	resolver := &graph.Resolver{DB: db.DB}
 
 	// TODO : GrapQL Endpoint
 	// graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
@@ -386,8 +387,17 @@ func main() {
 			return fmt.Errorf("MAIN > Internal server error (panic): %v", err)
 		})
 	}
+	connstr := config.Keys.DB
+	dbconn ,err   :=  sql.Open("mysql", connstr)
+	if err != nil {
+		log.Fatalf("sql.Open() error: %v", err)
+	}
+
+	queries = sqlcdb.New(dbconn)
+	service := api.NewService(queries)
 
 	api := &api.RestApi{
+		Service: service,
 		// JobRepository:   jobRepo,
 		Resolver:        resolver,
 		MachineStateDir: config.Keys.MachineStateDir,

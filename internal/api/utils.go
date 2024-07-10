@@ -17,7 +17,7 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-// Add these methods to the RestApi struct
+// Add these methods to the Service struct
 
 // CreateMachine godoc
 //
@@ -33,7 +33,7 @@ import (
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine [post]
-func (api *RestApi) CreateMachine(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateMachine(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -53,7 +53,7 @@ func (api *RestApi) CreateMachine(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.Resolver.Queries.CreateMachine(r.Context(), params)
+	err = api.r.CreateMachine(r.Context(), params)
 	if err != nil {
 		log.Printf("error creating machine: %v", err)
 		handleError(err, http.StatusInternalServerError, rw)
@@ -74,7 +74,7 @@ func (api *RestApi) CreateMachine(rw http.ResponseWriter, r *http.Request) {
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine/{machine_id} [get]
-func (api *RestApi) GetMachine(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetMachine(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -83,7 +83,7 @@ func (api *RestApi) GetMachine(rw http.ResponseWriter, r *http.Request) {
 
 	machineID := mux.Vars(r)["machine_id"]
 
-	machine, err := api.Resolver.Queries.GetMachine(r.Context(), machineID)
+	machine, err := api.r.GetMachine(r.Context(), machineID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -111,7 +111,7 @@ func (api *RestApi) GetMachine(rw http.ResponseWriter, r *http.Request) {
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine/{machine_id} [put]
-func (api *RestApi) UpdateMachine(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateMachine(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -132,7 +132,7 @@ func (api *RestApi) UpdateMachine(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.Resolver.Queries.UpdateMachine(r.Context(), params)
+	err = api.r.UpdateMachine(r.Context(), params)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -154,7 +154,7 @@ func (api *RestApi) UpdateMachine(rw http.ResponseWriter, r *http.Request) {
 //	@success    204         "No Content"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine/{machine_id} [delete]
-func (api *RestApi) DeleteMachine(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteMachine(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -163,7 +163,7 @@ func (api *RestApi) DeleteMachine(rw http.ResponseWriter, r *http.Request) {
 
 	machineID := mux.Vars(r)["machine_id"]
 
-	err = api.Resolver.Queries.DeleteMachine(r.Context(), machineID)
+	err = api.r.DeleteMachine(r.Context(), machineID)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -182,21 +182,21 @@ func (api *RestApi) DeleteMachine(rw http.ResponseWriter, r *http.Request) {
 //	@success    200         {array}     Machine         "List of machines"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machines [get]
-func (api *RestApi) ListMachines(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) ListMachines(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	// Assuming you have a ListMachines query in your SQLC api.Resolver.Queries
-	// machines, err := api.Resolver.Queries.ListMachines(r.Context())
+	// Assuming you have a ListMachines query in your SQLC api.r
+	// machines, err := api.r.ListMachines(r.Context())
 	// return still development
 
 	json.NewEncoder(rw).Encode("still development")
 }
 
-// Add these methods to the RestApi struct
+// Add these methods to the Service struct
 
 // CreateMachineConf godoc
 //
@@ -216,7 +216,7 @@ func (api *RestApi) ListMachines(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400          {object}    ErrorResponse   "Bad Request"
 //	@failure    500          {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine_conf [post]
-func (api *RestApi) CreateMachineConf(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateMachineConf(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -240,7 +240,7 @@ func (api *RestApi) CreateMachineConf(rw http.ResponseWriter, r *http.Request) {
 		FolderPath: sql.NullString{String: r.FormValue("folder_path"), Valid: r.FormValue("folder_path") != ""},
 	}
 
-	err = api.Resolver.Queries.CreateMachineConf(r.Context(), params)
+	err = api.r.CreateMachineConf(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -260,7 +260,7 @@ func (api *RestApi) CreateMachineConf(rw http.ResponseWriter, r *http.Request) {
 //	@failure    404          {object}    ErrorResponse   "Not Found"
 //	@failure    500          {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine_conf/{machine_id} [get]
-func (api *RestApi) GetMachineConf(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetMachineConf(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -269,7 +269,7 @@ func (api *RestApi) GetMachineConf(rw http.ResponseWriter, r *http.Request) {
 
 	machineID := mux.Vars(r)["machine_id"]
 
-	machineConf, err := api.Resolver.Queries.GetMachineConf(r.Context(), machineID)
+	machineConf, err := api.r.GetMachineConf(r.Context(), machineID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -301,7 +301,7 @@ func (api *RestApi) GetMachineConf(rw http.ResponseWriter, r *http.Request) {
 //	@failure    404          {object}    ErrorResponse   "Not Found"
 //	@failure    500          {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine_conf/{id} [put]
-func (api *RestApi) UpdateMachineConf(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateMachineConf(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -331,7 +331,7 @@ func (api *RestApi) UpdateMachineConf(rw http.ResponseWriter, r *http.Request) {
 		FolderPath: sql.NullString{String: r.FormValue("folder_path"), Valid: r.FormValue("folder_path") != ""},
 	}
 
-	err = api.Resolver.Queries.UpdateMachineConf(r.Context(), params)
+	err = api.r.UpdateMachineConf(r.Context(), params)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -354,7 +354,7 @@ func (api *RestApi) UpdateMachineConf(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400          {object}    ErrorResponse   "Bad Request"
 //	@failure    500          {object}    ErrorResponse   "Internal Server Error"
 //	@router     /machine_conf/{id} [delete]
-func (api *RestApi) DeleteMachineConf(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteMachineConf(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -367,7 +367,7 @@ func (api *RestApi) DeleteMachineConf(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteMachineConf(r.Context(), int32(id))
+	err = api.r.DeleteMachineConf(r.Context(), int32(id))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -376,7 +376,7 @@ func (api *RestApi) DeleteMachineConf(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-// Add these methods to the RestApi struct
+// Add these methods to the Service struct
 
 // CreateRabbitMQConfig godoc
 //
@@ -391,7 +391,7 @@ func (api *RestApi) DeleteMachineConf(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /rabbitmq_config [post]
-func (api *RestApi) CreateRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -404,7 +404,7 @@ func (api *RestApi) CreateRabbitMQConfig(rw http.ResponseWriter, r *http.Request
 		Password: r.FormValue("password"),
 	}
 
-	err = api.Resolver.Queries.CreateRabbitMQConfig(r.Context(), params)
+	err = api.r.CreateRabbitMQConfig(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -423,14 +423,14 @@ func (api *RestApi) CreateRabbitMQConfig(rw http.ResponseWriter, r *http.Request
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /rabbitmq_config [get]
-func (api *RestApi) GetRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	config, err := api.Resolver.Queries.GetRabbitMQConfig(r.Context())
+	config, err := api.r.GetRabbitMQConfig(r.Context())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -456,7 +456,7 @@ func (api *RestApi) GetRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /rabbitmq_config [put]
-func (api *RestApi) UpdateRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -469,7 +469,7 @@ func (api *RestApi) UpdateRabbitMQConfig(rw http.ResponseWriter, r *http.Request
 		Password: r.FormValue("password"),
 	}
 
-	err = api.Resolver.Queries.UpdateRabbitMQConfig(r.Context(), params)
+	err = api.r.UpdateRabbitMQConfig(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -487,14 +487,14 @@ func (api *RestApi) UpdateRabbitMQConfig(rw http.ResponseWriter, r *http.Request
 //	@success    204         "No Content"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /rabbitmq_config [delete]
-func (api *RestApi) DeleteRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteRabbitMQConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteRabbitMQConfig(r.Context())
+	err = api.r.DeleteRabbitMQConfig(r.Context())
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -503,7 +503,7 @@ func (api *RestApi) DeleteRabbitMQConfig(rw http.ResponseWriter, r *http.Request
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-// Add these methods to the RestApi struct
+// Add these methods to the Service struct
 
 // CreateInfluxDBConfig godoc
 //
@@ -529,7 +529,7 @@ func (api *RestApi) DeleteRabbitMQConfig(rw http.ResponseWriter, r *http.Request
 //	@failure    400                    {object}    ErrorResponse   "Bad Request"
 //	@failure    500                    {object}    ErrorResponse   "Internal Server Error"
 //	@router     /influxdb_config [post]
-func (api *RestApi) CreateInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -583,7 +583,7 @@ func (api *RestApi) CreateInfluxDBConfig(rw http.ResponseWriter, r *http.Request
 		MetaAsTags:           sql.NullString{String: r.FormValue("meta_as_tags"), Valid: r.FormValue("meta_as_tags") != ""},
 	}
 
-	err = api.Resolver.Queries.CreateInfluxDBConfiguration(r.Context(), params)
+	err = api.r.CreateInfluxDBConfiguration(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -602,14 +602,14 @@ func (api *RestApi) CreateInfluxDBConfig(rw http.ResponseWriter, r *http.Request
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /influxdb_config [get]
-func (api *RestApi) GetInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	config, err := api.Resolver.Queries.GetInfluxDBConfiguration(r.Context())
+	config, err := api.r.GetInfluxDBConfiguration(r.Context())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -646,7 +646,7 @@ func (api *RestApi) GetInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400                    {object}    ErrorResponse   "Bad Request"
 //	@failure    500                    {object}    ErrorResponse   "Internal Server Error"
 //	@router     /influxdb_config [put]
-func (api *RestApi) UpdateInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -700,7 +700,7 @@ func (api *RestApi) UpdateInfluxDBConfig(rw http.ResponseWriter, r *http.Request
 		MetaAsTags:           sql.NullString{String: r.FormValue("meta_as_tags"), Valid: r.FormValue("meta_as_tags") != ""},
 	}
 
-	err = api.Resolver.Queries.UpdateInfluxDBConfiguration(r.Context(), params)
+	err = api.r.UpdateInfluxDBConfiguration(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -718,14 +718,14 @@ func (api *RestApi) UpdateInfluxDBConfig(rw http.ResponseWriter, r *http.Request
 //	@success    204         "No Content"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /influxdb_config [delete]
-func (api *RestApi) DeleteInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteInfluxDBConfig(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteInfluxDBConfiguration(r.Context(), 1) // Assuming the ID is always 1 for the single row
+	err = api.r.DeleteInfluxDBConfiguration(r.Context(), 1) // Assuming the ID is always 1 for the single row
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -734,7 +734,7 @@ func (api *RestApi) DeleteInfluxDBConfig(rw http.ResponseWriter, r *http.Request
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-// Add these methods to the RestApi struct
+// Add these methods to the Service struct
 
 // CreateFileStashURL godoc
 //
@@ -747,7 +747,7 @@ func (api *RestApi) DeleteInfluxDBConfig(rw http.ResponseWriter, r *http.Request
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /file_stash_url [post]
-func (api *RestApi) CreateFileStashURL(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateFileStashURL(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -760,7 +760,7 @@ func (api *RestApi) CreateFileStashURL(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = api.Resolver.Queries.CreateFileStashURL(r.Context(), url)
+	err = api.r.CreateFileStashURL(r.Context(), url)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -783,14 +783,14 @@ func (api *RestApi) CreateFileStashURL(rw http.ResponseWriter, r *http.Request) 
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /file_stash_url [get]
-func (api *RestApi) GetFileStashURL(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetFileStashURL(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	fileStashURL, err := api.Resolver.Queries.GetFileStashURL(r.Context())
+	fileStashURL, err := api.r.GetFileStashURL(r.Context())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -814,7 +814,7 @@ func (api *RestApi) GetFileStashURL(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /file_stash_url [put]
-func (api *RestApi) UpdateFileStashURL(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateFileStashURL(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -827,7 +827,7 @@ func (api *RestApi) UpdateFileStashURL(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = api.Resolver.Queries.UpdateFileStashURL(r.Context(), url)
+	err = api.r.UpdateFileStashURL(r.Context(), url)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -849,14 +849,14 @@ func (api *RestApi) UpdateFileStashURL(rw http.ResponseWriter, r *http.Request) 
 //	@success    204         "No Content"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /file_stash_url [delete]
-func (api *RestApi) DeleteFileStashURL(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteFileStashURL(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteFileStashURL(r.Context(), 1) // Assuming the ID is always 1 for the single row
+	err = api.r.DeleteFileStashURL(r.Context(), 1) // Assuming the ID is always 1 for the single row
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -882,7 +882,7 @@ func (api *RestApi) DeleteFileStashURL(rw http.ResponseWriter, r *http.Request) 
 //	@failure    400         {object}  ErrorResponse       "Bad Request"
 //	@failure    500         {object}  ErrorResponse       "Internal Server Error"
 //	@router     /lv_storage_issuer [post]
-func (api *RestApi) CreateLVStorageIssuer(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateLVStorageIssuer(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -904,7 +904,7 @@ func (api *RestApi) CreateLVStorageIssuer(rw http.ResponseWriter, r *http.Reques
 		Maxavailablespacegb: maxAvailableSpaceGB,
 	}
 
-	err = api.Resolver.Queries.CreateLVStorageIssuer(r.Context(), params)
+	err = api.r.CreateLVStorageIssuer(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -922,14 +922,14 @@ func (api *RestApi) CreateLVStorageIssuer(rw http.ResponseWriter, r *http.Reques
 //	@success    200         {array}   LvStorageIssuer     "Retrieved LV Storage Issuers"
 //	@failure    500         {object}  ErrorResponse       "Internal Server Error"
 //	@router     /lv_storage_issuers [get]
-func (api *RestApi) GetLVStorageIssuers(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetLVStorageIssuers(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
 		return
 	}
 
-	issuers, err := api.Resolver.Queries.GetLVStorageIssuers(r.Context())
+	issuers, err := api.r.GetLVStorageIssuers(r.Context())
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -956,7 +956,7 @@ func (api *RestApi) GetLVStorageIssuers(rw http.ResponseWriter, r *http.Request)
 //	@failure    404         {object}  ErrorResponse       "Not Found"
 //	@failure    500         {object}  ErrorResponse       "Internal Server Error"
 //	@router     /lv_storage_issuer/{id} [put]
-func (api *RestApi) UpdateLVStorageIssuer(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateLVStorageIssuer(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -984,7 +984,7 @@ func (api *RestApi) UpdateLVStorageIssuer(rw http.ResponseWriter, r *http.Reques
 		Maxavailablespacegb: maxAvailableSpaceGB,
 	}
 
-	err = api.Resolver.Queries.UpdateLVStorageIssuer(r.Context(), params)
+	err = api.r.UpdateLVStorageIssuer(r.Context(), params)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -1007,7 +1007,7 @@ func (api *RestApi) UpdateLVStorageIssuer(rw http.ResponseWriter, r *http.Reques
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /lv_storage_issuer/{id} [delete]
-func (api *RestApi) DeleteLVStorageIssuer(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteLVStorageIssuer(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1020,7 +1020,7 @@ func (api *RestApi) DeleteLVStorageIssuer(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteLVStorageIssuer(r.Context(), int32(id))
+	err = api.r.DeleteLVStorageIssuer(r.Context(), int32(id))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1042,7 +1042,7 @@ func (api *RestApi) DeleteLVStorageIssuer(rw http.ResponseWriter, r *http.Reques
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /notifications [post]
-func (api *RestApi) CreateNotification(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateNotification(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1055,7 +1055,7 @@ func (api *RestApi) CreateNotification(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = api.Resolver.Queries.CreateNotification(r.Context(), message)
+	err = api.r.CreateNotification(r.Context(), message)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1074,7 +1074,7 @@ func (api *RestApi) CreateNotification(rw http.ResponseWriter, r *http.Request) 
 //	@success    200         {array}     Notification    "Retrieved notifications"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /notifications [get]
-func (api *RestApi) GetNotifications(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetNotifications(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1086,7 +1086,7 @@ func (api *RestApi) GetNotifications(rw http.ResponseWriter, r *http.Request) {
 		limit = 10 // Default limit
 	}
 
-	notifications, err := api.Resolver.Queries.GetNotifications(r.Context(), int32(limit))
+	notifications, err := api.r.GetNotifications(r.Context(), int32(limit))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1105,7 +1105,7 @@ func (api *RestApi) GetNotifications(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /notifications/{id} [delete]
-func (api *RestApi) DeleteNotification(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteNotification(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1118,7 +1118,7 @@ func (api *RestApi) DeleteNotification(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteNotification(r.Context(), int32(id))
+	err = api.r.DeleteNotification(r.Context(), int32(id))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1141,7 +1141,7 @@ func (api *RestApi) DeleteNotification(rw http.ResponseWriter, r *http.Request) 
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /realtime_logs [post]
-func (api *RestApi) CreateRealtimeLog(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateRealtimeLog(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1158,7 +1158,7 @@ func (api *RestApi) CreateRealtimeLog(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.Resolver.Queries.CreateRealtimeLog(r.Context(), params)
+	err = api.r.CreateRealtimeLog(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1179,7 +1179,7 @@ func (api *RestApi) CreateRealtimeLog(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /realtime_logs/{machine_id} [get]
-func (api *RestApi) GetRealtimeLogs(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetRealtimeLogs(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1192,7 +1192,7 @@ func (api *RestApi) GetRealtimeLogs(rw http.ResponseWriter, r *http.Request) {
 		limit = 10 // Default limit
 	}
 
-	logs, err := api.Resolver.Queries.GetRealtimeLogs(r.Context(), sqlcdb.GetRealtimeLogsParams{
+	logs, err := api.r.GetRealtimeLogs(r.Context(), sqlcdb.GetRealtimeLogsParams{
 		MachineID: machineID,
 		Limit:     int32(limit),
 	})
@@ -1214,7 +1214,7 @@ func (api *RestApi) GetRealtimeLogs(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /realtime_logs/{id} [delete]
-func (api *RestApi) DeleteRealtimeLog(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteRealtimeLog(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1227,7 +1227,7 @@ func (api *RestApi) DeleteRealtimeLog(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteRealtimeLog(r.Context(), int32(id))
+	err = api.r.DeleteRealtimeLog(r.Context(), int32(id))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1256,7 +1256,7 @@ func (api *RestApi) DeleteRealtimeLog(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /volume_groups [post]
-func (api *RestApi) CreateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1274,7 +1274,7 @@ func (api *RestApi) CreateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 		VgFree:    r.FormValue("vg_free"),
 	}
 
-	err = api.Resolver.Queries.CreateVolumeGroup(r.Context(), params)
+	err = api.r.CreateVolumeGroup(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1293,7 +1293,7 @@ func (api *RestApi) CreateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 //	@success    200         {array}     VolumeGroup     "Retrieved volume groups"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /volume_groups/{machine_id} [get]
-func (api *RestApi) GetVolumeGroups(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetVolumeGroups(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1302,7 +1302,7 @@ func (api *RestApi) GetVolumeGroups(rw http.ResponseWriter, r *http.Request) {
 
 	machineID := mux.Vars(r)["machine_id"]
 
-	volumeGroups, err := api.Resolver.Queries.GetVolumeGroups(r.Context(), machineID)
+	volumeGroups, err := api.r.GetVolumeGroups(r.Context(), machineID)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1329,7 +1329,7 @@ func (api *RestApi) GetVolumeGroups(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /volume_groups/{vg_id} [put]
-func (api *RestApi) UpdateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1353,7 +1353,7 @@ func (api *RestApi) UpdateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 		VgFree:    r.FormValue("vg_free"),
 	}
 
-	err = api.Resolver.Queries.UpdateVolumeGroup(r.Context(), params)
+	err = api.r.UpdateVolumeGroup(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1373,7 +1373,7 @@ func (api *RestApi) UpdateVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /volume_group/{group_id} [delete]
-func (api *RestApi) DeleteVolumeGroup(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	groupIDStr := vars["group_id"]
 
@@ -1385,7 +1385,7 @@ func (api *RestApi) DeleteVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 	}
 	groupID := int32(groupIDInt)
 
-	err = api.Resolver.Queries.DeleteVolumeGroup(r.Context(), groupID)
+	err = api.r.DeleteVolumeGroup(r.Context(), groupID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(rw, "Volume Group not found", http.StatusNotFound)
@@ -1415,7 +1415,7 @@ func (api *RestApi) DeleteVolumeGroup(rw http.ResponseWriter, r *http.Request) {
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /physical_volume [post]
-func (api *RestApi) CreatePhysicalVolume(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreatePhysicalVolume(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1437,7 +1437,7 @@ func (api *RestApi) CreatePhysicalVolume(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = api.Resolver.Queries.CreatePhysicalVolume(r.Context(), params)
+	err = api.r.CreatePhysicalVolume(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1457,7 +1457,7 @@ func (api *RestApi) CreatePhysicalVolume(rw http.ResponseWriter, r *http.Request
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /physical_volumes/{machine_id} [get]
-func (api *RestApi) GetPhysicalVolumes(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetPhysicalVolumes(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1466,7 +1466,7 @@ func (api *RestApi) GetPhysicalVolumes(rw http.ResponseWriter, r *http.Request) 
 
 	machineID := mux.Vars(r)["machine_id"]
 
-	physicalVolumes, err := api.Resolver.Queries.GetPhysicalVolumes(r.Context(), machineID)
+	physicalVolumes, err := api.r.GetPhysicalVolumes(r.Context(), machineID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -1497,7 +1497,7 @@ func (api *RestApi) GetPhysicalVolumes(rw http.ResponseWriter, r *http.Request) 
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /physical_volume/{pv_id} [put]
-func (api *RestApi) UpdatePhysicalVolume(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdatePhysicalVolume(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1526,7 +1526,7 @@ func (api *RestApi) UpdatePhysicalVolume(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = api.Resolver.Queries.UpdatePhysicalVolume(r.Context(), params)
+	err = api.r.UpdatePhysicalVolume(r.Context(), params)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -1549,7 +1549,7 @@ func (api *RestApi) UpdatePhysicalVolume(rw http.ResponseWriter, r *http.Request
 //	@failure    400     {object}    ErrorResponse   "Bad Request"
 //	@failure    500     {object}    ErrorResponse   "Internal Server Error"
 //	@router     /physical_volume/{pv_id} [delete]
-func (api *RestApi) DeletePhysicalVolume(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeletePhysicalVolume(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1563,7 +1563,7 @@ func (api *RestApi) DeletePhysicalVolume(rw http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = api.Resolver.Queries.DeletePhysicalVolume(r.Context(), int32(pvID))
+	err = api.r.DeletePhysicalVolume(r.Context(), int32(pvID))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1589,7 +1589,7 @@ func (api *RestApi) DeletePhysicalVolume(rw http.ResponseWriter, r *http.Request
 //	@failure    400         {object}    ErrorResponse   "Bad Request"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /logical_volume [post]
-func (api *RestApi) CreateLogicalVolume(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) CreateLogicalVolume(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1609,7 +1609,7 @@ func (api *RestApi) CreateLogicalVolume(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = api.Resolver.Queries.CreateLogicalVolume(r.Context(), params)
+	err = api.r.CreateLogicalVolume(r.Context(), params)
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return
@@ -1629,7 +1629,7 @@ func (api *RestApi) CreateLogicalVolume(rw http.ResponseWriter, r *http.Request)
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /logical_volumes/{machine_id} [get]
-func (api *RestApi) GetLogicalVolumes(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) GetLogicalVolumes(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1638,7 +1638,7 @@ func (api *RestApi) GetLogicalVolumes(rw http.ResponseWriter, r *http.Request) {
 
 	machineID := mux.Vars(r)["machine_id"]
 
-	logicalVolumes, err := api.Resolver.Queries.GetLogicalVolumes(r.Context(), machineID)
+	logicalVolumes, err := api.r.GetLogicalVolumes(r.Context(), machineID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -1667,7 +1667,7 @@ func (api *RestApi) GetLogicalVolumes(rw http.ResponseWriter, r *http.Request) {
 //	@failure    404         {object}    ErrorResponse   "Not Found"
 //	@failure    500         {object}    ErrorResponse   "Internal Server Error"
 //	@router     /logical_volume/{lv_id} [put]
-func (api *RestApi) UpdateLogicalVolume(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) UpdateLogicalVolume(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1694,7 +1694,7 @@ func (api *RestApi) UpdateLogicalVolume(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = api.Resolver.Queries.UpdateLogicalVolume(r.Context(), params)
+	err = api.r.UpdateLogicalVolume(r.Context(), params)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleError(err, http.StatusNotFound, rw)
@@ -1717,7 +1717,7 @@ func (api *RestApi) UpdateLogicalVolume(rw http.ResponseWriter, r *http.Request)
 //	@failure    400     {object}    ErrorResponse   "Bad Request"
 //	@failure    500     {object}    ErrorResponse   "Internal Server Error"
 //	@router     /logical_volume/{lv_id} [delete]
-func (api *RestApi) DeleteLogicalVolume(rw http.ResponseWriter, r *http.Request) {
+func (api *Service) DeleteLogicalVolume(rw http.ResponseWriter, r *http.Request) {
 	err := securedCheck(r)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusForbidden)
@@ -1731,7 +1731,7 @@ func (api *RestApi) DeleteLogicalVolume(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = api.Resolver.Queries.DeleteLogicalVolume(r.Context(), int32(lvID))
+	err = api.r.DeleteLogicalVolume(r.Context(), int32(lvID))
 	if err != nil {
 		handleError(err, http.StatusInternalServerError, rw)
 		return

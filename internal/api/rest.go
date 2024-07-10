@@ -5,8 +5,18 @@
 package api
 
 import (
+	// "database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+
+	sqlcdb "github.com/Deepbinder-main/cc-backend/internal/repository/sqlc/db"
+
 	"github.com/Deepbinder-main/cc-backend/internal/auth"
 	"github.com/Deepbinder-main/cc-backend/internal/config"
 	"github.com/Deepbinder-main/cc-backend/internal/graph"
@@ -15,12 +25,6 @@ import (
 	"github.com/Deepbinder-main/cc-backend/pkg/log"
 	"github.com/Deepbinder-main/cc-backend/pkg/schema"
 	"github.com/gorilla/mux"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
 )
 
 //	@title			ClusterCockpit REST API
@@ -37,12 +41,27 @@ import (
 //	@host		localhost:8080
 //	@basePath	/api
 
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						X-Auth-Token
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						X-Auth-Token
 
+// Service define a service
+type Service struct {
+	r *sqlcdb.Queries
+}
+
+func NewService(r *sqlcdb.Queries) *Service {
+	return &Service{
+		r: r,
+	}
+}
+
+type Sqlc struct {
+	Queries sqlcdb.Queries
+}
 type RestApi struct {
-	// JobRepository   *repository.JobRepository
+	Service         *Service
+	Queries         sqlcdb.Queries
 	Resolver        *graph.Resolver
 	Authentication  *auth.Authentication
 	MachineStateDir string
@@ -80,62 +99,62 @@ func (api *RestApi) MountRoutes(r *mux.Router) {
 		r.HandleFunc("/user/{id}", api.updateUser).Methods(http.MethodPost)
 		r.HandleFunc("/configuration/", api.updateConfiguration).Methods(http.MethodPost)
 		// Machine Configuration
-		r.HandleFunc("/machine_conf", api.CreateMachineConf).Methods(http.MethodPost)
-		r.HandleFunc("/machine_conf/{machine_id}", api.GetMachineConf).Methods(http.MethodGet)
-		r.HandleFunc("/machine_conf/{id}", api.UpdateMachineConf).Methods(http.MethodPut)
-		r.HandleFunc("/machine_conf/{id}", api.DeleteMachineConf).Methods(http.MethodDelete)
+		r.HandleFunc("/machine_conf", api.Service.CreateMachineConf).Methods(http.MethodPost)
+		r.HandleFunc("/machine_conf/{machine_id}", api.Service.GetMachineConf).Methods(http.MethodGet)
+		r.HandleFunc("/machine_conf/{id}", api.Service.UpdateMachineConf).Methods(http.MethodPut)
+		r.HandleFunc("/machine_conf/{id}", api.Service.DeleteMachineConf).Methods(http.MethodDelete)
 		// RabbitMQ Configuration
-		r.HandleFunc("/rabbitmq_config", api.CreateRabbitMQConfig).Methods("POST")
-		r.HandleFunc("/rabbitmq_config", api.GetRabbitMQConfig).Methods("GET")
-		r.HandleFunc("/rabbitmq_config", api.UpdateRabbitMQConfig).Methods("PUT")
-		r.HandleFunc("/rabbitmq_config", api.DeleteRabbitMQConfig).Methods("DELETE")
+		r.HandleFunc("/rabbitmq_config", api.Service.CreateRabbitMQConfig).Methods("POST")
+		r.HandleFunc("/rabbitmq_config", api.Service.GetRabbitMQConfig).Methods("GET")
+		r.HandleFunc("/rabbitmq_config", api.Service.UpdateRabbitMQConfig).Methods("PUT")
+		r.HandleFunc("/rabbitmq_config", api.Service.DeleteRabbitMQConfig).Methods("DELETE")
 		// InfluxDB Configuration
-		r.HandleFunc("/influxdb_config", api.CreateInfluxDBConfig).Methods("POST")
-		r.HandleFunc("/influxdb_config", api.GetInfluxDBConfig).Methods("GET")
-		r.HandleFunc("/influxdb_config", api.UpdateInfluxDBConfig).Methods("PUT")
-		r.HandleFunc("/influxdb_config", api.DeleteInfluxDBConfig).Methods("DELETE")
+		r.HandleFunc("/influxdb_config", api.Service.CreateInfluxDBConfig).Methods("POST")
+		r.HandleFunc("/influxdb_config", api.Service.GetInfluxDBConfig).Methods("GET")
+		r.HandleFunc("/influxdb_config", api.Service.UpdateInfluxDBConfig).Methods("PUT")
+		r.HandleFunc("/influxdb_config", api.Service.DeleteInfluxDBConfig).Methods("DELETE")
 		// File stash Configuration
-		r.HandleFunc("/file_stash_url", api.CreateFileStashURL).Methods("POST")
-		r.HandleFunc("/file_stash_url", api.GetFileStashURL).Methods("GET")
-		r.HandleFunc("/file_stash_url", api.UpdateFileStashURL).Methods("PUT")
-		r.HandleFunc("/file_stash_url", api.DeleteFileStashURL).Methods("DELETE")
+		r.HandleFunc("/file_stash_url", api.Service.CreateFileStashURL).Methods("POST")
+		r.HandleFunc("/file_stash_url", api.Service.GetFileStashURL).Methods("GET")
+		r.HandleFunc("/file_stash_url", api.Service.UpdateFileStashURL).Methods("PUT")
+		r.HandleFunc("/file_stash_url", api.Service.DeleteFileStashURL).Methods("DELETE")
 		// Machine Configuration
-		r.HandleFunc("/machine", api.CreateMachine).Methods("POST")
-		r.HandleFunc("/machine/{machine_id}", api.GetMachine).Methods("GET")
-		r.HandleFunc("/machine/{machine_id}", api.UpdateMachine).Methods("PUT")
-		r.HandleFunc("/machine/{machine_id}", api.DeleteMachine).Methods("DELETE")
-		r.HandleFunc("/machines", api.ListMachines).Methods("GET")
+		r.HandleFunc("/machine", api.Service.CreateMachine).Methods("POST")
+		r.HandleFunc("/machine/{machine_id}", api.Service.GetMachine).Methods("GET")
+		r.HandleFunc("/machine/{machine_id}", api.Service.UpdateMachine).Methods("PUT")
+		r.HandleFunc("/machine/{machine_id}", api.Service.DeleteMachine).Methods("DELETE")
+		r.HandleFunc("/machines", api.Service.ListMachines).Methods("GET")
 		// LV Storage Issuer routes
-		r.HandleFunc("lv_storage_issuer", api.CreateLVStorageIssuer).Methods("POST")
-		r.HandleFunc("lv_storage_issuers", api.GetLVStorageIssuers).Methods("GET")
-		r.HandleFunc("lv_storage_issuer/{id}", api.UpdateLVStorageIssuer).Methods("PUT")
-		r.HandleFunc("lv_storage_issuer/{id}", api.DeleteLVStorageIssuer).Methods("DELETE")
+		r.HandleFunc("lv_storage_issuer", api.Service.CreateLVStorageIssuer).Methods("POST")
+		r.HandleFunc("lv_storage_issuers", api.Service.GetLVStorageIssuers).Methods("GET")
+		r.HandleFunc("lv_storage_issuer/{id}", api.Service.UpdateLVStorageIssuer).Methods("PUT")
+		r.HandleFunc("lv_storage_issuer/{id}", api.Service.DeleteLVStorageIssuer).Methods("DELETE")
 		// Physical Volume routes
-		r.HandleFunc("physical_volumes", api.CreatePhysicalVolume).Methods("POST")
-		r.HandleFunc("physical_volumes/{pv_id}", api.UpdatePhysicalVolume).Methods("PUT")
-		r.HandleFunc("physical_volumes/{pv_id}", api.DeletePhysicalVolume).Methods("DELETE")
+		r.HandleFunc("physical_volumes", api.Service.CreatePhysicalVolume).Methods("POST")
+		r.HandleFunc("physical_volumes/{pv_id}", api.Service.UpdatePhysicalVolume).Methods("PUT")
+		r.HandleFunc("physical_volumes/{pv_id}", api.Service.DeletePhysicalVolume).Methods("DELETE")
 
 		// Notification routes
-		r.HandleFunc("/notifications", api.CreateNotification).Methods("POST")
-		r.HandleFunc("/notifications", api.GetNotifications).Methods("GET")
-		r.HandleFunc("/notifications/{id}", api.DeleteNotification).Methods("DELETE")
+		r.HandleFunc("/notifications", api.Service.CreateNotification).Methods("POST")
+		r.HandleFunc("/notifications", api.Service.GetNotifications).Methods("GET")
+		r.HandleFunc("/notifications/{id}", api.Service.DeleteNotification).Methods("DELETE")
 
 		// Realtime Log routes
-		r.HandleFunc("/realtime_logs", api.CreateRealtimeLog).Methods("POST")
-		r.HandleFunc("/realtime_logs", api.GetRealtimeLogs).Methods("GET")
-		r.HandleFunc("/realtime_logs/{id}", api.DeleteRealtimeLog).Methods("DELETE")
+		r.HandleFunc("/realtime_logs", api.Service.CreateRealtimeLog).Methods("POST")
+		r.HandleFunc("/realtime_logs", api.Service.GetRealtimeLogs).Methods("GET")
+		r.HandleFunc("/realtime_logs/{id}", api.Service.DeleteRealtimeLog).Methods("DELETE")
 
 		// Volume Group routes
-		r.HandleFunc("/volume_groups", api.CreateVolumeGroup).Methods("POST")
-		r.HandleFunc("/volume_groups", api.GetVolumeGroups).Methods("GET")
-		r.HandleFunc("/volume_groups/{id}", api.UpdateVolumeGroup).Methods("PUT")
-		r.HandleFunc("/volume_groups/{id}", api.DeleteVolumeGroup).Methods("DELETE")
+		r.HandleFunc("/volume_groups", api.Service.CreateVolumeGroup).Methods("POST")
+		r.HandleFunc("/volume_groups", api.Service.GetVolumeGroups).Methods("GET")
+		r.HandleFunc("/volume_groups/{id}", api.Service.UpdateVolumeGroup).Methods("PUT")
+		r.HandleFunc("/volume_groups/{id}", api.Service.DeleteVolumeGroup).Methods("DELETE")
 
 		// Logical Volume routes
-		r.HandleFunc("/logical_volume", api.CreateLogicalVolume).Methods("POST")
-		r.HandleFunc("/logical_volumes/{machine_id}", api.GetLogicalVolumes).Methods("GET")
-		r.HandleFunc("/logical_volume/{lv_id}", api.UpdateLogicalVolume).Methods("PUT")
-		r.HandleFunc("/logical_volume/{lv_id}", api.DeleteLogicalVolume).Methods("DELETE")
+		r.HandleFunc("/logical_volume", api.Service.CreateLogicalVolume).Methods("POST")
+		r.HandleFunc("/logical_volumes/{machine_id}", api.Service.GetLogicalVolumes).Methods("GET")
+		r.HandleFunc("/logical_volume/{lv_id}", api.Service.UpdateLogicalVolume).Methods("PUT")
+		r.HandleFunc("/logical_volume/{lv_id}", api.Service.DeleteLogicalVolume).Methods("DELETE")
 
 	}
 }

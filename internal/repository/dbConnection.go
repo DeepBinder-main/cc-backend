@@ -23,6 +23,7 @@ var (
 type DBConnection struct {
 	DB     *sqlx.DB
 	Driver string
+	Sqlconn *sql.DB
 }
 
 type DatabaseOptions struct {
@@ -36,6 +37,7 @@ type DatabaseOptions struct {
 func Connect(driver string, db string) {
 	var err error
 	var dbHandle *sqlx.DB
+	var sqlconn *sql.DB
 
 	dbConnOnce.Do(func() {
 		opts := DatabaseOptions{
@@ -65,6 +67,7 @@ func Connect(driver string, db string) {
 		case "mysql":
 			opts.URL += "?multiStatements=true"
 			dbHandle, err = sqlx.Open("mysql", opts.URL)
+			sqlconn = dbHandle.DB
 			if err != nil {
 				log.Fatalf("sqlx.Open() error: %v", err)
 			}
@@ -77,7 +80,7 @@ func Connect(driver string, db string) {
 		dbHandle.SetConnMaxLifetime(opts.ConnectionMaxLifetime)
 		dbHandle.SetConnMaxIdleTime(opts.ConnectionMaxIdleTime)
 
-		dbConnInstance = &DBConnection{DB: dbHandle, Driver: driver}
+		dbConnInstance = &DBConnection{DB: dbHandle, Driver: driver, Sqlconn: sqlconn}
 		err = checkDBVersion(driver, dbHandle.DB)
 		if err != nil {
 			log.Fatal(err)

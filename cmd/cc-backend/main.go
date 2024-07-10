@@ -48,6 +48,7 @@ import (
 	// "github.com/Deepbinder-main/cc-backend/internal/importer"
 	"github.com/Deepbinder-main/cc-backend/internal/metricdata"
 	"github.com/Deepbinder-main/cc-backend/internal/repository"
+	sqlcdb "github.com/Deepbinder-main/cc-backend/internal/repository/sqlc/db"
 	"github.com/Deepbinder-main/cc-backend/internal/routerConfig"
 	"github.com/Deepbinder-main/cc-backend/internal/util"
 	"github.com/Deepbinder-main/cc-backend/pkg/archive"
@@ -172,6 +173,10 @@ func initEnv() {
 	}
 }
 
+func init() {
+	repository.Connect(config.Keys.DBDriver, config.Keys.DB)
+}
+
 func main() {
 	var flagReinitDB, flagInit, flagServer, flagSyncLDAP, flagGops, flagMigrateDB, flagRevertDB, flagForceDB, flagDev, flagVersion, flagLogDateTime bool
 	var flagNewUser, flagDelUser, flagGenJWT, flagConfigFile, flagImportJob, flagLogLevel string
@@ -263,7 +268,10 @@ func main() {
 	}
 
 	repository.Connect(config.Keys.DBDriver, config.Keys.DB)
-	// db := repository.GetConnection()
+	// repository.Connect("mysql", "root:my-secret-pw@(127.0.0.1:3306)/cockpit")
+
+	db := repository.GetConnection()
+	queries := sqlcdb.New(db.DB)
 
 	var authentication *auth.Authentication
 	if !config.Keys.DisableAuthentication {
@@ -359,7 +367,7 @@ func main() {
 	// jobRepo := repository.GetJobRepository()
 
 	// resolver := &graph.Resolver{DB: db.DB, Repo: jobRepo}
-	resolver := &graph.Resolver{}
+	resolver := &graph.Resolver{DB: db.DB, Queries: queries}
 
 	// TODO : GrapQL Endpoint
 	// graphQLEndpoint := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))

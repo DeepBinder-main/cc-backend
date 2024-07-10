@@ -17,6 +17,174 @@ definitions:
       username:
         type: string
     type: object
+  api.ErrorResponse:
+    properties:
+      error:
+        description: Error Message
+        type: string
+      status:
+        description: Statustext of Errorcode
+        type: string
+    type: object
+  api.FileStashUrl:
+    properties:
+      url:
+        type: string
+    type: object
+  api.InfluxdbConfiguration:
+    properties:
+      batch_size:
+        type: integer
+      database_name:
+        type: string
+      host:
+        type: string
+      max_retries:
+        type: integer
+      max_retry_time:
+        type: string
+      meta_as_tags:
+        type: string
+      organization:
+        type: string
+      password:
+        type: string
+      port:
+        type: integer
+      retry_exponential_base:
+        type: integer
+      retry_interval:
+        type: string
+      ssl_enabled:
+        type: boolean
+      type:
+        type: string
+      user:
+        type: string
+    type: object
+  api.LogicalVolume:
+    properties:
+      lv_attr:
+        type: string
+      lv_name:
+        type: string
+      lv_size:
+        type: string
+      machine_id:
+        type: string
+      vg_name:
+        type: string
+    type: object
+  api.LvStorageIssuer:
+    properties:
+      dec_buffer:
+        type: integer
+      hostname:
+        type: string
+      inc_buffer:
+        type: integer
+      machine_id:
+        type: string
+      max_available_space_gb:
+        type: number
+      min_available_space_gb:
+        type: number
+      username:
+        type: string
+    type: object
+  api.Machine:
+    properties:
+      hostname:
+        type: string
+      ip_address:
+        type: string
+      machine_id:
+        type: string
+      os_version:
+        type: string
+    type: object
+  api.MachineConf:
+    properties:
+      folder_path:
+        type: string
+      host_key:
+        type: string
+      hostname:
+        type: string
+      machine_id:
+        type: string
+      passphrase:
+        type: string
+      password:
+        type: string
+      port_number:
+        type: integer
+      username:
+        type: string
+    type: object
+  api.Notification:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+    type: object
+  api.PhysicalVolume:
+    properties:
+      machine_id:
+        type: string
+      pv_attr:
+        type: string
+      pv_fmt:
+        type: string
+      pv_free:
+        type: string
+      pv_name:
+        type: string
+      pv_size:
+        type: string
+      vg_name:
+        type: string
+    type: object
+  api.RabbitMqConfig:
+    properties:
+      conn_url:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  api.RealtimeLog:
+    properties:
+      log_message:
+        type: string
+      machine_id:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  api.VolumeGroup:
+    properties:
+      lv_count:
+        type: string
+      machine_id:
+        type: string
+      pv_count:
+        type: string
+      snap_count:
+        type: string
+      vg_attr:
+        type: string
+      vg_free:
+        type: string
+      vg_name:
+        type: string
+      vg_size:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -30,6 +198,1380 @@ info:
   title: ClusterCockpit REST API
   version: 1.0.0
 paths:
+  /file_stash_url:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes the File Stash URL
+      tags:
+      - FileStash
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved File Stash URL
+          schema:
+            $ref: '#/definitions/api.FileStashUrl'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves the File Stash URL
+      tags:
+      - FileStash
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: File Stash URL
+        in: formData
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created/Updated File Stash URL
+          schema:
+            $ref: '#/definitions/api.FileStashUrl'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates or updates File Stash URL
+      tags:
+      - FileStash
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: File Stash URL
+        in: formData
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated File Stash URL
+          schema:
+            $ref: '#/definitions/api.FileStashUrl'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates the File Stash URL
+      tags:
+      - FileStash
+  /influxdb_config:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes the InfluxDB configuration
+      tags:
+      - InfluxDB
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved InfluxDB configuration
+          schema:
+            $ref: '#/definitions/api.InfluxdbConfiguration'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves the InfluxDB configuration
+      tags:
+      - InfluxDB
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Type
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Database Name
+        in: formData
+        name: database_name
+        required: true
+        type: string
+      - description: Host
+        in: formData
+        name: host
+        required: true
+        type: string
+      - description: Port
+        in: formData
+        name: port
+        required: true
+        type: integer
+      - description: User
+        in: formData
+        name: user
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Organization
+        in: formData
+        name: organization
+        required: true
+        type: string
+      - description: SSL Enabled
+        in: formData
+        name: ssl_enabled
+        required: true
+        type: boolean
+      - description: Batch Size
+        in: formData
+        name: batch_size
+        required: true
+        type: integer
+      - description: Retry Interval
+        in: formData
+        name: retry_interval
+        required: true
+        type: string
+      - description: Retry Exponential Base
+        in: formData
+        name: retry_exponential_base
+        required: true
+        type: integer
+      - description: Max Retries
+        in: formData
+        name: max_retries
+        required: true
+        type: integer
+      - description: Max Retry Time
+        in: formData
+        name: max_retry_time
+        required: true
+        type: string
+      - description: Meta as Tags
+        in: formData
+        name: meta_as_tags
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created/Updated InfluxDB configuration
+          schema:
+            $ref: '#/definitions/api.InfluxdbConfiguration'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates or updates InfluxDB configuration
+      tags:
+      - InfluxDB
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Type
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Database Name
+        in: formData
+        name: database_name
+        required: true
+        type: string
+      - description: Host
+        in: formData
+        name: host
+        required: true
+        type: string
+      - description: Port
+        in: formData
+        name: port
+        required: true
+        type: integer
+      - description: User
+        in: formData
+        name: user
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Organization
+        in: formData
+        name: organization
+        required: true
+        type: string
+      - description: SSL Enabled
+        in: formData
+        name: ssl_enabled
+        required: true
+        type: boolean
+      - description: Batch Size
+        in: formData
+        name: batch_size
+        required: true
+        type: integer
+      - description: Retry Interval
+        in: formData
+        name: retry_interval
+        required: true
+        type: string
+      - description: Retry Exponential Base
+        in: formData
+        name: retry_exponential_base
+        required: true
+        type: integer
+      - description: Max Retries
+        in: formData
+        name: max_retries
+        required: true
+        type: integer
+      - description: Max Retry Time
+        in: formData
+        name: max_retry_time
+        required: true
+        type: string
+      - description: Meta as Tags
+        in: formData
+        name: meta_as_tags
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated InfluxDB configuration
+          schema:
+            $ref: '#/definitions/api.InfluxdbConfiguration'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates the InfluxDB configuration
+      tags:
+      - InfluxDB
+  /logical_volume:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      - description: Logical Volume Name
+        in: formData
+        name: lv_name
+        required: true
+        type: string
+      - description: Volume Group Name
+        in: formData
+        name: vg_name
+        required: true
+        type: string
+      - description: Logical Volume Attributes
+        in: formData
+        name: lv_attr
+        required: true
+        type: string
+      - description: Logical Volume Size
+        in: formData
+        name: lv_size
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created logical volume
+          schema:
+            $ref: '#/definitions/api.LogicalVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new logical volume record
+      tags:
+      - LogicalVolume
+  /logical_volume/{lv_id}:
+    delete:
+      parameters:
+      - description: Logical Volume ID
+        in: path
+        name: lv_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a logical volume record
+      tags:
+      - LogicalVolume
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Logical Volume ID
+        in: path
+        name: lv_id
+        required: true
+        type: integer
+      - description: Logical Volume Name
+        in: formData
+        name: lv_name
+        required: true
+        type: string
+      - description: Volume Group Name
+        in: formData
+        name: vg_name
+        required: true
+        type: string
+      - description: Logical Volume Attributes
+        in: formData
+        name: lv_attr
+        required: true
+        type: string
+      - description: Logical Volume Size
+        in: formData
+        name: lv_size
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated logical volume
+          schema:
+            $ref: '#/definitions/api.LogicalVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates a logical volume record
+      tags:
+      - LogicalVolume
+  /logical_volumes/{machine_id}:
+    get:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved logical volumes
+          schema:
+            items:
+              $ref: '#/definitions/api.LogicalVolume'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves logical volume records for a machine
+      tags:
+      - LogicalVolume
+  /lv_storage_issuer:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      - description: Increment Buffer
+        in: formData
+        name: inc_buffer
+        type: integer
+      - description: Decrement Buffer
+        in: formData
+        name: dec_buffer
+        type: integer
+      - description: Hostname
+        in: formData
+        name: hostname
+        required: true
+        type: string
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Minimum Available Space in GB
+        in: formData
+        name: minAvailableSpaceGB
+        required: true
+        type: number
+      - description: Maximum Available Space in GB
+        in: formData
+        name: maxAvailableSpaceGB
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created LV Storage Issuer
+          schema:
+            $ref: '#/definitions/api.LvStorageIssuer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new LV Storage Issuer
+      tags:
+      - LVStorageIssuer
+  /lv_storage_issuer/{id}:
+    delete:
+      parameters:
+      - description: LV Storage Issuer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes an LV Storage Issuer
+      tags:
+      - LVStorageIssuer
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: LV Storage Issuer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Increment Buffer
+        in: formData
+        name: inc_buffer
+        type: integer
+      - description: Decrement Buffer
+        in: formData
+        name: dec_buffer
+        type: integer
+      - description: Hostname
+        in: formData
+        name: hostname
+        required: true
+        type: string
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Minimum Available Space in GB
+        in: formData
+        name: minAvailableSpaceGB
+        required: true
+        type: number
+      - description: Maximum Available Space in GB
+        in: formData
+        name: maxAvailableSpaceGB
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated LV Storage Issuer
+          schema:
+            $ref: '#/definitions/api.LvStorageIssuer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates an LV Storage Issuer
+      tags:
+      - LVStorageIssuer
+  /lv_storage_issuers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved LV Storage Issuers
+          schema:
+            items:
+              $ref: '#/definitions/api.LvStorageIssuer'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves all LV Storage Issuers
+      tags:
+      - LVStorageIssuer
+  /machine:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      - description: Hostname
+        in: formData
+        name: hostname
+        required: true
+        type: string
+      - description: OS Version
+        in: formData
+        name: os_version
+        required: true
+        type: string
+      - description: IP Address
+        in: formData
+        name: ip_address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created machine
+          schema:
+            $ref: '#/definitions/api.Machine'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new machine record
+      tags:
+      - Machine
+  /machine/{machine_id}:
+    delete:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a machine record
+      tags:
+      - Machine
+    get:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved machine
+          schema:
+            $ref: '#/definitions/api.Machine'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves a machine record
+      tags:
+      - Machine
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      - description: Hostname
+        in: formData
+        name: hostname
+        required: true
+        type: string
+      - description: OS Version
+        in: formData
+        name: os_version
+        required: true
+        type: string
+      - description: IP Address
+        in: formData
+        name: ip_address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated machine
+          schema:
+            $ref: '#/definitions/api.Machine'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates a machine record
+      tags:
+      - Machine
+  /machine_conf:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      - description: Hostname
+        in: formData
+        name: hostname
+        required: true
+        type: string
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Passphrase
+        in: formData
+        name: passphrase
+        type: string
+      - description: Port Number
+        in: formData
+        name: port_number
+        required: true
+        type: integer
+      - description: Password
+        in: formData
+        name: password
+        type: string
+      - description: Host Key
+        in: formData
+        name: host_key
+        type: string
+      - description: Folder Path
+        in: formData
+        name: folder_path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created machine configuration
+          schema:
+            $ref: '#/definitions/api.MachineConf'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new machine configuration
+      tags:
+      - MachineConf
+  /machine_conf/{id}:
+    delete:
+      parameters:
+      - description: Machine Configuration ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a machine configuration
+      tags:
+      - MachineConf
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine Configuration ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Hostname
+        in: formData
+        name: hostname
+        required: true
+        type: string
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Passphrase
+        in: formData
+        name: passphrase
+        type: string
+      - description: Port Number
+        in: formData
+        name: port_number
+        required: true
+        type: integer
+      - description: Password
+        in: formData
+        name: password
+        type: string
+      - description: Host Key
+        in: formData
+        name: host_key
+        type: string
+      - description: Folder Path
+        in: formData
+        name: folder_path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated machine configuration
+          schema:
+            $ref: '#/definitions/api.MachineConf'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates a machine configuration
+      tags:
+      - MachineConf
+  /machine_conf/{machine_id}:
+    get:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved machine configuration
+          schema:
+            $ref: '#/definitions/api.MachineConf'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves a machine configuration
+      tags:
+      - MachineConf
+  /machines:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of machines
+          schema:
+            items:
+              $ref: '#/definitions/api.Machine'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Lists all machines
+      tags:
+      - Machine
+  /notifications:
+    get:
+      parameters:
+      - description: Limit the number of notifications
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved notifications
+          schema:
+            items:
+              $ref: '#/definitions/api.Notification'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves notifications
+      tags:
+      - Notifications
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Notification message
+        in: formData
+        name: message
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created notification
+          schema:
+            $ref: '#/definitions/api.Notification'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new notification
+      tags:
+      - Notifications
+  /notifications/{id}:
+    delete:
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a notification
+      tags:
+      - Notifications
+  /physical_volume:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      - description: Physical Volume Name
+        in: formData
+        name: pv_name
+        required: true
+        type: string
+      - description: Volume Group Name
+        in: formData
+        name: vg_name
+        required: true
+        type: string
+      - description: Physical Volume Format
+        in: formData
+        name: pv_fmt
+        required: true
+        type: string
+      - description: Physical Volume Attributes
+        in: formData
+        name: pv_attr
+        required: true
+        type: string
+      - description: Physical Volume Size
+        in: formData
+        name: pv_size
+        required: true
+        type: string
+      - description: Physical Volume Free Space
+        in: formData
+        name: pv_free
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created physical volume
+          schema:
+            $ref: '#/definitions/api.PhysicalVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new physical volume record
+      tags:
+      - PhysicalVolume
+  /physical_volume/{pv_id}:
+    delete:
+      parameters:
+      - description: Physical Volume ID
+        in: path
+        name: pv_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a physical volume record
+      tags:
+      - PhysicalVolume
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Physical Volume ID
+        in: path
+        name: pv_id
+        required: true
+        type: integer
+      - description: Physical Volume Name
+        in: formData
+        name: pv_name
+        required: true
+        type: string
+      - description: Volume Group Name
+        in: formData
+        name: vg_name
+        required: true
+        type: string
+      - description: Physical Volume Format
+        in: formData
+        name: pv_fmt
+        required: true
+        type: string
+      - description: Physical Volume Attributes
+        in: formData
+        name: pv_attr
+        required: true
+        type: string
+      - description: Physical Volume Size
+        in: formData
+        name: pv_size
+        required: true
+        type: string
+      - description: Physical Volume Free Space
+        in: formData
+        name: pv_free
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated physical volume
+          schema:
+            $ref: '#/definitions/api.PhysicalVolume'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates a physical volume record
+      tags:
+      - PhysicalVolume
+  /physical_volumes/{machine_id}:
+    get:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved physical volumes
+          schema:
+            items:
+              $ref: '#/definitions/api.PhysicalVolume'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves physical volume records for a machine
+      tags:
+      - PhysicalVolume
+  /rabbitmq_config:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes the RabbitMQ configuration
+      tags:
+      - RabbitMQ
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved RabbitMQ configuration
+          schema:
+            $ref: '#/definitions/api.RabbitMqConfig'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves the RabbitMQ configuration
+      tags:
+      - RabbitMQ
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Connection URL
+        in: formData
+        name: conn_url
+        required: true
+        type: string
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created/Updated RabbitMQ configuration
+          schema:
+            $ref: '#/definitions/api.RabbitMqConfig'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates or updates RabbitMQ configuration
+      tags:
+      - RabbitMQ
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Connection URL
+        in: formData
+        name: conn_url
+        required: true
+        type: string
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated RabbitMQ configuration
+          schema:
+            $ref: '#/definitions/api.RabbitMqConfig'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates the RabbitMQ configuration
+      tags:
+      - RabbitMQ
+  /realtime_logs:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Log message
+        in: formData
+        name: log_message
+        required: true
+        type: string
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created realtime log
+          schema:
+            $ref: '#/definitions/api.RealtimeLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new realtime log
+      tags:
+      - RealtimeLogs
+  /realtime_logs/{id}:
+    delete:
+      parameters:
+      - description: Realtime Log ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a realtime log
+      tags:
+      - RealtimeLogs
+  /realtime_logs/{machine_id}:
+    get:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      - description: Limit the number of logs
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved realtime logs
+          schema:
+            items:
+              $ref: '#/definitions/api.RealtimeLog'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves realtime logs for a machine
+      tags:
+      - RealtimeLogs
   /user/{id}:
     post:
       consumes:
@@ -261,6 +1803,184 @@ paths:
       summary: Adds a new user
       tags:
       - User
+  /volume_group/{group_id}:
+    delete:
+      parameters:
+      - description: Volume Group ID
+        in: path
+        name: group_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Deletes a volume group
+      tags:
+      - VolumeGroup
+  /volume_groups:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Machine ID
+        in: formData
+        name: machine_id
+        required: true
+        type: string
+      - description: Volume Group Name
+        in: formData
+        name: vg_name
+        required: true
+        type: string
+      - description: PV Count
+        in: formData
+        name: pv_count
+        required: true
+        type: string
+      - description: LV Count
+        in: formData
+        name: lv_count
+        required: true
+        type: string
+      - description: Snap Count
+        in: formData
+        name: snap_count
+        required: true
+        type: string
+      - description: VG Attributes
+        in: formData
+        name: vg_attr
+        required: true
+        type: string
+      - description: VG Size
+        in: formData
+        name: vg_size
+        required: true
+        type: string
+      - description: VG Free
+        in: formData
+        name: vg_free
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created volume group
+          schema:
+            $ref: '#/definitions/api.VolumeGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Creates a new volume group
+      tags:
+      - VolumeGroups
+  /volume_groups/{machine_id}:
+    get:
+      parameters:
+      - description: Machine ID
+        in: path
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved volume groups
+          schema:
+            items:
+              $ref: '#/definitions/api.VolumeGroup'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Retrieves volume groups for a machine
+      tags:
+      - VolumeGroups
+  /volume_groups/{vg_id}:
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Volume Group ID
+        in: path
+        name: vg_id
+        required: true
+        type: integer
+      - description: Volume Group Name
+        in: formData
+        name: vg_name
+        required: true
+        type: string
+      - description: PV Count
+        in: formData
+        name: pv_count
+        required: true
+        type: string
+      - description: LV Count
+        in: formData
+        name: lv_count
+        required: true
+        type: string
+      - description: Snap Count
+        in: formData
+        name: snap_count
+        required: true
+        type: string
+      - description: VG Attributes
+        in: formData
+        name: vg_attr
+        required: true
+        type: string
+      - description: VG Size
+        in: formData
+        name: vg_size
+        required: true
+        type: string
+      - description: VG Free
+        in: formData
+        name: vg_free
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated volume group
+          schema:
+            $ref: '#/definitions/api.VolumeGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates a volume group
+      tags:
+      - VolumeGroups
 securityDefinitions:
   ApiKeyAuth:
     in: header

@@ -23,802 +23,65 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/clusters/": {
+        "/file_stash_url": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a list of all cluster configs. Specific cluster can be requested using query parameter.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Cluster query"
+                    "FileStash"
                 ],
-                "summary": "Lists all cluster configs",
+                "summary": "Retrieves the File Stash URL",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved File Stash URL",
+                        "schema": {
+                            "$ref": "#/definitions/api.FileStashUrl"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FileStash"
+                ],
+                "summary": "Updates the File Stash URL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Job Cluster",
-                        "name": "cluster",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Array of clusters",
-                        "schema": {
-                            "$ref": "#/definitions/api.GetClustersApiResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a list of all jobs. Filters can be applied using query parameters.\nNumber of results can be limited by page. Results are sorted by descending startTime.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job query"
-                ],
-                "summary": "Lists all jobs",
-                "parameters": [
-                    {
-                        "enum": [
-                            "running",
-                            "completed",
-                            "failed",
-                            "cancelled",
-                            "stopped",
-                            "timeout"
-                        ],
-                        "type": "string",
-                        "description": "Job State",
-                        "name": "state",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Job Cluster",
-                        "name": "cluster",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Syntax: '$from-$to', as unix epoch timestamps in seconds",
-                        "name": "start-time",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page (Default: 25)",
-                        "name": "items-per-page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page Number (Default: 1)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Include metadata (e.g. jobScript) in response",
-                        "name": "with-metadata",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Job array and page info",
-                        "schema": {
-                            "$ref": "#/definitions/api.GetJobsApiResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/delete_job/": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job to delete is specified by request body. All fields are required in this case.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job remove"
-                ],
-                "summary": "Remove a job from the sql database",
-                "parameters": [
-                    {
-                        "description": "All fields required",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.DeleteJobApiRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success message",
-                        "schema": {
-                            "$ref": "#/definitions/api.DeleteJobApiResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Resource not found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/delete_job/{id}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job to remove is specified by database ID. This will not remove the job from the job archive.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job remove"
-                ],
-                "summary": "Remove a job from the sql database",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Database ID of Job",
-                        "name": "id",
-                        "in": "path",
+                        "description": "File Stash URL",
+                        "name": "url",
+                        "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success message",
+                        "description": "Updated File Stash URL",
                         "schema": {
-                            "$ref": "#/definitions/api.DeleteJobApiResponse"
+                            "$ref": "#/definitions/api.FileStashUrl"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Resource not found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/delete_job_before/{ts}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Remove all jobs with start time before timestamp. The jobs will not be removed from the job archive.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job remove"
-                ],
-                "summary": "Remove a job from the sql database",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Unix epoch timestamp",
-                        "name": "ts",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success message",
-                        "schema": {
-                            "$ref": "#/definitions/api.DeleteJobApiResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Resource not found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/edit_meta/{id}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Edit key value pairs in job metadata json\nIf a key already exists its content will be overwritten",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job add and modify"
-                ],
-                "summary": "Edit meta-data json",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Job Database ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Kay value pair to add",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.EditMetaRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Updated job resource",
-                        "schema": {
-                            "$ref": "#/definitions/schema.Job"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Job does not exist",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/start_job/": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job specified in request body will be saved to database as \"running\" with new DB ID.\nJob specifications follow the 'JobMeta' scheme, API will fail to execute if requirements are not met.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job add and modify"
-                ],
-                "summary": "Adds a new job as \"running\"",
-                "parameters": [
-                    {
-                        "description": "Job to add",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.JobMeta"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Job added successfully",
-                        "schema": {
-                            "$ref": "#/definitions/api.StartJobApiResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: The combination of jobId, clusterId and startTime does already exist",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/stop_job/": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job to stop is specified by request body. All fields are required in this case.\nReturns full job resource information according to 'JobMeta' scheme.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job add and modify"
-                ],
-                "summary": "Marks job as completed and triggers archiving",
-                "parameters": [
-                    {
-                        "description": "All fields required",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.StopJobApiRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success message",
-                        "schema": {
-                            "$ref": "#/definitions/schema.JobMeta"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Resource not found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/stop_job/{id}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job to stop is specified by database ID. Only stopTime and final state are required in request body.\nReturns full job resource information according to 'JobMeta' scheme.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job add and modify"
-                ],
-                "summary": "Marks job as completed and triggers archiving",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Database ID of Job",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "stopTime and final state in request body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.StopJobApiRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Job resource",
-                        "schema": {
-                            "$ref": "#/definitions/schema.JobMeta"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Resource not found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/tag_job/{id}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Adds tag(s) to a job specified by DB ID. Name and Type of Tag(s) can be chosen freely.\nIf tagged job is already finished: Tag will be written directly to respective archive files.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job add and modify"
-                ],
-                "summary": "Adds one or more tags to a job",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Job Database ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Array of tag-objects to add",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/api.ApiTag"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Updated job resource",
-                        "schema": {
-                            "$ref": "#/definitions/schema.Job"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Job or tag does not exist",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/jobs/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job to get is specified by database ID\nReturns full job resource information according to 'JobMeta' scheme and all metrics according to 'JobData'.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Job query"
-                ],
-                "summary": "Get job meta and optional all metric data",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Database ID of Job",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Include all available metrics",
-                        "name": "all-metrics",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Job resource",
-                        "schema": {
-                            "$ref": "#/definitions/api.GetJobApiResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Resource not found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
@@ -832,48 +95,30 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job to get is specified by database ID\nReturns full job resource information according to 'JobMeta' scheme and all metrics according to 'JobData'.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Job query"
+                    "FileStash"
                 ],
-                "summary": "Get job meta and configurable metric data",
+                "summary": "Creates or updates File Stash URL",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Database ID of Job",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "File Stash URL",
+                        "name": "url",
+                        "in": "formData",
                         "required": true
-                    },
-                    {
-                        "description": "Array of metric names",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Job resource",
+                        "description": "Created/Updated File Stash URL",
                         "schema": {
-                            "$ref": "#/definitions/api.GetJobApiResponse"
+                            "$ref": "#/definitions/api.FileStashUrl"
                         }
                     },
                     "400": {
@@ -882,26 +127,1947 @@ const docTemplate = `{
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FileStash"
+                ],
+                "summary": "Deletes the File Stash URL",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/influxdb_config": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfluxDB"
+                ],
+                "summary": "Retrieves the InfluxDB configuration",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved InfluxDB configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.InfluxdbConfiguration"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfluxDB"
+                ],
+                "summary": "Updates the InfluxDB configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Type",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Database Name",
+                        "name": "database_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Host",
+                        "name": "host",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Port",
+                        "name": "port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User",
+                        "name": "user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Organization",
+                        "name": "organization",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "SSL Enabled",
+                        "name": "ssl_enabled",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Batch Size",
+                        "name": "batch_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Retry Interval",
+                        "name": "retry_interval",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Retry Exponential Base",
+                        "name": "retry_exponential_base",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Max Retries",
+                        "name": "max_retries",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Max Retry Time",
+                        "name": "max_retry_time",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Meta as Tags",
+                        "name": "meta_as_tags",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated InfluxDB configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.InfluxdbConfiguration"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfluxDB"
+                ],
+                "summary": "Creates or updates InfluxDB configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Type",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Database Name",
+                        "name": "database_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Host",
+                        "name": "host",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Port",
+                        "name": "port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User",
+                        "name": "user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Organization",
+                        "name": "organization",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "SSL Enabled",
+                        "name": "ssl_enabled",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Batch Size",
+                        "name": "batch_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Retry Interval",
+                        "name": "retry_interval",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Retry Exponential Base",
+                        "name": "retry_exponential_base",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Max Retries",
+                        "name": "max_retries",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Max Retry Time",
+                        "name": "max_retry_time",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Meta as Tags",
+                        "name": "meta_as_tags",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Created/Updated InfluxDB configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.InfluxdbConfiguration"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfluxDB"
+                ],
+                "summary": "Deletes the InfluxDB configuration",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/logical_volume": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogicalVolume"
+                ],
+                "summary": "Creates a new logical volume record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Logical Volume Name",
+                        "name": "lv_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Group Name",
+                        "name": "vg_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Logical Volume Attributes",
+                        "name": "lv_attr",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Logical Volume Size",
+                        "name": "lv_size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created logical volume",
+                        "schema": {
+                            "$ref": "#/definitions/api.LogicalVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/logical_volume/{lv_id}": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogicalVolume"
+                ],
+                "summary": "Updates a logical volume record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Logical Volume ID",
+                        "name": "lv_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Logical Volume Name",
+                        "name": "lv_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Group Name",
+                        "name": "vg_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Logical Volume Attributes",
+                        "name": "lv_attr",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Logical Volume Size",
+                        "name": "lv_size",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated logical volume",
+                        "schema": {
+                            "$ref": "#/definitions/api.LogicalVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Resource not found",
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
-                    "422": {
-                        "description": "Unprocessable Entity: finding job failed: sql: no rows in result set",
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogicalVolume"
+                ],
+                "summary": "Deletes a logical volume record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Logical Volume ID",
+                        "name": "lv_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/logical_volumes/{machine_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LogicalVolume"
+                ],
+                "summary": "Retrieves logical volume records for a machine",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved logical volumes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.LogicalVolume"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/lv_storage_issuer": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LVStorageIssuer"
+                ],
+                "summary": "Creates a new LV Storage Issuer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Increment Buffer",
+                        "name": "inc_buffer",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Decrement Buffer",
+                        "name": "dec_buffer",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum Available Space in GB",
+                        "name": "minAvailableSpaceGB",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum Available Space in GB",
+                        "name": "maxAvailableSpaceGB",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created LV Storage Issuer",
+                        "schema": {
+                            "$ref": "#/definitions/api.LvStorageIssuer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/lv_storage_issuer/{id}": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LVStorageIssuer"
+                ],
+                "summary": "Updates an LV Storage Issuer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "LV Storage Issuer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Increment Buffer",
+                        "name": "inc_buffer",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Decrement Buffer",
+                        "name": "dec_buffer",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum Available Space in GB",
+                        "name": "minAvailableSpaceGB",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum Available Space in GB",
+                        "name": "maxAvailableSpaceGB",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated LV Storage Issuer",
+                        "schema": {
+                            "$ref": "#/definitions/api.LvStorageIssuer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LVStorageIssuer"
+                ],
+                "summary": "Deletes an LV Storage Issuer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "LV Storage Issuer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/lv_storage_issuers": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LVStorageIssuer"
+                ],
+                "summary": "Retrieves all LV Storage Issuers",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved LV Storage Issuers",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.LvStorageIssuer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Creates a new machine record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OS Version",
+                        "name": "os_version",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "IP Address",
+                        "name": "ip_address",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created machine",
+                        "schema": {
+                            "$ref": "#/definitions/api.Machine"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine/{machine_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Retrieves a machine record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved machine",
+                        "schema": {
+                            "$ref": "#/definitions/api.Machine"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Updates a machine record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OS Version",
+                        "name": "os_version",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "IP Address",
+                        "name": "ip_address",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated machine",
+                        "schema": {
+                            "$ref": "#/definitions/api.Machine"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Deletes a machine record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine_conf": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MachineConf"
+                ],
+                "summary": "Creates a new machine configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Passphrase",
+                        "name": "passphrase",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Port Number",
+                        "name": "port_number",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Host Key",
+                        "name": "host_key",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Folder Path",
+                        "name": "folder_path",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created machine configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.MachineConf"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine_conf/{id}": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MachineConf"
+                ],
+                "summary": "Updates a machine configuration",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Machine Configuration ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hostname",
+                        "name": "hostname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Passphrase",
+                        "name": "passphrase",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Port Number",
+                        "name": "port_number",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Host Key",
+                        "name": "host_key",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Folder Path",
+                        "name": "folder_path",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated machine configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.MachineConf"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MachineConf"
+                ],
+                "summary": "Deletes a machine configuration",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Machine Configuration ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine_conf/{machine_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MachineConf"
+                ],
+                "summary": "Retrieves a machine configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved machine configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.MachineConf"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/machines": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Lists all machines",
+                "responses": {
+                    "200": {
+                        "description": "List of machines",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Machine"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Retrieves notifications",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit the number of notifications",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved notifications",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Notification"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Creates a new notification",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification message",
+                        "name": "message",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created notification",
+                        "schema": {
+                            "$ref": "#/definitions/api.Notification"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Deletes a notification",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Notification ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/physical_volume": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PhysicalVolume"
+                ],
+                "summary": "Creates a new physical volume record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Name",
+                        "name": "pv_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Group Name",
+                        "name": "vg_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Format",
+                        "name": "pv_fmt",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Attributes",
+                        "name": "pv_attr",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Size",
+                        "name": "pv_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Free Space",
+                        "name": "pv_free",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created physical volume",
+                        "schema": {
+                            "$ref": "#/definitions/api.PhysicalVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/physical_volume/{pv_id}": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PhysicalVolume"
+                ],
+                "summary": "Updates a physical volume record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Physical Volume ID",
+                        "name": "pv_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Name",
+                        "name": "pv_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Group Name",
+                        "name": "vg_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Format",
+                        "name": "pv_fmt",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Attributes",
+                        "name": "pv_attr",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Size",
+                        "name": "pv_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Physical Volume Free Space",
+                        "name": "pv_free",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated physical volume",
+                        "schema": {
+                            "$ref": "#/definitions/api.PhysicalVolume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PhysicalVolume"
+                ],
+                "summary": "Deletes a physical volume record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Physical Volume ID",
+                        "name": "pv_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/physical_volumes/{machine_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PhysicalVolume"
+                ],
+                "summary": "Retrieves physical volume records for a machine",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved physical volumes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.PhysicalVolume"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rabbitmq_config": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RabbitMQ"
+                ],
+                "summary": "Retrieves the RabbitMQ configuration",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved RabbitMQ configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.RabbitMqConfig"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RabbitMQ"
+                ],
+                "summary": "Updates the RabbitMQ configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Connection URL",
+                        "name": "conn_url",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated RabbitMQ configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.RabbitMqConfig"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RabbitMQ"
+                ],
+                "summary": "Creates or updates RabbitMQ configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Connection URL",
+                        "name": "conn_url",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Created/Updated RabbitMQ configuration",
+                        "schema": {
+                            "$ref": "#/definitions/api.RabbitMqConfig"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RabbitMQ"
+                ],
+                "summary": "Deletes the RabbitMQ configuration",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/realtime_logs": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RealtimeLogs"
+                ],
+                "summary": "Creates a new realtime log",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Log message",
+                        "name": "log_message",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created realtime log",
+                        "schema": {
+                            "$ref": "#/definitions/api.RealtimeLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/realtime_logs/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RealtimeLogs"
+                ],
+                "summary": "Deletes a realtime log",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Realtime Log ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/realtime_logs/{machine_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RealtimeLogs"
+                ],
+                "summary": "Retrieves realtime logs for a machine",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit the number of logs",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved realtime logs",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.RealtimeLog"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
@@ -1246,6 +2412,270 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/volume_group/{group_id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VolumeGroup"
+                ],
+                "summary": "Deletes a volume group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Volume Group ID",
+                        "name": "group_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/volume_groups": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VolumeGroups"
+                ],
+                "summary": "Creates a new volume group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Group Name",
+                        "name": "vg_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "PV Count",
+                        "name": "pv_count",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "LV Count",
+                        "name": "lv_count",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Snap Count",
+                        "name": "snap_count",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "VG Attributes",
+                        "name": "vg_attr",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "VG Size",
+                        "name": "vg_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "VG Free",
+                        "name": "vg_free",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created volume group",
+                        "schema": {
+                            "$ref": "#/definitions/api.VolumeGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/volume_groups/{machine_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VolumeGroups"
+                ],
+                "summary": "Retrieves volume groups for a machine",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine ID",
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved volume groups",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.VolumeGroup"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/volume_groups/{vg_id}": {
+            "put": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VolumeGroups"
+                ],
+                "summary": "Updates a volume group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Volume Group ID",
+                        "name": "vg_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Volume Group Name",
+                        "name": "vg_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "PV Count",
+                        "name": "pv_count",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "LV Count",
+                        "name": "lv_count",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Snap Count",
+                        "name": "snap_count",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "VG Attributes",
+                        "name": "vg_attr",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "VG Size",
+                        "name": "vg_size",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "VG Free",
+                        "name": "vg_free",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated volume group",
+                        "schema": {
+                            "$ref": "#/definitions/api.VolumeGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1275,65 +2705,6 @@ const docTemplate = `{
                 }
             }
         },
-        "api.ApiTag": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "description": "Tag Name",
-                    "type": "string",
-                    "example": "Testjob"
-                },
-                "type": {
-                    "description": "Tag Type",
-                    "type": "string",
-                    "example": "Debug"
-                }
-            }
-        },
-        "api.DeleteJobApiRequest": {
-            "type": "object",
-            "required": [
-                "jobId"
-            ],
-            "properties": {
-                "cluster": {
-                    "description": "Cluster of job",
-                    "type": "string",
-                    "example": "fritz"
-                },
-                "jobId": {
-                    "description": "Cluster Job ID of job",
-                    "type": "integer",
-                    "example": 123000
-                },
-                "startTime": {
-                    "description": "Start Time of job as epoch",
-                    "type": "integer",
-                    "example": 1649723812
-                }
-            }
-        },
-        "api.DeleteJobApiResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.EditMetaRequest": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string",
-                    "example": "jobScript"
-                },
-                "value": {
-                    "type": "string",
-                    "example": "bash script"
-                }
-            }
-        },
         "api.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -1347,847 +2718,246 @@ const docTemplate = `{
                 }
             }
         },
-        "api.GetClustersApiResponse": {
+        "api.FileStashUrl": {
             "type": "object",
             "properties": {
-                "clusters": {
-                    "description": "Array of clusters",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Cluster"
-                    }
+                "url": {
+                    "type": "string"
                 }
             }
         },
-        "api.GetJobApiResponse": {
+        "api.InfluxdbConfiguration": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.JobMetricWithName"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/schema.Job"
-                }
-            }
-        },
-        "api.GetJobsApiResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "description": "Number of jobs returned",
+                "batch_size": {
                     "type": "integer"
                 },
-                "jobs": {
-                    "description": "Array of jobs",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.JobMeta"
-                    }
-                },
-                "page": {
-                    "description": "Page id returned",
-                    "type": "integer"
-                }
-            }
-        },
-        "api.JobMetricWithName": {
-            "type": "object",
-            "properties": {
-                "metric": {
-                    "$ref": "#/definitions/schema.JobMetric"
-                },
-                "name": {
+                "database_name": {
                     "type": "string"
                 },
-                "scope": {
-                    "$ref": "#/definitions/schema.MetricScope"
-                }
-            }
-        },
-        "api.StartJobApiResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "Database ID of new job",
-                    "type": "integer"
-                }
-            }
-        },
-        "api.StopJobApiRequest": {
-            "type": "object",
-            "required": [
-                "jobState",
-                "stopTime"
-            ],
-            "properties": {
-                "cluster": {
-                    "description": "Cluster of job",
-                    "type": "string",
-                    "example": "fritz"
-                },
-                "jobId": {
-                    "description": "Cluster Job ID of job",
-                    "type": "integer",
-                    "example": 123000
-                },
-                "jobState": {
-                    "description": "Final job state",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/schema.JobState"
-                        }
-                    ],
-                    "example": "completed"
-                },
-                "startTime": {
-                    "description": "Start Time of job as epoch",
-                    "type": "integer",
-                    "example": 1649723812
-                },
-                "stopTime": {
-                    "description": "Stop Time of job as epoch",
-                    "type": "integer",
-                    "example": 1649763839
-                }
-            }
-        },
-        "schema.Accelerator": {
-            "type": "object",
-            "properties": {
-                "id": {
+                "host": {
                     "type": "string"
                 },
-                "model": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "schema.Cluster": {
-            "type": "object",
-            "properties": {
-                "metricConfig": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.MetricConfig"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "subClusters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.SubCluster"
-                    }
-                }
-            }
-        },
-        "schema.Job": {
-            "description": "Information of a HPC job.",
-            "type": "object",
-            "properties": {
-                "arrayJobId": {
-                    "description": "The unique identifier of an array job",
-                    "type": "integer",
-                    "example": 123000
-                },
-                "cluster": {
-                    "description": "The unique identifier of a cluster",
-                    "type": "string",
-                    "example": "fritz"
-                },
-                "concurrentJobs": {
-                    "$ref": "#/definitions/schema.JobLinkResultList"
-                },
-                "duration": {
-                    "description": "Duration of job in seconds (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 43200
-                },
-                "exclusive": {
-                    "description": "Specifies how nodes are shared: 0 - Shared among multiple jobs of multiple users, 1 - Job exclusive (Default), 2 - Shared among multiple jobs of same user",
-                    "type": "integer",
-                    "maximum": 2,
-                    "minimum": 0,
-                    "example": 1
-                },
-                "flopsAnyAvg": {
-                    "description": "FlopsAnyAvg as Float64",
-                    "type": "number"
-                },
-                "id": {
-                    "description": "The unique identifier of a job in the database",
+                "max_retries": {
                     "type": "integer"
                 },
-                "jobId": {
-                    "description": "The unique identifier of a job",
-                    "type": "integer",
-                    "example": 123000
-                },
-                "jobState": {
-                    "description": "Final state of job",
-                    "enum": [
-                        "completed",
-                        "failed",
-                        "cancelled",
-                        "stopped",
-                        "timeout",
-                        "out_of_memory"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/schema.JobState"
-                        }
-                    ],
-                    "example": "completed"
-                },
-                "loadAvg": {
-                    "description": "LoadAvg as Float64",
-                    "type": "number"
-                },
-                "memBwAvg": {
-                    "description": "MemBwAvg as Float64",
-                    "type": "number"
-                },
-                "memUsedMax": {
-                    "description": "MemUsedMax as Float64",
-                    "type": "number"
-                },
-                "metaData": {
-                    "description": "Additional information about the job",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "monitoringStatus": {
-                    "description": "State of monitoring system during job run: 0 - Disabled, 1 - Running or Archiving (Default), 2 - Archiving Failed, 3 - Archiving Successfull",
-                    "type": "integer",
-                    "maximum": 3,
-                    "minimum": 0,
-                    "example": 1
-                },
-                "numAcc": {
-                    "description": "Number of accelerators used (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 2
-                },
-                "numHwthreads": {
-                    "description": "NumCores         int32             ` + "`" + `json:\"numCores\" db:\"num_cores\" example:\"20\" minimum:\"1\"` + "`" + `                                                             // Number of HWThreads used (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 20
-                },
-                "numNodes": {
-                    "description": "Number of nodes used (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 2
-                },
-                "partition": {
-                    "description": "The Slurm partition to which the job was submitted",
-                    "type": "string",
-                    "example": "main"
-                },
-                "project": {
-                    "description": "The unique identifier of a project",
-                    "type": "string",
-                    "example": "abcd200"
-                },
-                "resources": {
-                    "description": "Resources used by job",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Resource"
-                    }
-                },
-                "smt": {
-                    "description": "SMT threads used by job",
-                    "type": "integer",
-                    "example": 4
-                },
-                "startTime": {
-                    "description": "Start time as 'time.Time' data type",
+                "max_retry_time": {
                     "type": "string"
                 },
-                "subCluster": {
-                    "description": "The unique identifier of a sub cluster",
-                    "type": "string",
-                    "example": "main"
+                "meta_as_tags": {
+                    "type": "string"
                 },
-                "tags": {
-                    "description": "List of tags",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Tag"
-                    }
+                "organization": {
+                    "type": "string"
                 },
-                "user": {
-                    "description": "The unique identifier of a user",
-                    "type": "string",
-                    "example": "abcd100h"
+                "password": {
+                    "type": "string"
                 },
-                "walltime": {
-                    "description": "Requested walltime of job in seconds (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 86400
-                }
-            }
-        },
-        "schema.JobLink": {
-            "type": "object",
-            "properties": {
-                "id": {
+                "port": {
                     "type": "integer"
                 },
-                "jobId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "schema.JobLinkResultList": {
-            "type": "object",
-            "properties": {
-                "count": {
+                "retry_exponential_base": {
                     "type": "integer"
                 },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.JobLink"
-                    }
-                }
-            }
-        },
-        "schema.JobMeta": {
-            "description": "Meta data information of a HPC job.",
-            "type": "object",
-            "properties": {
-                "arrayJobId": {
-                    "description": "The unique identifier of an array job",
-                    "type": "integer",
-                    "example": 123000
-                },
-                "cluster": {
-                    "description": "The unique identifier of a cluster",
-                    "type": "string",
-                    "example": "fritz"
-                },
-                "concurrentJobs": {
-                    "$ref": "#/definitions/schema.JobLinkResultList"
-                },
-                "duration": {
-                    "description": "Duration of job in seconds (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 43200
-                },
-                "exclusive": {
-                    "description": "Specifies how nodes are shared: 0 - Shared among multiple jobs of multiple users, 1 - Job exclusive (Default), 2 - Shared among multiple jobs of same user",
-                    "type": "integer",
-                    "maximum": 2,
-                    "minimum": 0,
-                    "example": 1
-                },
-                "id": {
-                    "description": "The unique identifier of a job in the database",
-                    "type": "integer"
-                },
-                "jobId": {
-                    "description": "The unique identifier of a job",
-                    "type": "integer",
-                    "example": 123000
-                },
-                "jobState": {
-                    "description": "Final state of job",
-                    "enum": [
-                        "completed",
-                        "failed",
-                        "cancelled",
-                        "stopped",
-                        "timeout",
-                        "out_of_memory"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/schema.JobState"
-                        }
-                    ],
-                    "example": "completed"
-                },
-                "metaData": {
-                    "description": "Additional information about the job",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "monitoringStatus": {
-                    "description": "State of monitoring system during job run: 0 - Disabled, 1 - Running or Archiving (Default), 2 - Archiving Failed, 3 - Archiving Successfull",
-                    "type": "integer",
-                    "maximum": 3,
-                    "minimum": 0,
-                    "example": 1
-                },
-                "numAcc": {
-                    "description": "Number of accelerators used (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 2
-                },
-                "numHwthreads": {
-                    "description": "NumCores         int32             ` + "`" + `json:\"numCores\" db:\"num_cores\" example:\"20\" minimum:\"1\"` + "`" + `                                                             // Number of HWThreads used (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 20
-                },
-                "numNodes": {
-                    "description": "Number of nodes used (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 2
-                },
-                "partition": {
-                    "description": "The Slurm partition to which the job was submitted",
-                    "type": "string",
-                    "example": "main"
-                },
-                "project": {
-                    "description": "The unique identifier of a project",
-                    "type": "string",
-                    "example": "abcd200"
-                },
-                "resources": {
-                    "description": "Resources used by job",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Resource"
-                    }
-                },
-                "smt": {
-                    "description": "SMT threads used by job",
-                    "type": "integer",
-                    "example": 4
-                },
-                "startTime": {
-                    "description": "Start epoch time stamp in seconds (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 1649723812
-                },
-                "statistics": {
-                    "description": "Metric statistics of job",
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/schema.JobStatistics"
-                    }
-                },
-                "subCluster": {
-                    "description": "The unique identifier of a sub cluster",
-                    "type": "string",
-                    "example": "main"
-                },
-                "tags": {
-                    "description": "List of tags",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Tag"
-                    }
-                },
-                "user": {
-                    "description": "The unique identifier of a user",
-                    "type": "string",
-                    "example": "abcd100h"
-                },
-                "walltime": {
-                    "description": "Requested walltime of job in seconds (Min \u003e 0)",
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 86400
-                }
-            }
-        },
-        "schema.JobMetric": {
-            "type": "object",
-            "properties": {
-                "series": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Series"
-                    }
-                },
-                "statisticsSeries": {
-                    "$ref": "#/definitions/schema.StatsSeries"
-                },
-                "timestep": {
-                    "type": "integer"
-                },
-                "unit": {
-                    "$ref": "#/definitions/schema.Unit"
-                }
-            }
-        },
-        "schema.JobState": {
-            "type": "string",
-            "enum": [
-                "running",
-                "completed",
-                "failed",
-                "cancelled",
-                "stopped",
-                "timeout",
-                "preempted",
-                "out_of_memory"
-            ],
-            "x-enum-varnames": [
-                "JobStateRunning",
-                "JobStateCompleted",
-                "JobStateFailed",
-                "JobStateCancelled",
-                "JobStateStopped",
-                "JobStateTimeout",
-                "JobStatePreempted",
-                "JobStateOutOfMemory"
-            ]
-        },
-        "schema.JobStatistics": {
-            "description": "Specification for job metric statistics.",
-            "type": "object",
-            "properties": {
-                "avg": {
-                    "description": "Job metric average",
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 2500
-                },
-                "max": {
-                    "description": "Job metric maximum",
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 3000
-                },
-                "min": {
-                    "description": "Job metric minimum",
-                    "type": "number",
-                    "minimum": 0,
-                    "example": 2000
-                },
-                "unit": {
-                    "$ref": "#/definitions/schema.Unit"
-                }
-            }
-        },
-        "schema.MetricConfig": {
-            "type": "object",
-            "properties": {
-                "aggregation": {
+                "retry_interval": {
                     "type": "string"
                 },
-                "alert": {
-                    "type": "number"
-                },
-                "caution": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "normal": {
-                    "type": "number"
-                },
-                "peak": {
-                    "type": "number"
-                },
-                "scope": {
-                    "$ref": "#/definitions/schema.MetricScope"
-                },
-                "subClusters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.SubClusterConfig"
-                    }
-                },
-                "timestep": {
-                    "type": "integer"
-                },
-                "unit": {
-                    "$ref": "#/definitions/schema.Unit"
-                }
-            }
-        },
-        "schema.MetricScope": {
-            "type": "string",
-            "enum": [
-                "invalid_scope",
-                "node",
-                "socket",
-                "memoryDomain",
-                "core",
-                "hwthread",
-                "accelerator"
-            ],
-            "x-enum-varnames": [
-                "MetricScopeInvalid",
-                "MetricScopeNode",
-                "MetricScopeSocket",
-                "MetricScopeMemoryDomain",
-                "MetricScopeCore",
-                "MetricScopeHWThread",
-                "MetricScopeAccelerator"
-            ]
-        },
-        "schema.MetricStatistics": {
-            "type": "object",
-            "properties": {
-                "avg": {
-                    "type": "number"
-                },
-                "max": {
-                    "type": "number"
-                },
-                "min": {
-                    "type": "number"
-                }
-            }
-        },
-        "schema.MetricValue": {
-            "type": "object",
-            "properties": {
-                "unit": {
-                    "$ref": "#/definitions/schema.Unit"
-                },
-                "value": {
-                    "type": "number"
-                }
-            }
-        },
-        "schema.Resource": {
-            "description": "A resource used by a job",
-            "type": "object",
-            "properties": {
-                "accelerators": {
-                    "description": "List of of accelerator device ids",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "configuration": {
-                    "description": "The configuration options of the node",
-                    "type": "string"
-                },
-                "hostname": {
-                    "description": "Name of the host (= node)",
-                    "type": "string"
-                },
-                "hwthreads": {
-                    "description": "List of OS processor ids",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "schema.Series": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "hostname": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "statistics": {
-                    "$ref": "#/definitions/schema.MetricStatistics"
-                }
-            }
-        },
-        "schema.StatsSeries": {
-            "type": "object",
-            "properties": {
-                "max": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "mean": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "min": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "percentiles": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": {
-                            "type": "number"
-                        }
-                    }
-                }
-            }
-        },
-        "schema.SubCluster": {
-            "type": "object",
-            "properties": {
-                "coresPerSocket": {
-                    "type": "integer"
-                },
-                "flopRateScalar": {
-                    "$ref": "#/definitions/schema.MetricValue"
-                },
-                "flopRateSimd": {
-                    "$ref": "#/definitions/schema.MetricValue"
-                },
-                "memoryBandwidth": {
-                    "$ref": "#/definitions/schema.MetricValue"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nodes": {
-                    "type": "string"
-                },
-                "processorType": {
-                    "type": "string"
-                },
-                "socketsPerNode": {
-                    "type": "integer"
-                },
-                "threadsPerCore": {
-                    "type": "integer"
-                },
-                "topology": {
-                    "$ref": "#/definitions/schema.Topology"
-                }
-            }
-        },
-        "schema.SubClusterConfig": {
-            "type": "object",
-            "properties": {
-                "alert": {
-                    "type": "number"
-                },
-                "caution": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "normal": {
-                    "type": "number"
-                },
-                "peak": {
-                    "type": "number"
-                },
-                "remove": {
+                "ssl_enabled": {
                     "type": "boolean"
-                }
-            }
-        },
-        "schema.Tag": {
-            "description": "Defines a tag using name and type.",
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "The unique DB identifier of a tag",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "Tag Name",
-                    "type": "string",
-                    "example": "Testjob"
                 },
                 "type": {
-                    "description": "Tag Type",
-                    "type": "string",
-                    "example": "Debug"
-                }
-            }
-        },
-        "schema.Topology": {
-            "type": "object",
-            "properties": {
-                "accelerators": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/schema.Accelerator"
-                    }
-                },
-                "core": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                },
-                "die": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                },
-                "memoryDomain": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                },
-                "node": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "socket": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                }
-            }
-        },
-        "schema.Unit": {
-            "type": "object",
-            "properties": {
-                "base": {
                     "type": "string"
                 },
-                "prefix": {
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.LogicalVolume": {
+            "type": "object",
+            "properties": {
+                "lv_attr": {
+                    "type": "string"
+                },
+                "lv_name": {
+                    "type": "string"
+                },
+                "lv_size": {
+                    "type": "string"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "vg_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.LvStorageIssuer": {
+            "type": "object",
+            "properties": {
+                "dec_buffer": {
+                    "type": "integer"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "inc_buffer": {
+                    "type": "integer"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "max_available_space_gb": {
+                    "type": "number"
+                },
+                "min_available_space_gb": {
+                    "type": "number"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.Machine": {
+            "type": "object",
+            "properties": {
+                "hostname": {
+                    "type": "string"
+                },
+                "ip_address": {
+                    "type": "string"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.MachineConf": {
+            "type": "object",
+            "properties": {
+                "folder_path": {
+                    "type": "string"
+                },
+                "host_key": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "passphrase": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "port_number": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.Notification": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.PhysicalVolume": {
+            "type": "object",
+            "properties": {
+                "machine_id": {
+                    "type": "string"
+                },
+                "pv_attr": {
+                    "type": "string"
+                },
+                "pv_fmt": {
+                    "type": "string"
+                },
+                "pv_free": {
+                    "type": "string"
+                },
+                "pv_name": {
+                    "type": "string"
+                },
+                "pv_size": {
+                    "type": "string"
+                },
+                "vg_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.RabbitMqConfig": {
+            "type": "object",
+            "properties": {
+                "conn_url": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.RealtimeLog": {
+            "type": "object",
+            "properties": {
+                "log_message": {
+                    "type": "string"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.VolumeGroup": {
+            "type": "object",
+            "properties": {
+                "lv_count": {
+                    "type": "string"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "pv_count": {
+                    "type": "string"
+                },
+                "snap_count": {
+                    "type": "string"
+                },
+                "vg_attr": {
+                    "type": "string"
+                },
+                "vg_free": {
+                    "type": "string"
+                },
+                "vg_name": {
+                    "type": "string"
+                },
+                "vg_size": {
                     "type": "string"
                 }
             }
